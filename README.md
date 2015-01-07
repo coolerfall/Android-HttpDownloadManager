@@ -1,12 +1,14 @@
 Android-HttpDownloadManager
 ===========================
 
-An useful and effective http/https download manager for Android. This download manager is designed according to the idead and implements of Volley.
+An useful and effective http/https download manager for Android. This download manager is designed according to the idea and implementation of Volley.
 
 Usage
 =====
-* If you don't set the destination file path, the download manager will use *Environment.DIRECTORY_DOWNLOADS* in SDCard as default directory.
+* If you don't set the destination file path, the download manager will use *Environment.DIRECTORY_DOWNLOADS* in SDCard as default directory:
 
+>     DownloadManager manager = new DownloadManager();
+>     
 >     DownloadRequest request = new DownloadRequest()
 >     		.setDownloadId(downloadId)
 >     		.setUrl("http://xxx....")
@@ -31,8 +33,10 @@ Usage
 > 					public void onFailure(int downloadId, int statusCode, String errMsg) {
 > 					});
 > 					
->     mDownloadManager.add(request);
+>     manager.add(request);
 
+* You can also set retry time with the method `setRetryTime(int retryTime)` if necessary, default is 1.
+* The thread pool size of download manager is 3 by default. If you need a larger pool, then you can create download manager like this: `DownloadManager manager = new DownloadManager(5);`.
 * You need *android.permission.WRITE_EXTERNAL_STORAGE* permission if you don't use public directory in SDCard as download destination file path. Don't forget to add *android.permission.INTERNET* permission
 
 Credits
