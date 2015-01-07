@@ -12,27 +12,28 @@ Usage
 >     		.setUrl("http://xxx....")
 >     		.setDownloadListener(new DownloadListener() {
 >     				@Override
-> 					public void onStart(int i, long l) {
+> 					public void onStart(int downloadId, long totalBytes) {
 > 					}
 > 
 > 					@Override
-> 					public void onRetry(int i) {
+> 					public void onRetry(int downloadId) {
 > 					}
 > 
 > 					@Override
-> 					public void onProgress(int i, long l, long l2) {
+> 					public void onProgress(int downloadId, long bytesWritten, long totalBytes) {
 > 					}
 > 
 > 					@Override
-> 					public void onSuccess(int i, String s) {
+> 					public void onSuccess(int downloadId, String filePath) {
 > 					}
 > 
 > 					@Override
-> 					public void onFailure(int i, int i2, String s) {
+> 					public void onFailure(int downloadId, int statusCode, String errMsg) {
 > 					});
+> 					
 >     mDownloadManager.add(request);
 
-* You need *android.permission.WRITE_EXTERNAL_STORAGE permission* if you don't use public directory in SDCard as download destination file path.
+* You need *android.permission.WRITE_EXTERNAL_STORAGE* permission if you don't use public directory in SDCard as download destination file path. Don't forget to add *android.permission.INTERNET* permission
 
 Credits
 -------
