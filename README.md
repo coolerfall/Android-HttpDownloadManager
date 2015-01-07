@@ -5,7 +5,7 @@ An useful and effective http/https download manager for Android. This download m
 
 Usage
 =====
-* If you don't set the destination file path, the download manager will use *Environment.DIRECTORY_DOWNLOADS* in SDCard as default directory:
+* If you don't set the destination file path, the download manager will use `Environment.DIRECTORY_DOWNLOADS` in SDCard as default directory:
 
 >     DownloadManager manager = new DownloadManager();
 >     
@@ -37,7 +37,8 @@ Usage
 
 * You can also set retry time with the method `setRetryTime(int retryTime)` if necessary, default is 1.
 * The thread pool size of download manager is 3 by default. If you need a larger pool, then you can create download manager like this: `DownloadManager manager = new DownloadManager(5);`.
-* You need *android.permission.WRITE_EXTERNAL_STORAGE* permission if you don't use public directory in SDCard as download destination file path. Don't forget to add *android.permission.INTERNET* permission
+* You need *android.permission.WRITE_EXTERNAL_STORAGE* permission if you don't use public directory in SDCard as download destination file path. Don't forget to add *android.permission.INTERNET* permission.
+* This download manager support breakpoint downloading, so you can restart the downloading after pause.
 
 Credits
 -------
