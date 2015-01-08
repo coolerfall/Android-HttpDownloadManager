@@ -30,7 +30,7 @@ public class DownloadRequestQueue {
 	 * will be in this set if it is waiting in any queue or currently being processed by
 	 * any dispatcher.
 	 */
-	private Set<DownloadRequest> mCurrentRequests = new HashSet<>();
+	private final Set<DownloadRequest> mCurrentRequests = new HashSet<>();
 	
 	/** the queue of download request */
 	private PriorityBlockingQueue<DownloadRequest> mDownloadQueue = 
@@ -80,10 +80,8 @@ public class DownloadRequestQueue {
 	 * Stops the download dispatchers.
 	 */
 	protected void stop() {
-		for (int i = 0; i < mDispatchers.length; i ++) {
-			if (mDispatchers[i] != null) {
-				mDispatchers[i].quit();
-			}
+		for (DownloadDispatcher dispatcher : mDispatchers) {
+			dispatcher.quit();
 		}
 	}
 	
@@ -175,10 +173,8 @@ public class DownloadRequestQueue {
 	 * @param request download reqeust
 	 */
 	protected void finish(DownloadRequest request) {
-		if (mCurrentRequests != null) {
-			synchronized (mCurrentRequests) {
-				mCurrentRequests.remove(request);
-			}
+		synchronized (mCurrentRequests) {
+			mCurrentRequests.remove(request);
 		}
 	}
 	
@@ -187,11 +183,8 @@ public class DownloadRequestQueue {
 	 */
 	protected void release() {
 		/* release current download request */
-		if (mCurrentRequests != null) {
-			cancelAll();
-			mCurrentRequests = null;
-		}
-		
+		cancelAll();
+
 		/* release download queue */
 		if (mDownloadQueue != null) {
 			mDownloadQueue = null;
