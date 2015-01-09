@@ -8,10 +8,12 @@ Usage
 * If you don't set the destination file path, the download manager will use `Environment.DIRECTORY_DOWNLOADS` in SDCard as default directory:
 
 >     DownloadManager manager = new DownloadManager();
->     
+>     String destPath = Environment.getExternalStorageDirectory() + 
+>     				File.separator + "test";
 >     DownloadRequest request = new DownloadRequest()
 >     		.setDownloadId(downloadId)
 >     		.setUrl("http://xxx....")
+>     		.setDestinationPath(destPath)
 >     		.setDownloadListener(new DownloadListener() {
 >     				@Override
 > 					public void onStart(int downloadId, long totalBytes) {
