@@ -3,6 +3,7 @@ package com.cooler.download;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -41,6 +42,9 @@ public class DownloadRequestQueue {
 	
 	/** download callback delivery */
 	private DownloadDelivery mDelivery;
+
+	/** used for generating monotonically-increasing sequence numbers for requests */
+	private AtomicInteger mSequenceGenerator = new AtomicInteger();
 	
 	/**
 	 * Default download reuqest queue.
@@ -165,6 +169,13 @@ public class DownloadRequestQueue {
 		}
 		
 		return DownloadState.INVALID;
+	}
+
+	/**
+	 * Gets a sequence number.
+	 */
+	public int getSequenceNumber() {
+		return mSequenceGenerator.incrementAndGet();
 	}
 	
 	/**

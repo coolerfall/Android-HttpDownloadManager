@@ -47,13 +47,23 @@ public class DownloadManager {
 	 * Add one download request into the queue.
 	 * 
 	 * @param request download request
+	 * @return        download id, if the id is not set, then manager will generate one.
 	 */
-	public void add(DownloadRequest request) {
+	public int add(DownloadRequest request) {
 		if (request == null) {
 			throw new IllegalArgumentException("DownloadRequest cannot be null");
 		}
-		
+
+		/* if download id is not set, generate one */
+		if (request.getDownloadId() == -1) {
+			int downloadId = mDownloadRequestQueue.getSequenceNumber();
+			request.setDownloadId(downloadId);
+		}
+
+		/* add download request into download request queue */
 		mDownloadRequestQueue.add(request);
+
+		return request.getDownloadId();
 	}
 	
 	/**
@@ -73,11 +83,7 @@ public class DownloadManager {
 	 * @return            true if was downloading, otherwise return false
 	 */
 	public boolean isDownloading(int downloadId) {
-		if (query(downloadId) == DownloadState.INVALID) {
-			return false;
-		}
-		
-		return true;
+		return query(downloadId) == DownloadState.INVALID ? false : true;
 	}
 	
 	/**
