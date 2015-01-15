@@ -111,6 +111,8 @@ public class MainActivity extends Activity implements OnClickListener {
 				.setDownloadId(downloadId)
 				.setDownloadListener(new Listener())
 				.setRetryTime(5)
+				.setContext(this)
+				.setAllowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
 				.setUrl(URL[downloadId]);
 			mDownloadManager.add(request);
 		}

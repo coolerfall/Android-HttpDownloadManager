@@ -14,6 +14,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.BlockingQueue;
 
+import static com.cooler.download.DownloadManager.HTTP_ERROR_NETWORK;
+import static com.cooler.download.DownloadManager.HTTP_ERROR_SIZE;
+import static com.cooler.download.DownloadManager.HTTP_INVALID;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
@@ -52,13 +55,7 @@ public class DownloadDispatcher extends Thread {
 	
 	/** http temp redirect */
 	private static final int HTTP_TEMP_REDIRECT = 307;
-	
-	/** http code invalid */
-	private static final int HTTP_INVALID = DownloadManager.HTTP_INVALID;
-	
-	/** http code error size */
-	private static final int HTTP_ERROR_SIZE = DownloadManager.HTTP_ERROR_SIZE;
-	
+
 	/** accept encoding in request header */
 	private static final String ACCPET_ENCODING = "Accept-Encoding";
 	
@@ -335,6 +332,15 @@ public class DownloadDispatcher extends Thread {
 					if (Thread.currentThread().isInterrupted() || request.isCanceled()) {
 						Log.i(TAG, "download has canceled, download id: " + request.getDownloadId());
 						request.finish();
+						return;
+					}
+
+					/* if current is not wifi and mobile network is not allowed, stop */
+					if (request.getAllowedNetworkTypes() != 0 &&
+						!DownloadUtils.isWifi(request.getContext()) &&
+						(request.getAllowedNetworkTypes() &
+									DownloadRequest.NETWORK_MOBILE) == 0) {
+						updateFailure(request, HTTP_ERROR_NETWORK, "network error");
 						return;
 					}
 					

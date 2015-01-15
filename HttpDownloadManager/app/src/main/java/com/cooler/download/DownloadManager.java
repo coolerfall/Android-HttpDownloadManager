@@ -14,6 +14,9 @@ public class DownloadManager {
 	
 	/** custom http code error size */
 	public static final int HTTP_ERROR_SIZE = 1 << 1;
+
+	/** custom http code error network */
+	public static final int HTTP_ERROR_NETWORK = 1 << 2;
 	
 	/** range not satisfiable */
 	public static final int HTTP_REQUESTED_RANGE_NOT_SATISFIABLE = 416;

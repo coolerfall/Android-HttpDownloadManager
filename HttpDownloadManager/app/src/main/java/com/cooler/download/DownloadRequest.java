@@ -3,6 +3,7 @@ package com.cooler.download;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,12 +22,30 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 			.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 			.getAbsolutePath();
 
+	/**
+	 * Bit flag for {@link #setAllowedNetworkTypes} corresponding to
+	 * {@link android.net.ConnectivityManager#TYPE_MOBILE}.
+	 */
+	public static final int NETWORK_MOBILE = 1 << 0;
+
+	/**
+	 * Bit flag for {@link #setAllowedNetworkTypes} corresponding to
+	 * {@link android.net.ConnectivityManager#TYPE_WIFI}.
+	 */
+	public static final int NETWORK_WIFI = 1 << 1;
+
 	/** download id of this download request */
 	private int mDownloadId = -1;
 	
 	/** retry time when downloading failed, default is 1 */
 	private AtomicInteger mRetryTime = new AtomicInteger(1);
-	
+
+	/** allowed network types, default to all network types allowed */
+	private int mAllowedNetworkTypes = 0;
+
+	/** the context used in {@link com.cooler.download.DownloadDispatcher} */
+	private Context mContext;
+
 	/** the download state */
 	private DownloadState mDownloadState;
 	
@@ -121,7 +140,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * Set the priority of this downloader.
 	 * 
 	 * @param  priority {@link com.cooler.download.DownloadRequest.Priority}
-	 * @return          this Request object to allow for chaining.
+	 * @return          this Request object to allow for chaining
 	 */
 	public DownloadRequest setPriority(Priority priority) {
 		mPriority = priority;
@@ -143,7 +162,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * Set the download listener.
 	 * 
 	 * @param  l download listener
-	 * @return   this Request object to allow for chaining.
+	 * @return   this Request object to allow for chaining
 	 */
 	public DownloadRequest setDownloadListener(DownloadListener l) {
 		mDownloadListener = l;
@@ -165,7 +184,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      * notified when this request has finished.
      *
      * @param  queue download request queue
-     * @return       this Request object to allow for chaining.
+     * @return       this Request object to allow for chaining
      */
 	protected DownloadRequest setDownloadQueue(DownloadRequestQueue queue) {
 		mDownloadRequestQueue = queue;
@@ -216,7 +235,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * Set retry time, the manager will re-download with retry time.
 	 * 
 	 * @param  retryTime retry time
-	 * @return           this Request object to allow for chaining.
+	 * @return           this Request object to allow for chaining
 	 */
 	public DownloadRequest setRetryTime(int retryTime) {
 		mRetryTime = new AtomicInteger(retryTime);
@@ -232,6 +251,50 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 */
 	protected int getRetryTime() {
 		return mRetryTime.decrementAndGet();
+	}
+
+	/**
+	 * Restrict the types of networks over which this download may proceed.
+	 * By default, all network types are allowed. This method need {@link #setContext}.
+	 * Be sure to add permission android.permission.ACCESS_NETWORK_STATE.
+	 *
+	 * @param  types any network type
+	 * @return       this Request object to allow for chaining
+	 */
+	public DownloadRequest setAllowedNetworkTypes(int types) {
+		mAllowedNetworkTypes = types;
+
+		return this;
+	}
+
+	/**
+	 * Get the types of allowed network.
+	 *
+	 * @return all the types
+	 */
+	protected int getAllowedNetworkTypes() {
+		return mAllowedNetworkTypes;
+	}
+
+	/**
+	 * Set the context, used to get current network type.
+	 *
+	 * @param  context context
+	 * @return         this Request object to allow for chaining
+	 */
+	public DownloadRequest setContext(Context context) {
+		mContext = context;
+
+		return this;
+	}
+
+	/**
+	 * Get the context.
+	 *
+	 * @return context
+	 */
+	protected Context getContext() {
+		return mContext;
 	}
 
 	/**

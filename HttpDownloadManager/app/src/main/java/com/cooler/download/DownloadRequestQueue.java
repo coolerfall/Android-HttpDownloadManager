@@ -85,7 +85,9 @@ public class DownloadRequestQueue {
 	 */
 	protected void stop() {
 		for (DownloadDispatcher dispatcher : mDispatchers) {
-			dispatcher.quit();
+			if (dispatcher != null) {
+				dispatcher.quit();
+			}
 		}
 	}
 	
