@@ -1,12 +1,12 @@
 package com.cooler.download;
 
-import java.io.File;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+
+import java.io.File;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * DownloadRequest: download request, this is designed according to Request in Andoird-Volley.
@@ -255,13 +255,15 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
 	/**
 	 * Restrict the types of networks over which this download may proceed.
-	 * By default, all network types are allowed. This method need {@link #setContext}.
+	 * By default, all network types are allowed.
 	 * Be sure to add permission android.permission.ACCESS_NETWORK_STATE.
 	 *
-	 * @param  types any network type
-	 * @return       this Request object to allow for chaining
+	 * @param  context context
+	 * @param  types   any network type
+	 * @return         this Request object to allow for chaining
 	 */
-	public DownloadRequest setAllowedNetworkTypes(int types) {
+	public DownloadRequest setAllowedNetworkTypes(Context context, int types) {
+		mContext = context;
 		mAllowedNetworkTypes = types;
 
 		return this;
@@ -274,18 +276,6 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 */
 	protected int getAllowedNetworkTypes() {
 		return mAllowedNetworkTypes;
-	}
-
-	/**
-	 * Set the context, used to get current network type.
-	 *
-	 * @param  context context
-	 * @return         this Request object to allow for chaining
-	 */
-	public DownloadRequest setContext(Context context) {
-		mContext = context;
-
-		return this;
 	}
 
 	/**
