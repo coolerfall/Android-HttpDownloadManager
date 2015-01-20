@@ -38,7 +38,7 @@ Usage
 >     manager.add(request);
 
 * You can also set retry time with method `setRetryTime(int retryTime)` if necessary, default retry time is 1.
-* This manager support downloading in different network type with method `setAllowedNetworkTypes(Context context, int types)`, the types can be `DownloadRequest.NETWORK_MOBILE` and `DownloadRequest.NETWORK_WIFI`.
+* This manager support downloading in different network type with method `setAllowedNetworkTypes(Context context, int types)`, the types can be `DownloadRequest.NETWORK_MOBILE` and `DownloadRequest.NETWORK_WIFI`. This method need *android.permission.ACCESS_NETWORK_STATE* permission.
 * The thread pool size of download manager is 3 by default. If you need a larger pool, then you can create download manager like this: `DownloadManager manager = new DownloadManager(5);`.
 * You need *android.permission.WRITE_EXTERNAL_STORAGE* permission if you don't use public directory in SDCard as download destination file path. Don't forget to add *android.permission.INTERNET* permission.
 * This download manager support breakpoint downloading, so you can restart the downloading after pause.
