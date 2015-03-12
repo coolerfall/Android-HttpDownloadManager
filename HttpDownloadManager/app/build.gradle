@@ -7,8 +7,6 @@ android {
 	defaultConfig {
 		minSdkVersion 9
 		targetSdkVersion 21
-		versionCode 2
-		versionName "1.1.0"
 	}
 
 	tasks.withType(JavaCompile) {
@@ -20,6 +18,6 @@ task exportJar(type : Copy) {
 	from('build/intermediates/bundles/release/')
 	into('build/outputs/')
 	include('classes.jar')
-	rename ('classes.jar', 'http-download-manager-1.1.0.jar')
+	rename ('classes.jar', 'http-download-manager-1.2.1.jar')
 }
 

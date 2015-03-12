@@ -282,11 +282,7 @@ public class DownloadDispatcher extends Thread {
 			case HTTP_REQUESTED_RANGE_NOT_SATISFIABLE:
 			case HTTP_UNAVAILABLE:
 			case HTTP_INTERNAL_ERROR:
-				updateFailure(request, statusCode, conn.getResponseMessage());
-				break;
-
 			default:
-				Log.w(TAG, "not handled status code");
 				updateFailure(request, statusCode, conn.getResponseMessage());
 				break;
 			}

@@ -320,7 +320,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	private String getDefaultFilePath() {
 		String filename = mUrl.substring(mUrl.lastIndexOf(File.separator));
 		if (TextUtils.isEmpty(filename)) {
-			filename = "tmp";
+			filename = mTimestamp + ".down";
 		}
 
 		return DEFAULT_DIR + File.separator + filename;
