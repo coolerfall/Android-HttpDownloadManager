@@ -1,4 +1,4 @@
-package com.cooler.download;
+package com.coolerfall.download;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,7 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.cooler.download.DownloadRequest.DownloadState;
+import com.coolerfall.download.DownloadRequest.DownloadState;
 
 /**
  * Download request queue, this is designed according to RequestQueue in Andoird-Volley.

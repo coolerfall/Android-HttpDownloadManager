@@ -1,10 +1,10 @@
-package com.cooler.download;
+package com.coolerfall.download;
 
 import android.os.Process;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-import com.cooler.download.DownloadRequest.DownloadState;
+import com.coolerfall.download.DownloadRequest.DownloadState;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +14,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.BlockingQueue;
 
-import static com.cooler.download.DownloadManager.HTTP_ERROR_NETWORK;
-import static com.cooler.download.DownloadManager.HTTP_ERROR_SIZE;
-import static com.cooler.download.DownloadManager.HTTP_INVALID;
+import static com.coolerfall.download.DownloadManager.HTTP_ERROR_NETWORK;
+import static com.coolerfall.download.DownloadManager.HTTP_ERROR_SIZE;
+import static com.coolerfall.download.DownloadManager.HTTP_INVALID;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;

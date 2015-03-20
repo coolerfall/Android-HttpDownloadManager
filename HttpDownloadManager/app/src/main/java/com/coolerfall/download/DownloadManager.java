@@ -1,6 +1,6 @@
-package com.cooler.download;
+package com.coolerfall.download;
 
-import com.cooler.download.DownloadRequest.DownloadState;
+import com.coolerfall.download.DownloadRequest.DownloadState;
 
 /**
  * Download manager: used to manage the downloading.

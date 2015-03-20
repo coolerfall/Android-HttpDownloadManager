@@ -1,4 +1,4 @@
-package com.cooler.downloadsample;
+package com.coolerfall.downloadsample;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -8,9 +8,9 @@ import android.view.View.OnClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.cooler.download.DownloadListener;
-import com.cooler.download.DownloadManager;
-import com.cooler.download.DownloadRequest;
+import com.coolerfall.download.DownloadListener;
+import com.coolerfall.download.DownloadManager;
+import com.coolerfall.download.DownloadRequest;
 
 import java.io.File;
 
@@ -47,7 +47,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		findViewById(R.id.download_btn_start).setOnClickListener(this);
 		findViewById(R.id.download_btn_start1).setOnClickListener(this);
 		findViewById(R.id.download_btn_start2).setOnClickListener(this);

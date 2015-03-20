@@ -18,6 +18,6 @@ task exportJar(type : Copy) {
 	from('build/intermediates/bundles/release/')
 	into('build/outputs/')
 	include('classes.jar')
-	rename ('classes.jar', 'http-download-manager-1.2.1.jar')
+	rename ('classes.jar', 'http-download-manager-1.3.0.jar')
 }
 

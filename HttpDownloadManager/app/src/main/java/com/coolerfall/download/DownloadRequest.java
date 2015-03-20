@@ -1,4 +1,4 @@
-package com.cooler.download;
+package com.coolerfall.download;
 
 import android.content.Context;
 import android.os.Environment;
@@ -43,7 +43,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	/** allowed network types, default to all network types allowed */
 	private int mAllowedNetworkTypes = 0;
 
-	/** the context used in {@link com.cooler.download.DownloadDispatcher} */
+	/** the context used in {@link com.coolerfall.download.DownloadDispatcher} */
 	private Context mContext;
 
 	/** the download state */
@@ -139,7 +139,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	/**
 	 * Set the priority of this downloader.
 	 * 
-	 * @param  priority {@link com.cooler.download.DownloadRequest.Priority}
+	 * @param  priority {@link com.coolerfall.download.DownloadRequest.Priority}
 	 * @return          this Request object to allow for chaining
 	 */
 	public DownloadRequest setPriority(Priority priority) {
@@ -151,8 +151,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	/**
 	 * Get the priority of download request.
 	 * 
-	 * @return {@link com.cooler.download.DownloadRequest.Priority},
-	 *         {@link com.cooler.download.DownloadRequest.Priority#NORMAL} by default.
+	 * @return {@link com.coolerfall.download.DownloadRequest.Priority},
+	 *         {@link com.coolerfall.download.DownloadRequest.Priority#NORMAL} by default.
 	 */
 	protected Priority getPriority() {
 		return mPriority;
