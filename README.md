@@ -43,6 +43,13 @@ Usage
 * You need *android.permission.WRITE_EXTERNAL_STORAGE* permission if you don't use public directory in SDCard as download destination file path. Don't forget to add *android.permission.INTERNET* permission.
 * This download manager support breakpoint downloading, so you can restart the downloading after pause.
 
+Download
+--------
+Download [the latest JAR][2] or Gradle:
+	
+	compile 'com.coolerfall:android-http-download-manager:1.3.0'
+
+
 Credits
 -------
   * [Volley][1] - Google networking library for android.
@@ -67,3 +74,4 @@ License
 
 
 [1]: https://android.googlesource.com/platform/frameworks/volley
+[2]: https://search.maven.org/remote_content?g=com.coolerfall&a=android-http-download-manager&v=LATEST
