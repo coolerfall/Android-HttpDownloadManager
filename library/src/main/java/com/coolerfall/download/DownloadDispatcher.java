@@ -169,6 +169,7 @@ public class DownloadDispatcher extends Thread {
 	}
 	
 	/** update download success */
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	private void updateSuccess(DownloadRequest request) {
 		updateState(request, DownloadState.SUCCESSFUL);
 		
@@ -177,7 +178,7 @@ public class DownloadDispatcher extends Thread {
 
 		File file = new File(request.getTmpDestinationPath());
 		if (file.exists()) {
-			file.renameTo(new File(request.getDestinationPath()));
+			file.renameTo(new File(request.getDestFilePath()));
 		}
 
 		/* deliver success message */

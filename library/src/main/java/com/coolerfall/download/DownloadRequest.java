@@ -2,6 +2,7 @@ package com.coolerfall.download;
 
 import android.content.Context;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -123,7 +124,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 	
 	@Override
-	public int compareTo(DownloadRequest other) {
+	public int compareTo(@NonNull DownloadRequest other) {
 		Priority left = this.getPriority();
 		Priority right = other.getPriority();
 		
@@ -298,7 +299,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 			throw new IllegalArgumentException("url cannot be null");
 		}
 		
-		if (!url.startsWith("http") && url.startsWith("https")) {
+		if (!url.startsWith("http") && !url.startsWith("https")) {
 			throw new IllegalArgumentException("can only download 'HTTP/HTTPS' url");
 		}
 		
@@ -327,13 +328,28 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 
 	/**
-	 * Set destination file path of this download request.
+	 * Set destination file path of this download request. This method has deprecated,
+	 * use {@link #setDestFilePath} instead.
 	 * 
 	 * @return download request
 	 */
+	@Deprecated
 	public DownloadRequest setDestinationPath(String filePath) {
 		mDestinationFilePath = filePath;
 		
+		return this;
+	}
+
+	/**
+	 * Set destination file path of this download request. The file will be createad
+	 * according to the file path.
+	 *
+	 * @apiNote this file path must be absolute file path(such as: /sdcard/test.txt)
+	 * @return  this Request object to allow for chaining.
+	 */
+	public DownloadRequest setDestFilePath(String filePath) {
+		mDestinationFilePath = filePath;
+
 		return this;
 	}
 	
@@ -342,7 +358,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * 
 	 * @return destination file path
 	 */
-	protected String getDestinationPath() {
+	@SuppressWarnings("ResultOfMethodCallIgnored")
+	protected String getDestFilePath() {
 		/* if the destination file path is empty, use default file path */
 		if (TextUtils.isEmpty(mDestinationFilePath)) {
 			Log.w(TAG, "the destination file path should not be empty");
@@ -368,7 +385,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return temporary destination file path
 	 */
 	protected String getTmpDestinationPath() {
-		return getDestinationPath() + ".tmp";
+		return getDestFilePath() + ".tmp";
 	}
 	
 	/**
