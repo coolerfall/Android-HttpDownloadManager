@@ -341,9 +341,9 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
 	/**
 	 * Set destination file path of this download request. The file will be createad
-	 * according to the file path.
+	 * according to the file path. This file path must be absolute file
+	 * path(such as: /sdcard/test.txt).
 	 *
-	 * @apiNote this file path must be absolute file path(such as: /sdcard/test.txt)
 	 * @return  this Request object to allow for chaining.
 	 */
 	public DownloadRequest setDestFilePath(String filePath) {

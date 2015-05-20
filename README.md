@@ -9,11 +9,11 @@ Usage
 
 >     DownloadManager manager = new DownloadManager();
 >     String destPath = Environment.getExternalStorageDirectory() + 
->     				File.separator + "test";
+>     				File.separator + "test.apk";
 >     DownloadRequest request = new DownloadRequest()
 >     		.setDownloadId(downloadId)
 >     		.setUrl("http://xxx....")
->     		.setDestinationPath(destPath)
+>     		.setDestFilePath(destPath)
 >     		.setDownloadListener(new DownloadListener() {
 >     				@Override
 > 					public void onStart(int downloadId, long totalBytes) {
@@ -47,7 +47,7 @@ Download
 --------
 Download [the latest JAR][2] or Gradle:
 	
-	compile 'com.coolerfall:android-http-download-manager:1.3.0'
+	compile 'com.coolerfall:android-http-download-manager:1.3.1'
 
 
 Credits
