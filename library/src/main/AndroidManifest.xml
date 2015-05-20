@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.coolerfall.download" >
+<manifest package="com.coolerfall.download"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-sdk android:minSdkVersion="8" />
 
     <application/>
 

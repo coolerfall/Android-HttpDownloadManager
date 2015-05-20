@@ -2,7 +2,6 @@ package com.coolerfall.download;
 
 import android.content.Context;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -124,7 +123,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 	
 	@Override
-	public int compareTo(@NonNull DownloadRequest other) {
+	public int compareTo(DownloadRequest other) {
 		Priority left = this.getPriority();
 		Priority right = other.getPriority();
 		

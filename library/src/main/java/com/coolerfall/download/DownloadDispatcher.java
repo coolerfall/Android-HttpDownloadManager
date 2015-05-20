@@ -1,7 +1,6 @@
 package com.coolerfall.download;
 
 import android.os.Process;
-import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.coolerfall.download.DownloadRequest.DownloadState;
@@ -42,7 +41,7 @@ public class DownloadDispatcher extends Thread {
 	private static final int SLEEP_BEFORE_RETRY = 3500;
 	
 	/** http connection time out */
-	private static final int DEFAUL_TIME_OUT = (int) (20 * DateUtils.SECOND_IN_MILLIS);
+	private static final int DEFAUL_TIME_OUT = 20 * 1000;
 	
 	/** buffer size used in data tranfering */
 	private static final int BUFFER_SIZE = 4096;

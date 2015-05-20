@@ -79,7 +79,7 @@ public class DownloadDelivery {
 			@Override
 			public void run() {
 				request.getDownloadListener().onSuccess(
-						request.getDownloadId(), request.getDestinationPath());
+						request.getDownloadId(), request.getDestFilePath());
 			}
 		});
 	}
