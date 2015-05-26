@@ -323,6 +323,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 			filename = mTimestamp + ".down";
 		}
 
+		//TODO: to get real filename for the sepecified url according to headers
+
 		return DEFAULT_DIR + File.separator + filename;
 	}
 
@@ -362,7 +364,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		/* if the destination file path is empty, use default file path */
 		if (TextUtils.isEmpty(mDestinationFilePath)) {
 			Log.w(TAG, "the destination file path should not be empty");
-			return getDefaultFilePath();
+			mDestinationFilePath = getDefaultFilePath();
 		}
 
 		/* if the destination path is directory */
@@ -370,7 +372,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		if (file.isDirectory()) {
 			Log.w(TAG, "the destination file path cannot be directory");
 			return getDefaultFilePath();
-		} else {
+		} else if (!file.getParentFile().exists()) {
 			/* make dirs in case */
 			file.getParentFile().mkdirs();
 		}
