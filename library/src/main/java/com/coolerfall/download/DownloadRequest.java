@@ -318,9 +318,10 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
 	/** get the default download file path */
 	private String getDefaultFilePath() {
-		String filename = mUrl.substring(mUrl.lastIndexOf(File.separator));
-		if (TextUtils.isEmpty(filename)) {
-			filename = mTimestamp + ".down";
+		String filename = mTimestamp + ".down";
+		int index = mUrl.lastIndexOf(File.separator);
+		if (index > 0 && mUrl.length() >= index) {
+			filename = mUrl.substring(index);
 		}
 
 		//TODO: to get real filename for the sepecified url according to headers
