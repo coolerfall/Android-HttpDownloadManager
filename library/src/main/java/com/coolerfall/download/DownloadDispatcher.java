@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 
 import static com.coolerfall.download.DownloadManager.HTTP_ERROR_NETWORK;
@@ -254,6 +255,14 @@ public class DownloadDispatcher extends Thread {
 				long breakpoint = file.length();
 				/* set the range to continue the downloading */
 				conn.setRequestProperty("Range", "bytes=" + breakpoint + "-");
+			}
+
+			//Add any user-provided headers to the connection
+			HashMap<String, String> headers = request.getHeaders();
+			if (headers != null) {
+				for (String headerName : headers.keySet()) {
+					conn.setRequestProperty(headerName, headers.get(headerName));
+				}
 			}
 
 			/* status code */

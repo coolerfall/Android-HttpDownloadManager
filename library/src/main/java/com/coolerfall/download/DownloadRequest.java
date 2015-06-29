@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -69,7 +70,10 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     
 	/** download listener */
 	private DownloadListener mDownloadListener;
-	
+
+	/** custom headers to use for this request **/
+	private HashMap<String, String> mHeaders;
+
 	/**
 	 * Priority values: download request will be processed from 
 	 * higher priorities to lower priorities.
@@ -120,6 +124,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 */
 	public DownloadRequest() {
 		mDownloadState = DownloadState.PENDING;
+		mHeaders  = new HashMap<String, String>();
 	}
 	
 	@Override
@@ -147,7 +152,27 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		
 		return this;
 	}
-	
+
+
+	/** Add a header to this download request
+	 *
+	 * @param headerName
+	 * @param headerValue
+	 * @return this Request object to allow for chaining
+	 */
+	public DownloadRequest addHeader(String headerName, String headerValue) {
+		mHeaders.put(headerName, headerValue);
+		return this;
+	}
+
+	/** Gets a HashMap of the headers for this download request
+	 *
+	 * @return HashMap of user-provided header keys and values
+	 */
+	HashMap<String, String> getHeaders() {
+		return mHeaders;
+	}
+
 	/**
 	 * Get the priority of download request.
 	 * 
