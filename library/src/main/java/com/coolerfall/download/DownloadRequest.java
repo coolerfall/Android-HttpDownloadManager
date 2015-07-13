@@ -318,15 +318,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
 	/** get the default download file path */
 	private String getDefaultFilePath() {
-		String filename = mTimestamp + ".down";
-		int index = mUrl.lastIndexOf(File.separator);
-		if (index > 0 && mUrl.length() >= index) {
-			filename = mUrl.substring(index);
-		}
-
-		//TODO: to get real filename for the sepecified url according to headers
-
-		return DEFAULT_DIR + File.separator + filename;
+		return DEFAULT_DIR + File.separator + DownloadUtils.getFilenameFromHeader(mUrl);
 	}
 
 	/**
@@ -364,7 +356,6 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	protected String getDestFilePath() {
 		/* if the destination file path is empty, use default file path */
 		if (TextUtils.isEmpty(mDestinationFilePath)) {
-			Log.w(TAG, "the destination file path should not be empty");
 			mDestinationFilePath = getDefaultFilePath();
 		}
 

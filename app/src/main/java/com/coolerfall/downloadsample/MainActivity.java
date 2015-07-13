@@ -20,8 +20,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		"http://gdown.baidu.com/data/wisegame/42f561037ef6d1c5/dianxinbohao_5058.apk",
 		"http://gdown.baidu.com/data/wisegame/07140005cb121398/zuimeitianqi_2014112000.apk",
 		"http://gdown.baidu.com/data/wisegame/024ebaed2f796a48/wangyiyunyinle_35.apk",
-		"http://gdown.baidu.com/data/wisegame/6944c13b53dc0613/chunyuyisheng_553.apk",
-		"http://gdown.baidu.com/data/wisegame/e6a41f441cacb6b9/kanpianshenqi_28.apk",
+		"http://t.cn/RLGOYCD",
+		"http://p.gdown.baidu.com/df1cc8402c66d5a8f724dd5f5824c918ce8360987501ba8c9af58f24a18e6f4e1c0990be72787aa995075b10f4e38427a1b06c1f9db0dce4992cc346c665ff5cd003ff3f09e9b3ba3761ddef6636295e7b852854c7f5263b6a5a7a8fb5326e905950942d3e56d60f6ecd567a1ca04a21f7a4186af1f7e8f82e927cb541f43db73c6ff255e71f631caeea5b247a52feec3fc64636f10f39bf2736a0667bdfb7d22c276629f7be1c1a598fd3450492a4cc0874e191879d1c503c457b0d85676a0009aaabbd0f4b2980c233208afaf611a1eee2bc3785402fbc7753ddea2cc982d59f364259e4b7ee3febfeb5272452773ed714e6be0b23ea0052651f73c5d0e6348b7b21608a317b08e8a46fc094f94d5d55d734d53b211b7282ae5f9c1f97e9ff678d2c19162f6f1ef297b736db87dae72d6bf42f919cf934bd5f0a5a6bb97914ec5854f4c4cbde51",
 	};
 
 	private static final int DOWNLOAD_ID0 = 0;
