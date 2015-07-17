@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
@@ -140,6 +141,12 @@ public class DownloadUtils {
 			}
 
 			REDIRECT_TIME.set(5);
+		}
+
+		try {
+			filename = URLDecoder.decode(filename, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			/* ignore */
 		}
 
 		return filename;
