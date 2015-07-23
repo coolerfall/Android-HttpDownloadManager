@@ -147,26 +147,21 @@ public class DownloadDispatcher extends Thread {
 		
 		/* set the download state of this request as running */
 		updateState(request, DownloadState.RUNNING);
-		
-		if (request.getDownloadListener() != null) {
-			mDelivery.postStart(request, totalBytes);
-		}
+		mDelivery.postStart(request, totalBytes);
 	}
 	
 	/** update download retrying */
 	private void updateRetry(DownloadRequest request) {
-		if (request.getDownloadListener() != null) {
-			mDelivery.postRetry(request);
-		}
+		mDelivery.postRetry(request);
 	}
 	
 	/** update download progress */
 	private void updateProgress(DownloadRequest request, long bytesWritten, long totalBytes) {
-		if (request.getDownloadListener() != null && !request.isCanceled()) {
+		if (!request.isCanceled()) {
 			mDelivery.postProgress(request, bytesWritten, totalBytes);
 		}
 	}
-	
+
 	/** update download success */
 	@SuppressWarnings("ResultOfMethodCallIgnored")
 	private void updateSuccess(DownloadRequest request) {
@@ -181,9 +176,7 @@ public class DownloadDispatcher extends Thread {
 		}
 
 		/* deliver success message */
-		if (request.getDownloadListener() != null) {
-			mDelivery.postSuccess(request);
-		}
+		mDelivery.postSuccess(request);
 	}
 	
 	/** update download failure */
@@ -222,9 +215,7 @@ public class DownloadDispatcher extends Thread {
 		request.finish();
 		
 		/* deliver failure message */
-		if (request.getDownloadListener() != null) {
-			mDelivery.postFailure(request, statusCode, errMsg);
-		}
+		mDelivery.postFailure(request, statusCode, errMsg);
 	}
 	
 	/** execute downloading */

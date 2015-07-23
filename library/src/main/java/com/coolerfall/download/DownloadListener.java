@@ -2,6 +2,7 @@ package com.coolerfall.download;
 
 /**
  * Interface definition for a callback to be invoked when downloading.
+ * This download listener contains detail download information.
  * 
  * @author Vincent Cheung
  * @since  Nov. 24, 2014

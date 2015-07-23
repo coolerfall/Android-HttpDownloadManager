@@ -69,6 +69,9 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     
 	/** download listener */
 	private DownloadListener mDownloadListener;
+
+	/* simple download listener */
+	private SimpleDownloadListener mSimpleDownloadListener;
 	
 	/**
 	 * Priority values: download request will be processed from 
@@ -177,6 +180,27 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 */
 	protected DownloadListener getDownloadListener() {
 		return mDownloadListener;
+	}
+
+	/**
+	 * Set simple download listener.
+	 *
+	 * @param  sl simple download listener
+	 * @return    this Request object to allow for chaining
+	 */
+	public DownloadRequest setSimpleDownloadListener(SimpleDownloadListener sl) {
+		mSimpleDownloadListener = sl;
+
+		return this;
+	}
+
+	/**
+	 * Get the simple download listener of this request.
+	 *
+	 * @return simple download listener
+	 */
+	protected SimpleDownloadListener getSimpleDownloadListener() {
+		return mSimpleDownloadListener;
 	}
 	
 	/**

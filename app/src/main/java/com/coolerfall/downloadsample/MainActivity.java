@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.coolerfall.download.DownloadListener;
 import com.coolerfall.download.DownloadManager;
 import com.coolerfall.download.DownloadRequest;
+import com.coolerfall.download.SimpleDownloadListener;
 
 import java.io.File;
 
@@ -109,7 +110,9 @@ public class MainActivity extends Activity implements OnClickListener {
 		} else {
 			DownloadRequest request = new DownloadRequest()
 				.setDownloadId(downloadId)
-				.setDownloadListener(new Listener())
+//				.setDownloadListener(new Listener())
+				/* can set simple listener */
+				.setSimpleDownloadListener(new SimpleListener())
 				.setRetryTime(5)
 				.setAllowedNetworkTypes(this, DownloadRequest.NETWORK_WIFI)
 				.setUrl(URL[downloadId]);
@@ -186,6 +189,18 @@ public class MainActivity extends Activity implements OnClickListener {
 		@Override
 		public void onFailure(int downloadId, int statusCode, String errMsg) {
 			Log.d(TAG, "fail: " + downloadId + " " + statusCode + " " + errMsg);
+		}
+	}
+
+	private class SimpleListener implements SimpleDownloadListener {
+		@Override
+		public void onSuccess(int downloadId, String filePath) {
+			Log.d(TAG, "simple download listener sucess");
+		}
+
+		@Override
+		public void onFailure(int downloadId, int statusCode, String errMsg) {
+			Log.d(TAG, "simple download listener failt");
 		}
 	}
 }
