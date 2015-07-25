@@ -37,6 +37,7 @@ Usage
 > 					
 >     manager.add(request);
 
+* If you just want to know if downloading was successful or failed, then you can use `setSimpleDownloadListener(SimpleDownloadListener l)` instead.
 * You can also set retry time with method `setRetryTime(int retryTime)` if necessary, default retry time is 1.
 * This manager support downloading in different network type with method `setAllowedNetworkTypes(Context context, int types)`, the types can be `DownloadRequest.NETWORK_MOBILE` and `DownloadRequest.NETWORK_WIFI`. This method need *android.permission.ACCESS_NETWORK_STATE* permission.
 * The thread pool size of download manager is 3 by default. If you need a larger pool, then you can create download manager like this: `DownloadManager manager = new DownloadManager(5);`.
@@ -47,7 +48,7 @@ Download
 --------
 Download [the latest JAR][2] or Gradle:
 	
-	compile 'com.coolerfall:android-http-download-manager:1.4.0'
+	compile 'com.coolerfall:android-http-download-manager:1.5.0'
 
 
 Credits
