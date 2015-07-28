@@ -79,7 +79,7 @@ public class DownloadRequestQueue {
 			dispatcher.start();
 		}
 	}
-	
+
 	/**
 	 * Stops the download dispatchers.
 	 */
@@ -90,7 +90,7 @@ public class DownloadRequestQueue {
 			}
 		}
 	}
-	
+
 	/**
 	 * Add download request to the download request queue.
 	 * 
@@ -98,22 +98,23 @@ public class DownloadRequestQueue {
 	 */
 	protected void add(DownloadRequest request) {
 		/* if the request is downloading, do nothing */
-		if (query(request.getDownloadId()) != DownloadState.INVALID) {
+		if (query(request.getDownloadId()) != DownloadState.INVALID ||
+			query(request.getUrl()) != DownloadState.INVALID) {
 			Log.i(TAG, "the download requst is in downloading");
 			return;
 		}
-		
+
 		/* tag the request as belonging to this queue */
 		request.setDownloadQueue(this);
 		/* add it to the set of current requests */
 		synchronized (mCurrentRequests) {
 			mCurrentRequests.add(request);
 		}
-		
+
 		/* process requests in the order they are added in */
 		mDownloadQueue.add(request);
 	}
-	
+
 	/**
 	 * Cancel a download in progress.
 	 * 
@@ -129,10 +130,10 @@ public class DownloadRequestQueue {
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Cancel all the download.
 	 */
@@ -142,10 +143,10 @@ public class DownloadRequestQueue {
 				request.cancel();
 			}
 		}
-		
+
 		mCurrentRequests.clear();
 	}
-	
+
 	/**
 	 * Get the downloading task size.
 	 * 
@@ -154,7 +155,7 @@ public class DownloadRequestQueue {
 	protected int getDownloadingSize() {
 		return mCurrentRequests.size();
 	}
-	
+
 	/**
 	 * To check if the request is downloading according to download id.
 	 *
@@ -169,7 +170,25 @@ public class DownloadRequestQueue {
 				}
 			}
 		}
-		
+
+		return DownloadState.INVALID;
+	}
+
+	/**
+	 * To check if the request is downloading according to download url.
+	 *
+	 * @param  url the url to check
+	 * @return     true if the request is downloading, otherwise return false
+	 */
+	protected DownloadState query(String url) {
+		synchronized (mCurrentRequests) {
+			for (DownloadRequest request : mCurrentRequests) {
+				if (request.getUrl().equals(url)) {
+					return request.getDownloadState();
+				}
+			}
+		}
+
 		return DownloadState.INVALID;
 	}
 
@@ -179,7 +198,7 @@ public class DownloadRequestQueue {
 	public int getSequenceNumber() {
 		return mSequenceGenerator.incrementAndGet();
 	}
-	
+
 	/**
 	 * The download has finished and remove from set.
 	 * 
@@ -190,7 +209,7 @@ public class DownloadRequestQueue {
 			mCurrentRequests.remove(request);
 		}
 	}
-	
+
 	/**
 	 * Release all the resource.
 	 */
@@ -202,15 +221,15 @@ public class DownloadRequestQueue {
 		if (mDownloadQueue != null) {
 			mDownloadQueue = null;
 		}
-		
+
 		/* release dispathcers */
 		if (mDispatchers != null) {
 			stop();
-			
+
 			for (int i = 0; i < mDispatchers.length; i ++) {
 				mDispatchers[i] = null;
 			}
-			
+
 			mDispatchers = null;
 		}
 	}
