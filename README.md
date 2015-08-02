@@ -48,7 +48,7 @@ Download
 --------
 Download [the latest JAR][2] or Gradle:
 	
-	compile 'com.coolerfall:android-http-download-manager:1.5.0'
+	compile 'com.coolerfall:android-http-download-manager:1.5.1'
 
 
 Credits

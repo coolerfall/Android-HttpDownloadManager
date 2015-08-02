@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.coolerfall.download.DownloadRequest.DownloadState;
@@ -100,10 +101,16 @@ public class DownloadRequestQueue {
 	 * @return         true if the request is not in queue, otherwise return false
 	 */
 	protected boolean add(DownloadRequest request) {
+		/* check if url is empty */
+		if (TextUtils.isEmpty(request.getUrl())) {
+			Log.w(TAG, "download url cannot be empty");
+			return false;
+		}
+
 		/* if the request is downloading, do nothing */
 		if (query(request.getDownloadId()) != DownloadState.INVALID ||
 			query(request.getUrl()) != DownloadState.INVALID) {
-			Log.i(TAG, "the download requst is in downloading");
+			Log.w(TAG, "the download requst is in downloading");
 			return false;
 		}
 
@@ -115,7 +122,9 @@ public class DownloadRequestQueue {
 		}
 
 		/* process requests in the order they are added in */
-		return mDownloadQueue.add(request);
+		mDownloadQueue.add(request);
+
+		return true;
 	}
 
 	/**
