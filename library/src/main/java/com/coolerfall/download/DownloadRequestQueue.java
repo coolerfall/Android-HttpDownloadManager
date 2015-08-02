@@ -19,7 +19,7 @@ import com.coolerfall.download.DownloadRequest.DownloadState;
  */
 public class DownloadRequestQueue {
 	private static final String TAG = DownloadRequestQueue.class.getSimpleName();
-	
+
 	/** the capacity of download request queue */
 	private static final int CAPACITY = 20;
 	
@@ -96,12 +96,12 @@ public class DownloadRequestQueue {
 	 * 
 	 * @param request download request
 	 */
-	protected void add(DownloadRequest request) {
+	protected boolean add(DownloadRequest request) {
 		/* if the request is downloading, do nothing */
 		if (query(request.getDownloadId()) != DownloadState.INVALID ||
 			query(request.getUrl()) != DownloadState.INVALID) {
 			Log.i(TAG, "the download requst is in downloading");
-			return;
+			return false;
 		}
 
 		/* tag the request as belonging to this queue */
@@ -112,7 +112,7 @@ public class DownloadRequestQueue {
 		}
 
 		/* process requests in the order they are added in */
-		mDownloadQueue.add(request);
+		return mDownloadQueue.add(request);
 	}
 
 	/**

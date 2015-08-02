@@ -10,7 +10,7 @@ import com.coolerfall.download.DownloadRequest.DownloadState;
  */
 public class DownloadManager {
 	/** custom http code invalid */
-	public static final int HTTP_INVALID = 1 << 0;
+	public static final int HTTP_INVALID = 1;
 	
 	/** custom http code error size */
 	public static final int HTTP_ERROR_SIZE = 1 << 1;
@@ -20,7 +20,7 @@ public class DownloadManager {
 	
 	/** range not satisfiable */
 	public static final int HTTP_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
-	
+
 	/** download request queue handles the download according to priority */
 	private DownloadRequestQueue mDownloadRequestQueue;
 	
@@ -51,6 +51,7 @@ public class DownloadManager {
 	 * 
 	 * @param request download request
 	 * @return        download id, if the id is not set, then manager will generate one.
+	 *                if the request is in downloading, then -1 will be returned
 	 */
 	public int add(DownloadRequest request) {
 		if (request == null) {
@@ -64,9 +65,7 @@ public class DownloadManager {
 		}
 
 		/* add download request into download request queue */
-		mDownloadRequestQueue.add(request);
-
-		return request.getDownloadId();
+		return mDownloadRequestQueue.add(request) ? request.getDownloadId() : -1;
 	}
 	
 	/**
@@ -78,6 +77,16 @@ public class DownloadManager {
 	protected DownloadState query(int downloadId) {
 		return mDownloadRequestQueue.query(downloadId);
 	}
+
+	/**
+	 * Query download from download request queue.
+	 *
+	 * @param  url download url
+	 * @return     download state
+	 */
+	protected DownloadState query(String url) {
+		return mDownloadRequestQueue.query(url);
+	}
 	
 	/**
 	 * To check if the download was in the request queue.
@@ -86,7 +95,17 @@ public class DownloadManager {
 	 * @return            true if was downloading, otherwise return false
 	 */
 	public boolean isDownloading(int downloadId) {
-		return query(downloadId) == DownloadState.INVALID ? false : true;
+		return query(downloadId) != DownloadState.INVALID;
+	}
+
+	/**
+	 * To check if the download was in the request queue.
+	 *
+	 * @param  url downalod url
+	 * @return     true if was downloading, otherwise return false
+	 */
+	public boolean isDownloading(String url) {
+		return query(url) != DownloadState.INVALID;
 	}
 	
 	/**
