@@ -55,6 +55,8 @@ public class DownloadRequestQueue {
 
 	/**
 	 * Create the download dispatchers according to pool size.
+	 *
+	 * @param threadPoolSize thread pool size of download dispatcher
 	 */
 	public DownloadRequestQueue(int threadPoolSize) {
 		if (threadPoolSize < 1 || threadPoolSize > 5) {
@@ -94,7 +96,8 @@ public class DownloadRequestQueue {
 	/**
 	 * Add download request to the download request queue.
 	 * 
-	 * @param request download request
+	 * @param  request download request
+	 * @return         true if the request is not in queue, otherwise return false
 	 */
 	protected boolean add(DownloadRequest request) {
 		/* if the request is downloading, do nothing */
@@ -194,6 +197,8 @@ public class DownloadRequestQueue {
 
 	/**
 	 * Gets a sequence number.
+	 *
+	 * @return return the sequence number
 	 */
 	public int getSequenceNumber() {
 		return mSequenceGenerator.incrementAndGet();

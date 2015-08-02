@@ -93,6 +93,9 @@ public class DownloadDispatcher extends Thread {
 	
 	/**
 	 * Default constructor, with queue and delivery.
+	 *
+	 * @param queue    download request queue
+	 * @param delivery download delivery
 	 */
 	public DownloadDispatcher(BlockingQueue<DownloadRequest> queue, DownloadDelivery delivery) {
 		mQueue = queue;

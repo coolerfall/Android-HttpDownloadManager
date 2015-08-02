@@ -363,7 +363,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * according to the file path. This file path must be absolute file
 	 * path(such as: /sdcard/test.txt).
 	 *
-	 * @return  this Request object to allow for chaining.
+	 * @param  filePath destination file path
+	 * @return          this Request object to allow for chaining.
 	 */
 	public DownloadRequest setDestFilePath(String filePath) {
 		mDestinationFilePath = filePath;
@@ -413,7 +414,9 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 	
 	/**
-     * Returns true if this request has been canceled.
+	 * To check if current request has canceled.
+	 *
+     * @return Returns true if this request has been canceled.
      */
 	protected boolean isCanceled() {
 		return mCanceled;

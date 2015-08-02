@@ -97,11 +97,13 @@ public class DownloadDelivery {
 			}
 		});
 	}
-	
+
 	/**
 	 * Post download failure event.
-	 * 
-	 * @param request download request
+	 *
+	 * @param request    download request
+	 * @param statusCode status code
+	 * @param errMsg     error message
 	 */
 	protected void postFailure(final DownloadRequest request, final int statusCode, final String errMsg) {
 		mDownloadPoster.execute(new Runnable() {

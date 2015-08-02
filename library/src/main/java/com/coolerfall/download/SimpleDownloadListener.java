@@ -11,10 +11,18 @@ package com.coolerfall.download;
 public interface SimpleDownloadListener {
 	/**
 	 * Invoked when downloading successfully.
+	 *
+	 * @param downloadId download id in download request queue
+	 * @param filePath   file path
 	 */
 	void onSuccess(int downloadId, String filePath);
+
 	/**
 	 * Invoked when downloading failed.
+	 *
+	 * @param downloadId download id in download request queue
+	 * @param statusCode status code
+	 * @param errMsg     error message
 	 */
 	void onFailure(int downloadId, int statusCode, String errMsg);
 }
