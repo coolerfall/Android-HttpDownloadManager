@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Contains some utils used in download manager.
  *
  * @author Vincent Cheung
- * @since  Jan. 14, 2015
+ * @since Jan. 14, 2015
  */
 public class DownloadUtils {
 	private static final AtomicInteger REDIRECT_TIME = new AtomicInteger(0);
@@ -27,8 +27,8 @@ public class DownloadUtils {
 	/**
 	 * To check whether current network is wifi.
 	 *
-	 * @param  context context
-	 * @return         true if network if wifi, otherwise return false
+	 * @param context context
+	 * @return true if network if wifi, otherwise return false
 	 */
 	protected static boolean isWifi(Context context) {
 		if (context == null) {
@@ -36,7 +36,7 @@ public class DownloadUtils {
 		}
 
 		ConnectivityManager manager = (ConnectivityManager) context
-				.getSystemService(Context.CONNECTIVITY_SERVICE);
+			.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo info = manager.getActiveNetworkInfo();
 
 		return info != null && (info.getType() == ConnectivityManager.TYPE_WIFI);
@@ -63,8 +63,8 @@ public class DownloadUtils {
 	/**
 	 * Get filename from url.
 	 *
-	 * @param  url url
-	 * @return     filename or null if no available filename
+	 * @param url url
+	 * @return filename or null if no available filename
 	 */
 	protected static String getFilenameFromUrl(String url) {
 		String filename = md5(url) + ".down";
@@ -89,8 +89,8 @@ public class DownloadUtils {
 	/**
 	 * Get real filename from http header.
 	 *
-	 * @param  downloadUrl the url to download
-	 * @return             real filename
+	 * @param downloadUrl the url to download
+	 * @return real filename
 	 */
 	protected static String getFilenameFromHeader(String downloadUrl) {
 		String filename = md5(downloadUrl) + ".down";
@@ -123,7 +123,7 @@ public class DownloadUtils {
 					int index = contentDispos.indexOf("filename");
 					if (index > 0) {
 						filename = contentDispos.substring(
-								index + 10, contentDispos.length() - 1);
+							index + 10, contentDispos.length() - 1);
 					} else {
 						filename = getFilenameFromUrl(downloadUrl);
 					}

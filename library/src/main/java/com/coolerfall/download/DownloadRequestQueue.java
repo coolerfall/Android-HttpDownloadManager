@@ -14,39 +14,51 @@ import com.coolerfall.download.DownloadRequest.DownloadState;
 
 /**
  * Download request queue, this is designed according to RequestQueue in Andoird-Volley.
- * 
+ *
  * @author Vincent Cheung
- * @since  Nov. 24, 2014
+ * @since Nov. 24, 2014
  */
 public class DownloadRequestQueue {
 	private static final String TAG = DownloadRequestQueue.class.getSimpleName();
 
-	/** the capacity of download request queue */
+	/**
+	 * The capacity of download request queue.
+	 */
 	private static final int CAPACITY = 20;
-	
-	/** the default number of download dispatcher threads */
+
+	/**
+	 * The default number of download dispatcher threads.
+	 */
 	private static final int DEFAULT_DOWNLOAD_THREAD_POOL_SIZE = 3;
-	
+
 	/**
 	 * The set of all requests currently being processed by this DownloadQueue. A Request
 	 * will be in this set if it is waiting in any queue or currently being processed by
 	 * any dispatcher.
 	 */
 	private final Set<DownloadRequest> mCurrentRequests = new HashSet<>();
-	
-	/** the queue of download request */
-	private PriorityBlockingQueue<DownloadRequest> mDownloadQueue = 
-			new PriorityBlockingQueue<>(CAPACITY);
-	
-	/** download dispatchers */
+
+	/**
+	 * The queue of download request.
+	 */
+	private PriorityBlockingQueue<DownloadRequest> mDownloadQueue =
+		new PriorityBlockingQueue<>(CAPACITY);
+
+	/**
+	 * The download dispatchers.
+	 */
 	private DownloadDispatcher[] mDispatchers;
-	
-	/** download callback delivery */
+
+	/**
+	 * The download callback delivery.
+	 */
 	private DownloadDelivery mDelivery;
 
-	/** used for generating monotonically-increasing sequence numbers for requests */
+	/**
+	 * Used for generating monotonically-increasing sequence numbers for requests.
+	 */
 	private AtomicInteger mSequenceGenerator = new AtomicInteger();
-	
+
 	/**
 	 * Default download reuqest queue.
 	 */
@@ -63,7 +75,7 @@ public class DownloadRequestQueue {
 		if (threadPoolSize < 1 || threadPoolSize > 5) {
 			threadPoolSize = DEFAULT_DOWNLOAD_THREAD_POOL_SIZE;
 		}
-		
+
 		mDispatchers = new DownloadDispatcher[threadPoolSize];
 		mDelivery = new DownloadDelivery(new Handler(Looper.getMainLooper()));
 	}
@@ -76,7 +88,7 @@ public class DownloadRequestQueue {
 		stop();
 		
 		/* create the download dispatcher and start it. */
-		for (int i = 0; i < mDispatchers.length; i ++) {
+		for (int i = 0; i < mDispatchers.length; i++) {
 			DownloadDispatcher dispatcher = new DownloadDispatcher(mDownloadQueue, mDelivery);
 			mDispatchers[i] = dispatcher;
 			dispatcher.start();
@@ -96,9 +108,9 @@ public class DownloadRequestQueue {
 
 	/**
 	 * Add download request to the download request queue.
-	 * 
-	 * @param  request download request
-	 * @return         true if the request is not in queue, otherwise return false
+	 *
+	 * @param request download request
+	 * @return true if the request is not in queue, otherwise return false
 	 */
 	protected boolean add(DownloadRequest request) {
 		/* check if url is empty */
@@ -129,9 +141,9 @@ public class DownloadRequestQueue {
 
 	/**
 	 * Cancel a download in progress.
-	 * 
-	 * @param  downloadId download id
-	 * @return            true if download has canceled, otherwise return false
+	 *
+	 * @param downloadId download id
+	 * @return true if download has canceled, otherwise return false
 	 */
 	protected boolean cancel(int downloadId) {
 		synchronized (mCurrentRequests) {
@@ -161,7 +173,7 @@ public class DownloadRequestQueue {
 
 	/**
 	 * Get the downloading task size.
-	 * 
+	 *
 	 * @return task size
 	 */
 	protected int getDownloadingSize() {
@@ -171,8 +183,8 @@ public class DownloadRequestQueue {
 	/**
 	 * To check if the request is downloading according to download id.
 	 *
-	 * @param  downloadId download id
-	 * @return            true if the request is downloading, otherwise return false
+	 * @param downloadId download id
+	 * @return true if the request is downloading, otherwise return false
 	 */
 	protected DownloadState query(int downloadId) {
 		synchronized (mCurrentRequests) {
@@ -189,8 +201,8 @@ public class DownloadRequestQueue {
 	/**
 	 * To check if the request is downloading according to download url.
 	 *
-	 * @param  url the url to check
-	 * @return     true if the request is downloading, otherwise return false
+	 * @param url the url to check
+	 * @return true if the request is downloading, otherwise return false
 	 */
 	protected DownloadState query(String url) {
 		synchronized (mCurrentRequests) {
@@ -215,7 +227,7 @@ public class DownloadRequestQueue {
 
 	/**
 	 * The download has finished and remove from set.
-	 * 
+	 *
 	 * @param request download reqeust
 	 */
 	protected void finish(DownloadRequest request) {
@@ -240,7 +252,7 @@ public class DownloadRequestQueue {
 		if (mDispatchers != null) {
 			stop();
 
-			for (int i = 0; i < mDispatchers.length; i ++) {
+			for (int i = 0; i < mDispatchers.length; i++) {
 				mDispatchers[i] = null;
 			}
 

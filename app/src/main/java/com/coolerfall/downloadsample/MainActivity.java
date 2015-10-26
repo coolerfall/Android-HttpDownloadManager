@@ -43,7 +43,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	private TextView mTextSpeed4;
 
 	private DownloadManager mDownloadManager;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -69,34 +69,34 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		mDownloadManager = new DownloadManager();
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		mDownloadManager.release();
 	}
-	
+
 	@Override
 	public void onClick(View v) {
 		int downloadId = 0;
-		
+
 		switch (v.getId()) {
 		case R.id.download_btn_start:
 			downloadId = DOWNLOAD_ID0;
 			break;
-			
+
 		case R.id.download_btn_start1:
 			downloadId = DOWNLOAD_ID1;
 			break;
-			
+
 		case R.id.download_btn_start2:
 			downloadId = DOWNLOAD_ID2;
 			break;
-			
+
 		case R.id.download_btn_start3:
 			downloadId = DOWNLOAD_ID3;
 			break;
-			
+
 		case R.id.download_btn_start4:
 			downloadId = DOWNLOAD_ID4;
 			break;
@@ -104,34 +104,35 @@ public class MainActivity extends Activity implements OnClickListener {
 		default:
 			break;
 		}
-		
+
 		if (mDownloadManager.isDownloading(downloadId)) {
 			mDownloadManager.cancel(downloadId);
 		} else {
 			DownloadRequest request = new DownloadRequest()
 				.setDownloadId(downloadId)
-//				.setDownloadListener(new Listener())
-				/* can set simple listener */
-				.setSimpleDownloadListener(new SimpleListener())
+				.setDownloadListener(new Listener())
+				/* we can set simple listener */
+//				.setSimpleDownloadListener(new SimpleListener())
 				.setRetryTime(5)
 				.setAllowedNetworkTypes(this, DownloadRequest.NETWORK_WIFI)
+				.setProgressInterval(1000)
 				.setUrl(URL[downloadId]);
 			mDownloadManager.add(request);
 		}
 	}
-	
+
 	private class Listener implements DownloadListener {
 		private long mStartTimestamp = 0;
 		private long mLastTimestamp = 0;
 		private long mStartSize = 0;
-		
+
 		@Override
 		public void onStart(int downloadId, long totalBytes) {
 			Log.d(TAG, "start download: " + downloadId);
 			Log.d(TAG, "totalBytes: " + totalBytes);
 			mStartTimestamp = System.currentTimeMillis();
 		}
-		
+
 		@Override
 		public void onRetry(int downloadId) {
 			Log.d(TAG, "downloadId: " + downloadId);
@@ -142,50 +143,49 @@ public class MainActivity extends Activity implements OnClickListener {
 			int progress = (int) (bytesWritten * 100f / totalBytes);
 			progress = progress == 100 ? 0 : progress;
 			long currentTimestamp = System.currentTimeMillis();
-			
-			int speed;
-			if (currentTimestamp - mLastTimestamp >= 300 || progress == 0) {
-				mLastTimestamp = currentTimestamp;
-				int deltaTime = (int) (currentTimestamp - mStartTimestamp + 1);
-				speed = (int) ((bytesWritten - mStartSize) * 1000 / deltaTime) / 1024;
-				
-				switch (downloadId) {
-				case DOWNLOAD_ID0:
-					mProgressBar.setProgress(progress);
-					mTextSpeed.setText(speed + "kb/s");
-					break;
-					
-				case DOWNLOAD_ID1:
-					mProgressBar1.setProgress(progress);
-					mTextSpeed1.setText(speed + "kb/s");
-					break;
-					
-				case DOWNLOAD_ID2:
-					mProgressBar2.setProgress(progress);
-					mTextSpeed2.setText(speed + "kb/s");
-					break;
-					
-				case DOWNLOAD_ID3:
-					mProgressBar3.setProgress(progress);
-					mTextSpeed3.setText(speed + "kb/s");
-					break;
-					
-				case DOWNLOAD_ID4:
-					mProgressBar4.setProgress(progress);
-					mTextSpeed4.setText(speed + "kb/s");
-					break;
+			Log.d(TAG, "progress: " + progress);
 
-				default:
-					break;
-				}
+			int speed;
+			mLastTimestamp = currentTimestamp;
+			int deltaTime = (int) (currentTimestamp - mStartTimestamp + 1);
+			speed = (int) ((bytesWritten - mStartSize) * 1000 / deltaTime) / 1024;
+
+			switch (downloadId) {
+			case DOWNLOAD_ID0:
+				mProgressBar.setProgress(progress);
+				mTextSpeed.setText(speed + "kb/s");
+				break;
+
+			case DOWNLOAD_ID1:
+				mProgressBar1.setProgress(progress);
+				mTextSpeed1.setText(speed + "kb/s");
+				break;
+
+			case DOWNLOAD_ID2:
+				mProgressBar2.setProgress(progress);
+				mTextSpeed2.setText(speed + "kb/s");
+				break;
+
+			case DOWNLOAD_ID3:
+				mProgressBar3.setProgress(progress);
+				mTextSpeed3.setText(speed + "kb/s");
+				break;
+
+			case DOWNLOAD_ID4:
+				mProgressBar4.setProgress(progress);
+				mTextSpeed4.setText(speed + "kb/s");
+				break;
+
+			default:
+				break;
 			}
 		}
-		
+
 		@Override
 		public void onSuccess(int downloadId, String filePath) {
 			Log.d(TAG, "success: " + downloadId + " size: " + new File(filePath).length());
 		}
-		
+
 		@Override
 		public void onFailure(int downloadId, int statusCode, String errMsg) {
 			Log.d(TAG, "fail: " + downloadId + " " + statusCode + " " + errMsg);

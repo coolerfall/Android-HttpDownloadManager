@@ -6,7 +6,7 @@ package com.coolerfall.download;
  * download information is needed, then use {@link DownloadListener}
  *
  * @author Vincent Cheung
- * @since  Jul. 22, 2015
+ * @since Jul. 22, 2015
  */
 public interface SimpleDownloadListener {
 	/**

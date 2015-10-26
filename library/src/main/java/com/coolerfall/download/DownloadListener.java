@@ -4,9 +4,9 @@ package com.coolerfall.download;
  * Interface definition for a callback to be invoked when downloading.
  * This download listener contains detail download information. If simple listener
  * is needed, then use {@link SimpleDownloadListener}
- * 
+ *
  * @author Vincent Cheung
- * @since  Nov. 24, 2014
+ * @since Nov. 24, 2014
  */
 public interface DownloadListener {
 	/**
