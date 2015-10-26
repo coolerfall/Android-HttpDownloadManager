@@ -66,7 +66,7 @@ public class DownloadUtils {
 	 * @param url url
 	 * @return filename or null if no available filename
 	 */
-	protected static String getFilenameFromUrl(String url) {
+	private static String getFilenameFromUrl(String url) {
 		String filename = md5(url) + ".down";
 
 		int index = url.lastIndexOf("/");

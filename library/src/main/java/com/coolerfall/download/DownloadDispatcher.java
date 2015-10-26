@@ -436,7 +436,7 @@ public class DownloadDispatcher extends Thread {
 	}
 
 	/* a utility function to close an input stream without raising an exception */
-	private void silentCloseInputStream(InputStream is) {
+	private static void silentCloseInputStream(InputStream is) {
 		try {
 			if (is != null) {
 				is.close();

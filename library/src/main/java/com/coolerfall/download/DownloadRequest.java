@@ -67,6 +67,11 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	private String mUrl;
 
 	/**
+	 * Destination directory to save file.
+	 */
+	private String mDestinationDir;
+
+	/**
 	 * Destination file path.
 	 */
 	private String mDestinationFilePath;
@@ -393,24 +398,39 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		return mUrl;
 	}
 
-	/**
-	 * get the default download file path
-	 */
-	private String getDefaultFilePath() {
-		return DEFAULT_DIR + File.separator + DownloadUtils.getFilenameFromHeader(mUrl);
+	/* get absolute file path according to the directory */
+	private String getFilePath() {
+		String dir = TextUtils.isEmpty(mDestinationDir) ? DEFAULT_DIR : mDestinationDir;
+		return dir + File.separator + DownloadUtils.getFilenameFromHeader(mUrl);
 	}
 
 	/**
 	 * Set destination file path of this download request. The file will be createad
 	 * according to the file path. This file path must be absolute file
-	 * path(such as: /sdcard/test.txt).
+	 * path(such as: /sdcard/test.txt). If the filename is not certain, then use
+	 * {@link #setDestDirectory(String)}, the download manager will genrate filename from url.
 	 *
 	 * @param filePath destination file path
-	 * @return this Request object to allow for chaining.
+	 * @return this Request object to allow for chaining
+	 * @see #setDestDirectory(String)
 	 */
 	public DownloadRequest setDestFilePath(String filePath) {
 		mDestinationFilePath = filePath;
+		return this;
+	}
 
+	/**
+	 * Set absolute destination directory for this download request.
+	 * If {@link #setDestFilePath(String)} was used, then destination directory will
+	 * be ignored. The directory will be created if not existed.
+	 * The name of file will be generated from url or http header.
+	 *
+	 * @param dir destination directory
+	 * @return this Request object to allow for chaining
+	 * @see #setDestFilePath(String)
+	 */
+	public DownloadRequest setDestDirectory(String dir) {
+		mDestinationDir = dir;
 		return this;
 	}
 
@@ -423,14 +443,14 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	protected String getDestFilePath() {
 		/* if the destination file path is empty, use default file path */
 		if (TextUtils.isEmpty(mDestinationFilePath)) {
-			mDestinationFilePath = getDefaultFilePath();
+			mDestinationFilePath = getFilePath();
 		}
 
 		/* if the destination path is directory */
 		File file = new File(mDestinationFilePath);
 		if (file.isDirectory()) {
 			Log.w(TAG, "the destination file path cannot be directory");
-			return getDefaultFilePath();
+			return getFilePath();
 		} else if (!file.getParentFile().exists()) {
 			/* make dirs in case */
 			file.getParentFile().mkdirs();

@@ -1,7 +1,9 @@
 package com.coolerfall.downloadsample;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -123,7 +125,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	private class Listener implements DownloadListener {
 		private long mStartTimestamp = 0;
-		private long mLastTimestamp = 0;
 		private long mStartSize = 0;
 
 		@Override
@@ -138,6 +139,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			Log.d(TAG, "downloadId: " + downloadId);
 		}
 
+		@SuppressLint("SetTextI18n")
 		@Override
 		public void onProgress(int downloadId, long bytesWritten, long totalBytes) {
 			int progress = (int) (bytesWritten * 100f / totalBytes);
@@ -146,7 +148,6 @@ public class MainActivity extends Activity implements OnClickListener {
 			Log.d(TAG, "progress: " + progress);
 
 			int speed;
-			mLastTimestamp = currentTimestamp;
 			int deltaTime = (int) (currentTimestamp - mStartTimestamp + 1);
 			speed = (int) ((bytesWritten - mStartSize) * 1000 / deltaTime) / 1024;
 
