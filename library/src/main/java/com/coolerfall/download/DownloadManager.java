@@ -10,27 +10,27 @@ import com.coolerfall.download.DownloadRequest.DownloadState;
  */
 public class DownloadManager {
 	/**
-	 * custom http code invalid
+	 * Custom http code invalid.
 	 */
 	public static final int HTTP_INVALID = 1;
 
 	/**
-	 * custom http code error size
+	 * Custom http code error size.
 	 */
 	public static final int HTTP_ERROR_SIZE = 1 << 1;
 
 	/**
-	 * custom http code error network
+	 * Custom http code error network.
 	 */
 	public static final int HTTP_ERROR_NETWORK = 1 << 2;
 
 	/**
-	 * range not satisfiable
+	 * Http code range not satisfiable.
 	 */
 	public static final int HTTP_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
 
 	/**
-	 * download request queue handles the download according to priority
+	 * Download request queue handles the download according to priority.
 	 */
 	private DownloadRequestQueue mDownloadRequestQueue;
 
@@ -44,7 +44,7 @@ public class DownloadManager {
 	}
 
 	/**
-	 * Constructor with max thread pool size, allows maximum of 5 threads.
+	 * Constructor with max thread pool size, allows maximum of 10 threads.
 	 * Any number higher than 5 or less than 1, then the size will be default size.
 	 * If you don't want to use default constructor to create download manager, then
 	 * you can use this construtor to create a download manager with threadPoolSize.

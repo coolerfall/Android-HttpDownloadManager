@@ -72,7 +72,7 @@ public class DownloadRequestQueue {
 	 * @param threadPoolSize thread pool size of download dispatcher
 	 */
 	public DownloadRequestQueue(int threadPoolSize) {
-		if (threadPoolSize < 1 || threadPoolSize > 5) {
+		if (threadPoolSize < 1 || threadPoolSize > 10) {
 			threadPoolSize = DEFAULT_DOWNLOAD_THREAD_POOL_SIZE;
 		}
 
