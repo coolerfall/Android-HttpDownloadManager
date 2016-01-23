@@ -32,8 +32,8 @@ public class DownloadDelivery {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.getDownloadListener() != null) {
-					request.getDownloadListener().onStart(request.getDownloadId(), totalBytes);
+				if (request.getDownloadCallback() != null) {
+					request.getDownloadCallback().onStart(request.getDownloadId(), totalBytes);
 				}
 			}
 		});
@@ -48,8 +48,8 @@ public class DownloadDelivery {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.getDownloadListener() != null) {
-					request.getDownloadListener().onRetry(request.getDownloadId());
+				if (request.getDownloadCallback() != null) {
+					request.getDownloadCallback().onRetry(request.getDownloadId());
 				}
 			}
 		});
@@ -67,8 +67,8 @@ public class DownloadDelivery {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.getDownloadListener() != null) {
-					request.getDownloadListener().onProgress(
+				if (request.getDownloadCallback() != null) {
+					request.getDownloadCallback().onProgress(
 						request.getDownloadId(), bytesWritten, totalBytes);
 				}
 			}
@@ -84,15 +84,9 @@ public class DownloadDelivery {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.getDownloadListener() != null) {
-					request.getDownloadListener().onSuccess(
+				if (request.getDownloadCallback() != null) {
+					request.getDownloadCallback().onSuccess(
 						request.getDownloadId(), request.getDestFilePath());
-				}
-
-				if (request.getSimpleDownloadListener() != null) {
-					request.getSimpleDownloadListener().onSuccess(
-						request.getDownloadId(), request.getDestFilePath()
-					);
 				}
 			}
 		});
@@ -109,15 +103,9 @@ public class DownloadDelivery {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.getDownloadListener() != null) {
-					request.getDownloadListener().onFailure(
+				if (request.getDownloadCallback() != null) {
+					request.getDownloadCallback().onFailure(
 						request.getDownloadId(), statusCode, errMsg);
-				}
-
-				if (request.getSimpleDownloadListener() != null) {
-					request.getSimpleDownloadListener().onFailure(
-						request.getDownloadId(), statusCode, errMsg
-					);
 				}
 			}
 		});

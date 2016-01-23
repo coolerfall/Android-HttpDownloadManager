@@ -78,7 +78,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
 	/**
 	 * Progress interval, how long should {@link DownloadDispatcher}
-	 * invoke {@link DownloadListener#onProgress(int, long, long)}.
+	 * invoke {@link DownloadCallback#onProgress(int, long, long)}.
 	 */
 	private int mProgressInterval;
 
@@ -105,12 +105,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	/**
 	 * Download listener.
 	 */
-	private DownloadListener mDownloadListener;
-
-	/**
-	 * Simple download listener.
-	 */
-	private SimpleDownloadListener mSimpleDownloadListener;
+	private DownloadCallback mDownloadCallback;
 
 	/**
 	 * Priority values: download request will be processed from
@@ -200,45 +195,24 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 
 	/**
-	 * Set the download listener.
+	 * Set the download callback.
 	 *
-	 * @param l download listener
+	 * @param cb download callback
 	 * @return this Request object to allow for chaining
 	 */
-	public DownloadRequest setDownloadListener(DownloadListener l) {
-		mDownloadListener = l;
+	public DownloadRequest setDownloadCallback(DownloadCallback cb) {
+		mDownloadCallback = cb;
 
 		return this;
 	}
 
 	/**
-	 * Get the download listener of this request.
+	 * Get the download callback of this request.
 	 *
-	 * @return download listener
+	 * @return download callback
 	 */
-	protected DownloadListener getDownloadListener() {
-		return mDownloadListener;
-	}
-
-	/**
-	 * Set simple download listener.
-	 *
-	 * @param sl simple download listener
-	 * @return this Request object to allow for chaining
-	 */
-	public DownloadRequest setSimpleDownloadListener(SimpleDownloadListener sl) {
-		mSimpleDownloadListener = sl;
-
-		return this;
-	}
-
-	/**
-	 * Get the simple download listener of this request.
-	 *
-	 * @return simple download listener
-	 */
-	protected SimpleDownloadListener getSimpleDownloadListener() {
-		return mSimpleDownloadListener;
+	protected DownloadCallback getDownloadCallback() {
+		return mDownloadCallback;
 	}
 
 	/**

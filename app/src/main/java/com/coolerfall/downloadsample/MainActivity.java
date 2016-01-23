@@ -3,17 +3,15 @@ package com.coolerfall.downloadsample;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.coolerfall.download.DownloadListener;
+import com.coolerfall.download.DownloadCallback;
 import com.coolerfall.download.DownloadManager;
 import com.coolerfall.download.DownloadRequest;
-import com.coolerfall.download.SimpleDownloadListener;
 
 import java.io.File;
 
@@ -112,7 +110,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		} else {
 			DownloadRequest request = new DownloadRequest()
 				.setDownloadId(downloadId)
-				.setDownloadListener(new Listener())
+				.setDownloadCallback(new Callback())
 				/* we can set simple listener */
 //				.setSimpleDownloadListener(new SimpleListener())
 				.setRetryTime(5)
@@ -123,7 +121,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	private class Listener implements DownloadListener {
+	private class Callback extends DownloadCallback {
 		private long mStartTimestamp = 0;
 		private long mStartSize = 0;
 
@@ -190,18 +188,6 @@ public class MainActivity extends Activity implements OnClickListener {
 		@Override
 		public void onFailure(int downloadId, int statusCode, String errMsg) {
 			Log.d(TAG, "fail: " + downloadId + " " + statusCode + " " + errMsg);
-		}
-	}
-
-	private class SimpleListener implements SimpleDownloadListener {
-		@Override
-		public void onSuccess(int downloadId, String filePath) {
-			Log.d(TAG, "simple download listener sucess");
-		}
-
-		@Override
-		public void onFailure(int downloadId, int statusCode, String errMsg) {
-			Log.d(TAG, "simple download listener failt");
 		}
 	}
 }
