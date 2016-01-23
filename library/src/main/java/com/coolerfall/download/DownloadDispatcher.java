@@ -284,9 +284,13 @@ public class DownloadDispatcher extends Thread {
 		HttpURLConnection conn = null;
 
 		try {
-			URL url = new URL(request.getUrl());
-			conn = (HttpURLConnection) url.openConnection();
-			
+			if (request.getHttpURLConnection() != null) {
+				conn = request.getHttpURLConnection();
+			} else {
+				URL url = new URL(request.getUrl());
+				conn = (HttpURLConnection) url.openConnection();
+			}
+
 			/* config http url connection */
 			conn.setInstanceFollowRedirects(false);
 			conn.setUseCaches(false);

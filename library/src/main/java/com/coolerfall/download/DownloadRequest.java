@@ -6,6 +6,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
+import java.net.HttpURLConnection;
+
+import javax.net.ssl.HttpsURLConnection;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -65,6 +69,11 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * URL of download request.
 	 */
 	private String mUrl;
+
+	/**
+	 * Custom {@link HttpURLConnection} or {@link HttpsURLConnection}.
+	 */
+	private HttpURLConnection mHttpURLConnection;
 
 	/**
 	 * Destination directory to save file.
@@ -344,10 +353,10 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 
 	/**
-	 * Set the URL of this download request.
+	 * Set the url of this download request.
 	 *
 	 * @param url the url
-	 * @return this Request object to allow for chaining.
+	 * @return this Request object to allow for chaining
 	 */
 	public DownloadRequest setUrl(String url) {
 		if (TextUtils.isEmpty(url)) {
@@ -370,6 +379,27 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 */
 	protected String getUrl() {
 		return mUrl;
+	}
+
+	/**
+	 * Set custom {@link HttpURLConnection} or {@link HttpsURLConnection}.
+	 *
+	 * @param conn http connection
+	 * @return this Request object to allow for chaining
+	 */
+	public DownloadRequest setHttpURLConnection(HttpURLConnection conn) {
+		mHttpURLConnection = conn;
+
+		return this;
+	}
+
+	/**
+	 * Get the custom {@link HttpURLConnection} or {@link HttpsURLConnection}.
+	 *
+	 * @return http connection
+	 */
+	protected HttpURLConnection getHttpURLConnection() {
+		return mHttpURLConnection;
 	}
 
 	/* get absolute file path according to the directory */
