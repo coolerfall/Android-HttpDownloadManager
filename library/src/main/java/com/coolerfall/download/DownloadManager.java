@@ -45,7 +45,7 @@ public class DownloadManager {
 
 	/**
 	 * Constructor with max thread pool size, allows maximum of 10 threads.
-	 * Any number higher than 5 or less than 1, then the size will be default size.
+	 * Any number higher than 10 or less than 1, then the size will be default size.
 	 * If you don't want to use default constructor to create download manager, then
 	 * you can use this construtor to create a download manager with threadPoolSize.
 	 *
