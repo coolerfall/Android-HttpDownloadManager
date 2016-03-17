@@ -111,8 +111,6 @@ public class MainActivity extends Activity implements OnClickListener {
 			DownloadRequest request = new DownloadRequest()
 				.setDownloadId(downloadId)
 				.setDownloadCallback(new Callback())
-				/* we can set simple listener */
-//				.setSimpleDownloadListener(new SimpleListener())
 				.setRetryTime(5)
 				.setAllowedNetworkTypes(this, DownloadRequest.NETWORK_WIFI)
 				.setProgressInterval(1000)

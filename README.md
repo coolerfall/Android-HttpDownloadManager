@@ -1,7 +1,7 @@
 Android-HttpDownloadManager
 ===========================
 
-An useful and effective http/https download manager for Android. This download manager is designed according to the idea and implementation of Volley.
+An useful and effective http download manager for Android. This download manager is designed according to the idea and implementation of Volley.
 
 Usage
 =====
@@ -14,7 +14,7 @@ Usage
 >     		.setDownloadId(downloadId)
 >     		.setUrl("http://xxx....")
 >     		.setDestFilePath(destPath)
->     		.setDownloadListener(new DownloadListener() {
+>     		.setDownloadCallback(new DownloadCallback() {
 >     				@Override
 > 					public void onStart(int downloadId, long totalBytes) {
 > 					}
@@ -38,7 +38,6 @@ Usage
 >     manager.add(request);
 
 * If you don't want to set the filename but want to set the download directory, then you can use `setDestDirectory(String dir)`, but this method will be ignored if `setDestFilePath(String filePath)` was used.
-* If you just want to know if downloading was successful or failed, then you can use `setSimpleDownloadListener(SimpleDownloadListener l)` instead.
 * You can also set retry time with method `setRetryTime(int retryTime)` if necessary, default retry time is 1.
 * This manager support downloading in different network type with method `setAllowedNetworkTypes(Context context, int types)`, the types can be `DownloadRequest.NETWORK_MOBILE` and `DownloadRequest.NETWORK_WIFI`. This method need *android.permission.ACCESS_NETWORK_STATE* permission.
 * The thread pool size of download manager is 3 by default. If you need a larger pool, then you can create download manager like this: `DownloadManager manager = new DownloadManager(5);`.
@@ -50,7 +49,7 @@ Download
 ========
 Download [the latest JAR][2] or Gradle:
 	
-	compile 'com.coolerfall:android-http-download-manager:1.5.2'
+	compile 'com.coolerfall:android-http-download-manager:1.5.3'
 
 
 Credits
