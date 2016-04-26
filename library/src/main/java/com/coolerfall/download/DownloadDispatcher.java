@@ -28,10 +28,9 @@ import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
  * Download dispatcher: used to dispatch downloader, this is desinged according to
  * NetworkDispatcher in Android-Volley.
  *
- * @author Vincent Cheung
- * @since Nov. 24, 2014
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public class DownloadDispatcher extends Thread {
+class DownloadDispatcher extends Thread {
 	private static final String TAG = DownloadDispatcher.class.getSimpleName();
 
 	/**
@@ -40,7 +39,7 @@ public class DownloadDispatcher extends Thread {
 	private static final int SLEEP_BEFORE_DOWNLOAD = 1500;
 
 	/**
-	 * Sleep time before restrying download.
+	 * Sleep time before retrying download.
 	 */
 	private static final int SLEEP_BEFORE_RETRY = 3500;
 
@@ -55,7 +54,7 @@ public class DownloadDispatcher extends Thread {
 	private static final int BUFFER_SIZE = 4096;
 
 	/**
-	 * Maximum of redirections, should not more than 7.
+	 * Maximum of redirections, should not more than 5.
 	 */
 	private static final int MAX_REDIRECTION = 5;
 

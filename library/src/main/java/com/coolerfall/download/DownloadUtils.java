@@ -1,5 +1,6 @@
 package com.coolerfall.download;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -11,18 +12,29 @@ import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.security.KeyManagementException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * Contains some utils used in download manager.
  *
- * @author Vincent Cheung
- * @since Jan. 14, 2015
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public class DownloadUtils {
-	private static final AtomicInteger REDIRECT_TIME = new AtomicInteger(0);
+class DownloadUtils {
+	static final int DEFAULT_READ_TIMEOUT = 20 * 1000;
+	static final int DEFAULT_WRITE_TIMEOUT = 20 * 1000;
+	static final int DEFAULT_CONNECT_TIMEOUT = 15 * 1000;
+	static final AtomicInteger REDIRECT_TIME = new AtomicInteger(0);
 
 	/**
 	 * To check whether current network is wifi.
@@ -92,7 +104,7 @@ public class DownloadUtils {
 	 * @param downloadUrl the url to download
 	 * @return real filename
 	 */
-	protected static String getFilenameFromHeader(String downloadUrl) {
+	static String getFilenameFromHeader(String downloadUrl) {
 		String filename = md5(downloadUrl) + ".down";
 		HttpURLConnection conn = null;
 		try {
@@ -149,5 +161,55 @@ public class DownloadUtils {
 		}
 
 		return filename;
+	}
+
+	/**
+	 * Create {@link SSLContext} for https.
+	 *
+	 * @return {@link SSLContext}
+	 */
+	static SSLContext createSSLContext() {
+		try {
+			SSLContext sc = SSLContext.getInstance("SSL");
+			TrustManager[] tm = {
+				new X509TrustManager() {
+					@SuppressLint("TrustAllX509TrustManager") @Override
+					public void checkClientTrusted(X509Certificate[] paramArrayOfX509Certificate,
+						String paramString) throws CertificateException {
+					}
+
+					@SuppressLint("TrustAllX509TrustManager") @Override
+					public void checkServerTrusted(X509Certificate[] paramArrayOfX509Certificate,
+						String paramString) throws CertificateException {
+					}
+
+					@Override public X509Certificate[] getAcceptedIssuers() {
+						return new X509Certificate[] {};
+					}
+				}
+			};
+			sc.init(null, tm, new SecureRandom());
+			return sc;
+		} catch (NoSuchAlgorithmException | KeyManagementException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Create default {@link Downloader} for download manager.
+	 *
+	 * @return {@link Downloader}
+	 */
+	static Downloader createDefaultDownloader() {
+		try {
+			Class.forName("okhttp3.OkHttpClient");
+			return new OkHttpDownloader();
+		} catch (ClassNotFoundException ignored) {
+
+		}
+
+		return new URLDownloader();
 	}
 }

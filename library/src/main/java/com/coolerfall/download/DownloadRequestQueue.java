@@ -15,10 +15,9 @@ import com.coolerfall.download.DownloadRequest.DownloadState;
 /**
  * Download request queue, this is designed according to RequestQueue in Andoird-Volley.
  *
- * @author Vincent Cheung
- * @since Nov. 24, 2014
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public class DownloadRequestQueue {
+class DownloadRequestQueue {
 	private static final String TAG = DownloadRequestQueue.class.getSimpleName();
 
 	/**

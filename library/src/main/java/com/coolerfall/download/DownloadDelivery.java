@@ -7,10 +7,9 @@ import android.os.Handler;
 /**
  * Download delivery: used to delivery callback to call back in main thread.
  *
- * @author Vincent Cheung
- * @since Nov. 24, 2014
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public class DownloadDelivery {
+class DownloadDelivery {
 	private final Executor mDownloadPoster;
 
 	public DownloadDelivery(final Handler handler) {
@@ -63,7 +62,7 @@ public class DownloadDelivery {
 	 * @param totalBytes   the total bytes of currnet file in downloading
 	 */
 	protected void postProgress(final DownloadRequest request,
-	                            final long bytesWritten, final long totalBytes) {
+		final long bytesWritten, final long totalBytes) {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -99,7 +98,8 @@ public class DownloadDelivery {
 	 * @param statusCode status code
 	 * @param errMsg     error message
 	 */
-	protected void postFailure(final DownloadRequest request, final int statusCode, final String errMsg) {
+	protected void postFailure(final DownloadRequest request, final int statusCode,
+		final String errMsg) {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
