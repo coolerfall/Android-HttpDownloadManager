@@ -1,6 +1,7 @@
 package com.coolerfall.download;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,13 +31,13 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
 	/**
 	 * Bit flag for {@link #setAllowedNetworkTypes} corresponding to
-	 * {@link android.net.ConnectivityManager#TYPE_MOBILE}.
+	 * {@link ConnectivityManager#TYPE_MOBILE}.
 	 */
 	public static final int NETWORK_MOBILE = 1;
 
 	/**
 	 * Bit flag for {@link #setAllowedNetworkTypes} corresponding to
-	 * {@link android.net.ConnectivityManager#TYPE_WIFI}.
+	 * {@link ConnectivityManager#TYPE_WIFI}.
 	 */
 	public static final int NETWORK_WIFI = 1 << 1;
 
@@ -115,6 +116,16 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * Download listener.
 	 */
 	private DownloadCallback mDownloadCallback;
+
+	private DownloadRequest(Builder builder) {
+		mRetryTime = builder.mRetryTime;
+		mContext = builder.mContext;
+		mUrl = builder.mUrl;
+		mDestinationDir = builder.mDestinationDir;
+		mDestinationFilePath = builder.mDestinationFilePath;
+		mProgressInterval = builder.mProgressInterval;
+		mDownloadCallback = builder.mDownloadCallback;
+	}
 
 	/**
 	 * Priority values: download request will be processed from
@@ -328,7 +339,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return this Request object to allow for chaining
 	 */
 	public DownloadRequest setAllowedNetworkTypes(Context context, int types) {
-		mContext = context;
+		mContext = context.getApplicationContext();
 		mAllowedNetworkTypes = types;
 
 		return this;
@@ -444,7 +455,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return destination file path
 	 */
 	@SuppressWarnings("ResultOfMethodCallIgnored")
-	protected String getDestFilePath() {
+	String getDestFilePath() {
 		/* if the destination file path is empty, use default file path */
 		if (TextUtils.isEmpty(mDestinationFilePath)) {
 			mDestinationFilePath = getFilePath();
@@ -468,14 +479,14 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return temporary destination file path
 	 */
-	protected String getTmpDestinationPath() {
+	String getTmpDestinationPath() {
 		return getDestFilePath() + ".tmp";
 	}
 
 	/**
-	 * Mark this download request as canceled.  No callback will be delivered.
+	 * Mark this download request as canceled. No callback will be delivered.
 	 */
-	protected void cancel() {
+	void cancel() {
 		mCanceled = true;
 	}
 
@@ -484,16 +495,68 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return Returns true if this request has been canceled.
 	 */
-	protected boolean isCanceled() {
+	boolean isCanceled() {
 		return mCanceled;
 	}
 
 	/**
 	 * Notifies the download request queue that this request has finished(succesfully or fail)
 	 */
-	protected void finish() {
+	void finish() {
 		if (mDownloadRequestQueue != null) {
 			mDownloadRequestQueue.finish(this);
+		}
+	}
+
+	public static final class Builder {
+		private AtomicInteger mRetryTime;
+		private Context mContext;
+		private String mUrl;
+		private String mDestinationDir;
+		private String mDestinationFilePath;
+		private int mProgressInterval;
+		private DownloadCallback mDownloadCallback;
+
+		public Builder() {
+		}
+
+		public Builder mRetryTime(AtomicInteger val) {
+			mRetryTime = val;
+			return this;
+		}
+
+		public Builder mContext(Context val) {
+			mContext = val;
+			return this;
+		}
+
+		public Builder mUrl(String val) {
+			mUrl = val;
+			return this;
+		}
+
+		public Builder mDestinationDir(String val) {
+			mDestinationDir = val;
+			return this;
+		}
+
+		public Builder mDestinationFilePath(String val) {
+			mDestinationFilePath = val;
+			return this;
+		}
+
+		public Builder mProgressInterval(int val) {
+			mProgressInterval = val;
+			return this;
+		}
+
+		public Builder mDownloadCallback(DownloadCallback val) {
+			mDownloadCallback = val;
+			return this;
+		}
+
+		public DownloadRequest build() {
+			return new DownloadRequest(this);
 		}
 	}
 }

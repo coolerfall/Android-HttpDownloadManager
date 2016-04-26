@@ -5,8 +5,7 @@ import com.coolerfall.download.DownloadRequest.DownloadState;
 /**
  * Download manager: used to manage the downloading.
  *
- * @author Vincent Cheung
- * @since Nov. 24, 2014
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public class DownloadManager {
 	/**
