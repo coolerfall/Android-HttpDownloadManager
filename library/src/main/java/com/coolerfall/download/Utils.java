@@ -30,11 +30,17 @@ import javax.net.ssl.X509TrustManager;
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
-class DownloadUtils {
+class Utils {
 	static final int DEFAULT_READ_TIMEOUT = 20 * 1000;
 	static final int DEFAULT_WRITE_TIMEOUT = 20 * 1000;
 	static final int DEFAULT_CONNECT_TIMEOUT = 15 * 1000;
+	static final String LOCATION = "Location";
+	static final int MAX_REDIRECTION = 5;
+	static final int HTTP_TEMP_REDIRECT = 307;
 	static final AtomicInteger REDIRECT_TIME = new AtomicInteger(0);
+
+	private Utils() {
+	}
 
 	/**
 	 * To check whether current network is wifi.
@@ -42,7 +48,7 @@ class DownloadUtils {
 	 * @param context context
 	 * @return true if network if wifi, otherwise return false
 	 */
-	protected static boolean isWifi(Context context) {
+	static boolean isWifi(Context context) {
 		if (context == null) {
 			return false;
 		}
@@ -55,12 +61,12 @@ class DownloadUtils {
 	}
 
 	/* get uuid without '-' */
-	private static String getUuid() {
+	static String getUuid() {
 		return UUID.randomUUID().toString().trim().replaceAll("-", "");
 	}
 
 	/* caculate md5 for string */
-	private static String md5(String origin) {
+	static String md5(String origin) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			md.update(origin.getBytes("UTF-8"));
@@ -78,7 +84,7 @@ class DownloadUtils {
 	 * @param url url
 	 * @return filename or null if no available filename
 	 */
-	private static String getFilenameFromUrl(String url) {
+	static String getFilenameFromUrl(String url) {
 		String filename = md5(url) + ".down";
 
 		int index = url.lastIndexOf("/");
