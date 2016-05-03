@@ -1,13 +1,11 @@
 package com.coolerfall.download;
 
-import com.coolerfall.download.DownloadRequest.DownloadState;
-
 /**
  * Download manager: used to manage the downloading.
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public class DownloadManager {
+public final class DownloadManager {
 	/**
 	 * Custom http code invalid.
 	 */
