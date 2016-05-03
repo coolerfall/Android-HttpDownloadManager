@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -130,9 +131,9 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		mDownloadCallback = builder.downloadCallback;
 	}
 
-	@Override public int compareTo(DownloadRequest other) {
-		Priority left = this.getPriority();
-		Priority right = other.getPriority();
+	@Override public int compareTo(@NonNull DownloadRequest other) {
+		Priority left = this.priority();
+		Priority right = other.priority();
 		
 		/*
 		 * High-priority requests are "lesser" so they are sorted to the front.
@@ -148,7 +149,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return {@link Priority#NORMAL} by default.
 	 */
-	Priority getPriority() {
+	Priority priority() {
 		return mPriority;
 	}
 
@@ -177,19 +178,23 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @param queue download request queue
 	 * @return this Request object to allow for chaining
 	 */
-	DownloadRequest setDownloadQueue(DownloadRequestQueue queue) {
+	DownloadRequest setDownloadRequestQueue(DownloadRequestQueue queue) {
 		mDownloadRequestQueue = queue;
+		/* if download id is not set, generate one */
+		if (mDownloadId == -1) {
+			mDownloadId = mDownloadRequestQueue.getSequenceNumber();
+		}
 
 		return this;
 	}
 
 	/**
-	 * Set download state of this request.
+	 * Update the {@link DownloadState} of current download request.
 	 *
-	 * @param state download state
+	 * @param downloadState {@link DownloadState}
 	 */
-	void setDownloadState(DownloadState state) {
-		mDownloadState = state;
+	void updateDownloadState(DownloadState downloadState) {
+		mDownloadState = downloadState;
 	}
 
 	/**
@@ -197,20 +202,8 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return download state
 	 */
-	DownloadState getDownloadState() {
+	DownloadState downloadState() {
 		return mDownloadState;
-	}
-
-	/**
-	 * Set download id of this download request.
-	 *
-	 * @param downloadId download id
-	 * @return download request
-	 */
-	public DownloadRequest setDownloadId(int downloadId) {
-		mDownloadId = downloadId;
-
-		return this;
 	}
 
 	/**
@@ -218,20 +211,8 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return download id
 	 */
-	protected int getDownloadId() {
+	int downloadId() {
 		return mDownloadId;
-	}
-
-	/**
-	 * Set retry time, the manager will re-download with retry time.
-	 *
-	 * @param retryTime retry time
-	 * @return this Request object to allow for chaining
-	 */
-	public DownloadRequest setRetryTime(int retryTime) {
-		mRetryTime = new AtomicInteger(retryTime);
-
-		return this;
 	}
 
 	/**
@@ -280,39 +261,9 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 
 	/* get absolute file path according to the directory */
-	private String getFilePath() {
+	String getFilePath() {
 		String dir = TextUtils.isEmpty(mDestinationDir) ? DEFAULT_DIR : mDestinationDir;
 		return dir + File.separator + Utils.getFilenameFromHeader(mUri.toString());
-	}
-
-	/**
-	 * Set destination file path of this download request. The file will be createad
-	 * according to the file path. This file path must be absolute file
-	 * path(such as: /sdcard/test.txt). If the filename is not certain, then use
-	 * {@link #setDestDirectory(String)}, the download manager will genrate filename from url.
-	 *
-	 * @param filePath destination file path
-	 * @return this Request object to allow for chaining
-	 * @see #setDestDirectory(String)
-	 */
-	public DownloadRequest setDestFilePath(String filePath) {
-		mDestinationFilePath = filePath;
-		return this;
-	}
-
-	/**
-	 * Set absolute destination directory for this download request.
-	 * If {@link #setDestFilePath(String)} was used, then destination directory will
-	 * be ignored. The directory will be created if not existed.
-	 * The name of file will be generated from url or http header.
-	 *
-	 * @param dir destination directory
-	 * @return this Request object to allow for chaining
-	 * @see #setDestFilePath(String)
-	 */
-	public DownloadRequest setDestDirectory(String dir) {
-		mDestinationDir = dir;
-		return this;
 	}
 
 	/**
@@ -320,7 +271,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return destination file path
 	 */
-	@SuppressWarnings("ResultOfMethodCallIgnored") String getDestFilePath() {
+	@SuppressWarnings("ResultOfMethodCallIgnored") String destinationFilePath() {
 		/* if the destination file path is empty, use default file path */
 		if (TextUtils.isEmpty(mDestinationFilePath)) {
 			mDestinationFilePath = getFilePath();
@@ -345,7 +296,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return temporary destination file path
 	 */
 	String tempFilePath() {
-		return getDestFilePath() + ".tmp";
+		return destinationFilePath() + ".tmp";
 	}
 
 	/**

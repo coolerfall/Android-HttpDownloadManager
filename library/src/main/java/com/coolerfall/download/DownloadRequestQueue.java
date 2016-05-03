@@ -110,14 +110,14 @@ final class DownloadRequestQueue {
 	 */
 	boolean add(DownloadRequest request) {
 		/* if the request is downloading, do nothing */
-		if (query(request.getDownloadId()) != DownloadState.INVALID ||
+		if (query(request.downloadId()) != DownloadState.INVALID ||
 			query(request.uri().toString()) != DownloadState.INVALID) {
 			Log.w(TAG, "the download requst is in downloading");
 			return false;
 		}
 
 		/* tag the request as belonging to this queue */
-		request.setDownloadQueue(this);
+		request.setDownloadRequestQueue(this);
 		/* add it to the set of current requests */
 		synchronized (mCurrentRequests) {
 			mCurrentRequests.add(request);
@@ -138,7 +138,7 @@ final class DownloadRequestQueue {
 	boolean cancel(int downloadId) {
 		synchronized (mCurrentRequests) {
 			for (DownloadRequest request : mCurrentRequests) {
-				if (request.getDownloadId() == downloadId) {
+				if (request.downloadId() == downloadId) {
 					request.cancel();
 					return true;
 				}
@@ -179,8 +179,8 @@ final class DownloadRequestQueue {
 	DownloadState query(int downloadId) {
 		synchronized (mCurrentRequests) {
 			for (DownloadRequest request : mCurrentRequests) {
-				if (request.getDownloadId() == downloadId) {
-					return request.getDownloadState();
+				if (request.downloadId() == downloadId) {
+					return request.downloadState();
 				}
 			}
 		}
@@ -198,7 +198,7 @@ final class DownloadRequestQueue {
 		synchronized (mCurrentRequests) {
 			for (DownloadRequest request : mCurrentRequests) {
 				if (request.uri().toString().equals(url)) {
-					return request.getDownloadState();
+					return request.downloadState();
 				}
 			}
 		}

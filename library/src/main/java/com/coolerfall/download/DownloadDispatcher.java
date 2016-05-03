@@ -123,13 +123,13 @@ final class DownloadDispatcher extends Thread {
 
 	/* update download state */
 	private void updateState(DownloadRequest request, DownloadState state) {
-		request.setDownloadState(state);
+		request.updateDownloadState(state);
 	}
 
 	/* update download start state */
 	private void updateStart(DownloadRequest request, long totalBytes) {
 		/* if the request has failed before, donnot deliver callback */
-		if (request.getDownloadState() == DownloadState.FAILURE) {
+		if (request.downloadState() == DownloadState.FAILURE) {
 			updateState(request, DownloadState.RUNNING);
 			return;
 		}
@@ -170,7 +170,7 @@ final class DownloadDispatcher extends Thread {
 
 		File file = new File(request.tempFilePath());
 		if (file.exists()) {
-			file.renameTo(new File(request.getDestFilePath()));
+			file.renameTo(new File(request.destinationFilePath()));
 		}
 
 		/* deliver success message */

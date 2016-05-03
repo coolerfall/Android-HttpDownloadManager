@@ -18,6 +18,8 @@ import javax.net.ssl.SSLSocketFactory;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
+import static com.coolerfall.download.Utils.HTTP;
+import static com.coolerfall.download.Utils.HTTPS;
 
 /**
  * A default downloader impelemted by {@link URLConnection}.
@@ -33,12 +35,13 @@ public final class URLDownloader implements Downloader {
 	private HttpURLConnection httpURLConnection;
 
 	@Override public int start(Uri uri, long breakpoint) throws IOException {
-		if (uri.getScheme() == null) {
+		String scheme = uri.getScheme();
+		if (!HTTP.equals(scheme) && !HTTPS.equals(scheme)) {
 			throw new DownloadException(0, "url should start with http or https");
 		}
 
 		URL url = new URL(uri.toString());
-		if ("https".equals(uri.getScheme())) {
+		if (HTTPS.equals(scheme)) {
 			HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
 			SSLContext sslContext = Utils.createSSLContext();
 			if (sslContext != null) {
