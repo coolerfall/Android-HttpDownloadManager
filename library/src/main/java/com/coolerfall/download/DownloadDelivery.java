@@ -33,7 +33,7 @@ final class DownloadDelivery {
 			@Override
 			public void run() {
 				if (request.downloadCallback() != null) {
-					request.downloadCallback().onStart(request.getDownloadId(), totalBytes);
+					request.downloadCallback().onStart(request.downloadId(), totalBytes);
 				}
 			}
 		});
@@ -49,7 +49,7 @@ final class DownloadDelivery {
 			@Override
 			public void run() {
 				if (request.downloadCallback() != null) {
-					request.downloadCallback().onRetry(request.getDownloadId());
+					request.downloadCallback().onRetry(request.downloadId());
 				}
 			}
 		});
@@ -69,7 +69,7 @@ final class DownloadDelivery {
 			public void run() {
 				if (request.downloadCallback() != null) {
 					request.downloadCallback().onProgress(
-						request.getDownloadId(), bytesWritten, totalBytes);
+						request.downloadId(), bytesWritten, totalBytes);
 				}
 			}
 		});
@@ -86,7 +86,7 @@ final class DownloadDelivery {
 			public void run() {
 				if (request.downloadCallback() != null) {
 					request.downloadCallback().onSuccess(
-						request.getDownloadId(), request.getDestFilePath());
+						request.downloadId(), request.destinationFilePath());
 				}
 			}
 		});
@@ -106,7 +106,7 @@ final class DownloadDelivery {
 			public void run() {
 				if (request.downloadCallback() != null) {
 					request.downloadCallback().onFailure(
-						request.getDownloadId(), statusCode, errMsg);
+						request.downloadId(), statusCode, errMsg);
 				}
 			}
 		});

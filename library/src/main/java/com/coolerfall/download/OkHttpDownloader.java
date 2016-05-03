@@ -18,6 +18,8 @@ import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.BufferedSource;
 
+import static com.coolerfall.download.Utils.HTTP;
+import static com.coolerfall.download.Utils.HTTPS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -46,7 +48,8 @@ public final class OkHttpDownloader implements Downloader {
 	}
 
 	@Override public int start(Uri uri, long breakpoint) throws IOException {
-		if (uri.getScheme() == null) {
+		String scheme = uri.getScheme();
+		if (!HTTP.equals(scheme) && !HTTPS.equals(scheme)) {
 			throw new DownloadException(0, "url should start with http or https");
 		}
 
