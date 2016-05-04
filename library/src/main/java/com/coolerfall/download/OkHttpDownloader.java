@@ -39,12 +39,26 @@ public final class OkHttpDownloader implements Downloader {
 			.build();
 	}
 
-	public OkHttpDownloader() {
-		client = defaultOkHttpClient();
+	/**
+	 * Create an instance using a default {@link OkHttpClient}.
+	 *
+	 * @return {@link OkHttpDownloader}
+	 */
+	public static OkHttpDownloader create() {
+		return new OkHttpDownloader(null);
 	}
 
-	public OkHttpDownloader(OkHttpClient client) {
-		this.client = client;
+	/**
+	 * Create an instance using a {@code client}.
+	 *
+	 * @return {@link OkHttpDownloader}
+	 */
+	public static OkHttpDownloader create(OkHttpClient client) {
+		return new OkHttpDownloader(client);
+	}
+
+	private OkHttpDownloader(OkHttpClient client) {
+		this.client = client == null ? defaultOkHttpClient() : client;
 	}
 
 	@Override public int start(Uri uri, long breakpoint) throws IOException {
