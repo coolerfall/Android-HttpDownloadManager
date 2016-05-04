@@ -213,11 +213,11 @@ class Utils {
 	static Downloader createDefaultDownloader() {
 		try {
 			Class.forName("okhttp3.OkHttpClient");
-			return new OkHttpDownloader();
+			return OkHttpDownloader.create();
 		} catch (ClassNotFoundException ignored) {
 
 		}
 
-		return new URLDownloader();
+		return URLDownloader.create();
 	}
 }

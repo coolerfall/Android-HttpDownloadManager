@@ -34,6 +34,18 @@ public final class URLDownloader implements Downloader {
 	private int redirectionCount = 0;
 	private HttpURLConnection httpURLConnection;
 
+	private URLDownloader() {
+	}
+
+	/**
+	 * Create an instance using {@link URLConnection}.
+	 *
+	 * @return {@link URLDownloader}
+	 */
+	public static URLDownloader create() {
+		return new URLDownloader();
+	}
+
 	@Override public int start(Uri uri, long breakpoint) throws IOException {
 		String scheme = uri.getScheme();
 		if (!HTTP.equals(scheme) && !HTTPS.equals(scheme)) {
