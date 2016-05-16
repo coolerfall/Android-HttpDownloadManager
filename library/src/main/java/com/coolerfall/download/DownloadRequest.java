@@ -1,24 +1,25 @@
 package com.coolerfall.download;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
-import java.net.HttpURLConnection;
-
-import javax.net.ssl.HttpsURLConnection;
-
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.coolerfall.download.Utils.createDefaultDownloader;
+import static com.coolerfall.download.Preconditions.checkNotNull;
 
 /**
  * DownloadRequest: download request, this is designed according to Request in Andoird-Volley.
  *
- * @author Vincent Cheung
- * @since Nov. 24, 2014
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public class DownloadRequest implements Comparable<DownloadRequest> {
+public final class DownloadRequest implements Comparable<DownloadRequest> {
 	private static final String TAG = DownloadRequest.class.getSimpleName();
 
 	/**
@@ -29,14 +30,12 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		.getAbsolutePath();
 
 	/**
-	 * Bit flag for {@link #setAllowedNetworkTypes} corresponding to
-	 * {@link android.net.ConnectivityManager#TYPE_MOBILE}.
+	 * Bit flag corresponding to {@link ConnectivityManager#TYPE_MOBILE}.
 	 */
 	public static final int NETWORK_MOBILE = 1;
 
 	/**
-	 * Bit flag for {@link #setAllowedNetworkTypes} corresponding to
-	 * {@link android.net.ConnectivityManager#TYPE_WIFI}.
+	 * Bit flag corresponding to {@link ConnectivityManager#TYPE_WIFI}.
 	 */
 	public static final int NETWORK_WIFI = 1 << 1;
 
@@ -63,17 +62,12 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	/**
 	 * The download state.
 	 */
-	private DownloadState mDownloadState;
+	private DownloadState mDownloadState = DownloadState.PENDING;
 
 	/**
-	 * URL of download request.
+	 * Uri of download request.
 	 */
-	private String mUrl;
-
-	/**
-	 * Custom {@link HttpURLConnection} or {@link HttpsURLConnection}.
-	 */
-	private HttpURLConnection mHttpURLConnection;
+	private Uri mUri;
 
 	/**
 	 * Destination directory to save file.
@@ -111,67 +105,33 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 */
 	private boolean mCanceled = false;
 
+	private Downloader mDownloader;
+
 	/**
-	 * Download listener.
+	 * Download callback.
 	 */
 	private DownloadCallback mDownloadCallback;
 
-	/**
-	 * Priority values: download request will be processed from
-	 * higher priorities to lower priorities.
-	 */
-	public enum Priority {
-		/**
-		 * The lowest priority.
-		 */
-		LOW,
-		/**
-		 * Normal priority(default).
-		 */
-		NORMAL,
-		/**
-		 * The highest priority.
-		 */
-		HIGH,
+	private DownloadRequest(Builder builder) {
+		if (builder.retryTime != 0) {
+			mRetryTime = new AtomicInteger(builder.retryTime);
+		}
+		mContext = checkNotNull(builder.context, "context == null");
+		mUri = Uri.parse(checkNotNull(builder.url, "url == null"));
+		mDestinationDir = builder.destinationDir;
+		mDestinationFilePath = builder.destinationFilePath;
+		mProgressInterval = builder.progressInterval;
+		mAllowedNetworkTypes = builder.allowedNetworkTypes;
+		mDownloader = builder.downloader;
+		if (mDownloader == null) {
+			mDownloader = createDefaultDownloader();
+		}
+		mDownloadCallback = builder.downloadCallback;
 	}
 
-	/**
-	 * State valuse: this will used to mark the state of download request.
-	 */
-	protected enum DownloadState {
-		/**
-		 * State invalid(the request is not in queue).
-		 */
-		INVALID,
-		/**
-		 * State when the download is currently pending.
-		 */
-		PENDING,
-		/**
-		 * State when the download is currently running.
-		 */
-		RUNNING,
-		/**
-		 * State when the download is successful.
-		 */
-		SUCCESSFUL,
-		/**
-		 * State when the download is failed.
-		 */
-		FAILURE,
-	}
-
-	/**
-	 * The default constructor, set the download state as pending.
-	 */
-	public DownloadRequest() {
-		mDownloadState = DownloadState.PENDING;
-	}
-
-	@Override
-	public int compareTo(DownloadRequest other) {
-		Priority left = this.getPriority();
-		Priority right = other.getPriority();
+	@Override public int compareTo(@NonNull DownloadRequest other) {
+		Priority left = this.priority();
+		Priority right = other.priority();
 		
 		/*
 		 * High-priority requests are "lesser" so they are sorted to the front.
@@ -183,36 +143,21 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 
 	/**
-	 * Set the priority of this downloader.
-	 *
-	 * @param priority {@link Priority}
-	 * @return this Request object to allow for chaining
-	 */
-	public DownloadRequest setPriority(Priority priority) {
-		mPriority = priority;
-
-		return this;
-	}
-
-	/**
 	 * Get the priority of download request.
 	 *
 	 * @return {@link Priority#NORMAL} by default.
 	 */
-	protected Priority getPriority() {
+	Priority priority() {
 		return mPriority;
 	}
 
 	/**
-	 * Set the download callback.
+	 * Get {@link Downloader} to use.
 	 *
-	 * @param cb download callback
-	 * @return this Request object to allow for chaining
+	 * @return {@link Downloader}
 	 */
-	public DownloadRequest setDownloadCallback(DownloadCallback cb) {
-		mDownloadCallback = cb;
-
-		return this;
+	Downloader downloader() {
+		return mDownloader;
 	}
 
 	/**
@@ -220,7 +165,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return download callback
 	 */
-	protected DownloadCallback getDownloadCallback() {
+	DownloadCallback downloadCallback() {
 		return mDownloadCallback;
 	}
 
@@ -231,19 +176,20 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @param queue download request queue
 	 * @return this Request object to allow for chaining
 	 */
-	protected DownloadRequest setDownloadQueue(DownloadRequestQueue queue) {
+	DownloadRequest setDownloadRequestQueue(DownloadRequestQueue queue) {
 		mDownloadRequestQueue = queue;
+		mDownloadId = mDownloadRequestQueue.getSequenceNumber();
 
 		return this;
 	}
 
 	/**
-	 * Set download state of this request.
+	 * Update the {@link DownloadState} of current download request.
 	 *
-	 * @param state download state
+	 * @param downloadState {@link DownloadState}
 	 */
-	protected void setDownloadState(DownloadState state) {
-		mDownloadState = state;
+	void updateDownloadState(DownloadState downloadState) {
+		mDownloadState = downloadState;
 	}
 
 	/**
@@ -251,20 +197,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return download state
 	 */
-	protected DownloadState getDownloadState() {
+	DownloadState downloadState() {
 		return mDownloadState;
-	}
-
-	/**
-	 * Set download id of this download request.
-	 *
-	 * @param downloadId download id
-	 * @return download request
-	 */
-	public DownloadRequest setDownloadId(int downloadId) {
-		mDownloadId = downloadId;
-
-		return this;
 	}
 
 	/**
@@ -272,41 +206,17 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return download id
 	 */
-	protected int getDownloadId() {
+	int downloadId() {
 		return mDownloadId;
 	}
 
 	/**
-	 * Set retry time, the manager will re-download with retry time.
-	 *
-	 * @param retryTime retry time
-	 * @return this Request object to allow for chaining
-	 */
-	public DownloadRequest setRetryTime(int retryTime) {
-		mRetryTime = new AtomicInteger(retryTime);
-
-		return this;
-	}
-
-	/**
-	 * Get retry time, the retry time will decrease automatically
-	 * after invoking this method.
+	 * Get retry time, the retry time will decrease automatically after invoking this method.
 	 *
 	 * @return retry time
 	 */
-	protected int getRetryTime() {
+	int retryTime() {
 		return mRetryTime.decrementAndGet();
-	}
-
-	/**
-	 * Set progress interval for this download request.
-	 *
-	 * @param millisec interval in millisecond
-	 * @return this Request object to allow for chaining
-	 */
-	public DownloadRequest setProgressInterval(int millisec) {
-		mProgressInterval = millisec;
-		return this;
 	}
 
 	/**
@@ -314,24 +224,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return progress interval
 	 */
-	protected int getProgressInterval() {
+	int progressInterval() {
 		return mProgressInterval;
-	}
-
-	/**
-	 * Restrict the types of networks over which this download may proceed.
-	 * By default, all network types are allowed.
-	 * Be sure to add permission android.permission.ACCESS_NETWORK_STATE.
-	 *
-	 * @param context the context to use
-	 * @param types   any network type
-	 * @return this Request object to allow for chaining
-	 */
-	public DownloadRequest setAllowedNetworkTypes(Context context, int types) {
-		mContext = context;
-		mAllowedNetworkTypes = types;
-
-		return this;
 	}
 
 	/**
@@ -339,7 +233,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return all the types
 	 */
-	protected int getAllowedNetworkTypes() {
+	int allowedNetworkTypes() {
 		return mAllowedNetworkTypes;
 	}
 
@@ -348,28 +242,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return context
 	 */
-	protected Context getContext() {
+	Context context() {
 		return mContext;
-	}
-
-	/**
-	 * Set the url of this download request.
-	 *
-	 * @param url the url
-	 * @return this Request object to allow for chaining
-	 */
-	public DownloadRequest setUrl(String url) {
-		if (TextUtils.isEmpty(url)) {
-			throw new IllegalArgumentException("url cannot be null");
-		}
-
-		if (!url.startsWith("http") && !url.startsWith("https")) {
-			throw new IllegalArgumentException("can only download 'HTTP/HTTPS' url");
-		}
-
-		mUrl = url;
-
-		return this;
 	}
 
 	/**
@@ -377,65 +251,14 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return the URL of this request
 	 */
-	protected String getUrl() {
-		return mUrl;
-	}
-
-	/**
-	 * Set custom {@link HttpURLConnection} or {@link HttpsURLConnection}.
-	 *
-	 * @param conn http connection
-	 * @return this Request object to allow for chaining
-	 */
-	public DownloadRequest setHttpURLConnection(HttpURLConnection conn) {
-		mHttpURLConnection = conn;
-
-		return this;
-	}
-
-	/**
-	 * Get the custom {@link HttpURLConnection} or {@link HttpsURLConnection}.
-	 *
-	 * @return http connection
-	 */
-	protected HttpURLConnection getHttpURLConnection() {
-		return mHttpURLConnection;
+	Uri uri() {
+		return mUri;
 	}
 
 	/* get absolute file path according to the directory */
-	private String getFilePath() {
+	String getFilePath() {
 		String dir = TextUtils.isEmpty(mDestinationDir) ? DEFAULT_DIR : mDestinationDir;
-		return dir + File.separator + DownloadUtils.getFilenameFromHeader(mUrl);
-	}
-
-	/**
-	 * Set destination file path of this download request. The file will be createad
-	 * according to the file path. This file path must be absolute file
-	 * path(such as: /sdcard/test.txt). If the filename is not certain, then use
-	 * {@link #setDestDirectory(String)}, the download manager will genrate filename from url.
-	 *
-	 * @param filePath destination file path
-	 * @return this Request object to allow for chaining
-	 * @see #setDestDirectory(String)
-	 */
-	public DownloadRequest setDestFilePath(String filePath) {
-		mDestinationFilePath = filePath;
-		return this;
-	}
-
-	/**
-	 * Set absolute destination directory for this download request.
-	 * If {@link #setDestFilePath(String)} was used, then destination directory will
-	 * be ignored. The directory will be created if not existed.
-	 * The name of file will be generated from url or http header.
-	 *
-	 * @param dir destination directory
-	 * @return this Request object to allow for chaining
-	 * @see #setDestFilePath(String)
-	 */
-	public DownloadRequest setDestDirectory(String dir) {
-		mDestinationDir = dir;
-		return this;
+		return dir + File.separator + Utils.getFilenameFromHeader(mUri.toString());
 	}
 
 	/**
@@ -443,8 +266,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return destination file path
 	 */
-	@SuppressWarnings("ResultOfMethodCallIgnored")
-	protected String getDestFilePath() {
+	@SuppressWarnings("ResultOfMethodCallIgnored") String destinationFilePath() {
 		/* if the destination file path is empty, use default file path */
 		if (TextUtils.isEmpty(mDestinationFilePath)) {
 			mDestinationFilePath = getFilePath();
@@ -468,14 +290,14 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return temporary destination file path
 	 */
-	protected String getTmpDestinationPath() {
-		return getDestFilePath() + ".tmp";
+	String tempFilePath() {
+		return destinationFilePath() + ".tmp";
 	}
 
 	/**
-	 * Mark this download request as canceled.  No callback will be delivered.
+	 * Mark this download request as canceled. No callback will be delivered.
 	 */
-	protected void cancel() {
+	void cancel() {
 		mCanceled = true;
 	}
 
@@ -484,16 +306,77 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return Returns true if this request has been canceled.
 	 */
-	protected boolean isCanceled() {
+	boolean isCanceled() {
 		return mCanceled;
 	}
 
 	/**
 	 * Notifies the download request queue that this request has finished(succesfully or fail)
 	 */
-	protected void finish() {
+	void finish() {
 		if (mDownloadRequestQueue != null) {
 			mDownloadRequestQueue.finish(this);
+		}
+	}
+
+	public static final class Builder {
+		private int retryTime;
+		private Context context;
+		private String url;
+		private String destinationDir;
+		private String destinationFilePath;
+		private int progressInterval;
+		private int allowedNetworkTypes;
+		private Downloader downloader;
+		private DownloadCallback downloadCallback;
+
+		public Builder retryTime(int retryTime) {
+			this.retryTime = retryTime;
+			return this;
+		}
+
+		public Builder context(Context context) {
+			this.context = context;
+			return this;
+		}
+
+		public Builder url(String url) {
+			this.url = url;
+			return this;
+		}
+
+		public Builder destinationDir(String destinationDir) {
+			this.destinationDir = destinationDir;
+			return this;
+		}
+
+		public Builder destinationFilePath(String destinationFilePath) {
+			this.destinationFilePath = destinationFilePath;
+			return this;
+		}
+
+		public Builder progressInterval(int progressInterval) {
+			this.progressInterval = progressInterval;
+			return this;
+		}
+
+		public Builder allowedNetworkTypes(int allowedNetworkTypes) {
+			this.allowedNetworkTypes = allowedNetworkTypes;
+			return this;
+		}
+
+		public Builder downloader(Downloader downloader) {
+			this.downloader = downloader;
+			return this;
+		}
+
+		public Builder downloadCallback(DownloadCallback downloadCallback) {
+			this.downloadCallback = downloadCallback;
+			return this;
+		}
+
+		public DownloadRequest build() {
+			return new DownloadRequest(this);
 		}
 	}
 }

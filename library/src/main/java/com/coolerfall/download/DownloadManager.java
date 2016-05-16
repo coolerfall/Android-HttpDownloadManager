@@ -1,14 +1,11 @@
 package com.coolerfall.download;
 
-import com.coolerfall.download.DownloadRequest.DownloadState;
-
 /**
  * Download manager: used to manage the downloading.
  *
- * @author Vincent Cheung
- * @since Nov. 24, 2014
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public class DownloadManager {
+public final class DownloadManager {
 	/**
 	 * Custom http code invalid.
 	 */
@@ -18,16 +15,6 @@ public class DownloadManager {
 	 * Custom http code error size.
 	 */
 	public static final int HTTP_ERROR_SIZE = 1 << 1;
-
-	/**
-	 * Custom http code error network.
-	 */
-	public static final int HTTP_ERROR_NETWORK = 1 << 2;
-
-	/**
-	 * Http code range not satisfiable.
-	 */
-	public static final int HTTP_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
 
 	/**
 	 * Download request queue handles the download according to priority.
@@ -64,18 +51,10 @@ public class DownloadManager {
 	 * if the request is in downloading, then -1 will be returned
 	 */
 	public int add(DownloadRequest request) {
-		if (request == null) {
-			throw new IllegalArgumentException("DownloadRequest cannot be null");
-		}
-
-		/* if download id is not set, generate one */
-		if (request.getDownloadId() == -1) {
-			int downloadId = mDownloadRequestQueue.getSequenceNumber();
-			request.setDownloadId(downloadId);
-		}
+		request = Preconditions.checkNotNull(request, "request == null");
 
 		/* add download request into download request queue */
-		return mDownloadRequestQueue.add(request) ? request.getDownloadId() : -1;
+		return mDownloadRequestQueue.add(request) ? request.downloadId() : -1;
 	}
 
 	/**

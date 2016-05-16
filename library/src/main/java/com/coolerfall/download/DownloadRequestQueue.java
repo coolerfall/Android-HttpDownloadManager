@@ -1,24 +1,20 @@
 package com.coolerfall.download;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.coolerfall.download.DownloadRequest.DownloadState;
-
 /**
  * Download request queue, this is designed according to RequestQueue in Andoird-Volley.
  *
- * @author Vincent Cheung
- * @since Nov. 24, 2014
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public class DownloadRequestQueue {
+final class DownloadRequestQueue {
 	private static final String TAG = DownloadRequestQueue.class.getSimpleName();
 
 	/**
@@ -83,7 +79,7 @@ public class DownloadRequestQueue {
 	/**
 	 * Starts the dispatchers in this queue.
 	 */
-	protected void start() {
+	void start() {
 		/* make sure any currently running dispatchers are stopped */
 		stop();
 		
@@ -98,7 +94,7 @@ public class DownloadRequestQueue {
 	/**
 	 * Stops the download dispatchers.
 	 */
-	protected void stop() {
+	void stop() {
 		for (DownloadDispatcher dispatcher : mDispatchers) {
 			if (dispatcher != null) {
 				dispatcher.quit();
@@ -112,22 +108,16 @@ public class DownloadRequestQueue {
 	 * @param request download request
 	 * @return true if the request is not in queue, otherwise return false
 	 */
-	protected boolean add(DownloadRequest request) {
-		/* check if url is empty */
-		if (TextUtils.isEmpty(request.getUrl())) {
-			Log.w(TAG, "download url cannot be empty");
-			return false;
-		}
-
+	boolean add(DownloadRequest request) {
 		/* if the request is downloading, do nothing */
-		if (query(request.getDownloadId()) != DownloadState.INVALID ||
-			query(request.getUrl()) != DownloadState.INVALID) {
+		if (query(request.downloadId()) != DownloadState.INVALID ||
+			query(request.uri().toString()) != DownloadState.INVALID) {
 			Log.w(TAG, "the download requst is in downloading");
 			return false;
 		}
 
 		/* tag the request as belonging to this queue */
-		request.setDownloadQueue(this);
+		request.setDownloadRequestQueue(this);
 		/* add it to the set of current requests */
 		synchronized (mCurrentRequests) {
 			mCurrentRequests.add(request);
@@ -145,10 +135,10 @@ public class DownloadRequestQueue {
 	 * @param downloadId download id
 	 * @return true if download has canceled, otherwise return false
 	 */
-	protected boolean cancel(int downloadId) {
+	boolean cancel(int downloadId) {
 		synchronized (mCurrentRequests) {
 			for (DownloadRequest request : mCurrentRequests) {
-				if (request.getDownloadId() == downloadId) {
+				if (request.downloadId() == downloadId) {
 					request.cancel();
 					return true;
 				}
@@ -161,7 +151,7 @@ public class DownloadRequestQueue {
 	/**
 	 * Cancel all the download.
 	 */
-	protected void cancelAll() {
+	void cancelAll() {
 		synchronized (mCurrentRequests) {
 			for (DownloadRequest request : mCurrentRequests) {
 				request.cancel();
@@ -176,7 +166,7 @@ public class DownloadRequestQueue {
 	 *
 	 * @return task size
 	 */
-	protected int getDownloadingSize() {
+	int getDownloadingSize() {
 		return mCurrentRequests.size();
 	}
 
@@ -186,11 +176,11 @@ public class DownloadRequestQueue {
 	 * @param downloadId download id
 	 * @return true if the request is downloading, otherwise return false
 	 */
-	protected DownloadState query(int downloadId) {
+	DownloadState query(int downloadId) {
 		synchronized (mCurrentRequests) {
 			for (DownloadRequest request : mCurrentRequests) {
-				if (request.getDownloadId() == downloadId) {
-					return request.getDownloadState();
+				if (request.downloadId() == downloadId) {
+					return request.downloadState();
 				}
 			}
 		}
@@ -204,11 +194,11 @@ public class DownloadRequestQueue {
 	 * @param url the url to check
 	 * @return true if the request is downloading, otherwise return false
 	 */
-	protected DownloadState query(String url) {
+	DownloadState query(String url) {
 		synchronized (mCurrentRequests) {
 			for (DownloadRequest request : mCurrentRequests) {
-				if (request.getUrl().equals(url)) {
-					return request.getDownloadState();
+				if (request.uri().toString().equals(url)) {
+					return request.downloadState();
 				}
 			}
 		}
@@ -230,7 +220,7 @@ public class DownloadRequestQueue {
 	 *
 	 * @param request download reqeust
 	 */
-	protected void finish(DownloadRequest request) {
+	void finish(DownloadRequest request) {
 		synchronized (mCurrentRequests) {
 			mCurrentRequests.remove(request);
 		}
@@ -239,7 +229,7 @@ public class DownloadRequestQueue {
 	/**
 	 * Release all the resource.
 	 */
-	protected void release() {
+	void release() {
 		/* release current download request */
 		cancelAll();
 

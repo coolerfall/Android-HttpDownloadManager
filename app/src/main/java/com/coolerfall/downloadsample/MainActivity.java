@@ -108,13 +108,14 @@ public class MainActivity extends Activity implements OnClickListener {
 		if (mDownloadManager.isDownloading(downloadId)) {
 			mDownloadManager.cancel(downloadId);
 		} else {
-			DownloadRequest request = new DownloadRequest()
-				.setDownloadId(downloadId)
-				.setDownloadCallback(new Callback())
-				.setRetryTime(5)
-				.setAllowedNetworkTypes(this, DownloadRequest.NETWORK_WIFI)
-				.setProgressInterval(1000)
-				.setUrl(URL[downloadId]);
+			DownloadRequest request = new DownloadRequest.Builder()
+				.context(this)
+				.downloadCallback(new Callback())
+				.retryTime(5)
+				.allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
+				.progressInterval(1000)
+				.url(URL[downloadId])
+				.build();
 			mDownloadManager.add(request);
 		}
 	}

@@ -1,22 +1,22 @@
 package com.coolerfall.download;
 
-import java.util.concurrent.Executor;
-
 import android.os.Handler;
+import android.support.annotation.NonNull;
+
+import java.util.concurrent.Executor;
 
 /**
  * Download delivery: used to delivery callback to call back in main thread.
  *
- * @author Vincent Cheung
- * @since Nov. 24, 2014
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public class DownloadDelivery {
+final class DownloadDelivery {
 	private final Executor mDownloadPoster;
 
 	public DownloadDelivery(final Handler handler) {
 		mDownloadPoster = new Executor() {
 			@Override
-			public void execute(Runnable command) {
+			public void execute(@NonNull Runnable command) {
 				handler.post(command);
 			}
 		};
@@ -32,8 +32,8 @@ public class DownloadDelivery {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.getDownloadCallback() != null) {
-					request.getDownloadCallback().onStart(request.getDownloadId(), totalBytes);
+				if (request.downloadCallback() != null) {
+					request.downloadCallback().onStart(request.downloadId(), totalBytes);
 				}
 			}
 		});
@@ -48,8 +48,8 @@ public class DownloadDelivery {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.getDownloadCallback() != null) {
-					request.getDownloadCallback().onRetry(request.getDownloadId());
+				if (request.downloadCallback() != null) {
+					request.downloadCallback().onRetry(request.downloadId());
 				}
 			}
 		});
@@ -63,13 +63,13 @@ public class DownloadDelivery {
 	 * @param totalBytes   the total bytes of currnet file in downloading
 	 */
 	protected void postProgress(final DownloadRequest request,
-	                            final long bytesWritten, final long totalBytes) {
+		final long bytesWritten, final long totalBytes) {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.getDownloadCallback() != null) {
-					request.getDownloadCallback().onProgress(
-						request.getDownloadId(), bytesWritten, totalBytes);
+				if (request.downloadCallback() != null) {
+					request.downloadCallback().onProgress(
+						request.downloadId(), bytesWritten, totalBytes);
 				}
 			}
 		});
@@ -84,9 +84,9 @@ public class DownloadDelivery {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.getDownloadCallback() != null) {
-					request.getDownloadCallback().onSuccess(
-						request.getDownloadId(), request.getDestFilePath());
+				if (request.downloadCallback() != null) {
+					request.downloadCallback().onSuccess(
+						request.downloadId(), request.destinationFilePath());
 				}
 			}
 		});
@@ -99,13 +99,14 @@ public class DownloadDelivery {
 	 * @param statusCode status code
 	 * @param errMsg     error message
 	 */
-	protected void postFailure(final DownloadRequest request, final int statusCode, final String errMsg) {
+	protected void postFailure(final DownloadRequest request, final int statusCode,
+		final String errMsg) {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.getDownloadCallback() != null) {
-					request.getDownloadCallback().onFailure(
-						request.getDownloadId(), statusCode, errMsg);
+				if (request.downloadCallback() != null) {
+					request.downloadCallback().onFailure(
+						request.downloadId(), statusCode, errMsg);
 				}
 			}
 		});
