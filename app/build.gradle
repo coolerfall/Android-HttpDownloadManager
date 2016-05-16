@@ -5,7 +5,7 @@ android {
 	buildToolsVersion "23.0.1"
 
 	defaultConfig {
-		applicationId "com.cooler.downloadsample"
+		applicationId "com.coolerfall.downloadsample"
 		minSdkVersion 10
 		targetSdkVersion 21
 		versionCode 1

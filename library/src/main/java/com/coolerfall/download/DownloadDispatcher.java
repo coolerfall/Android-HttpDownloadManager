@@ -81,7 +81,7 @@ final class DownloadDispatcher extends Thread {
 	/**
 	 * Default constructor, with queue and delivery.
 	 *
-	 * @param queue    download request queue
+	 * @param queue download request queue
 	 * @param delivery download delivery
 	 */
 	public DownloadDispatcher(BlockingQueue<DownloadRequest> queue, DownloadDelivery delivery) {
@@ -122,12 +122,12 @@ final class DownloadDispatcher extends Thread {
 	}
 
 	/* update download state */
-	private void updateState(DownloadRequest request, DownloadState state) {
+	void updateState(DownloadRequest request, DownloadState state) {
 		request.updateDownloadState(state);
 	}
 
 	/* update download start state */
-	private void updateStart(DownloadRequest request, long totalBytes) {
+	void updateStart(DownloadRequest request, long totalBytes) {
 		/* if the request has failed before, donnot deliver callback */
 		if (request.downloadState() == DownloadState.FAILURE) {
 			updateState(request, DownloadState.RUNNING);
@@ -140,12 +140,12 @@ final class DownloadDispatcher extends Thread {
 	}
 
 	/* update download retrying */
-	private void updateRetry(DownloadRequest request) {
+	void updateRetry(DownloadRequest request) {
 		mDelivery.postRetry(request);
 	}
 
 	/* update download progress */
-	private void updateProgress(DownloadRequest request, long bytesWritten, long totalBytes) {
+	void updateProgress(DownloadRequest request, long bytesWritten, long totalBytes) {
 		long currentTimestamp = System.currentTimeMillis();
 		if (bytesWritten != totalBytes &&
 			currentTimestamp - mLastProgressTimestamp < request.progressInterval()) {
@@ -162,7 +162,7 @@ final class DownloadDispatcher extends Thread {
 
 	/* update download success */
 	@SuppressWarnings("ResultOfMethodCallIgnored")
-	private void updateSuccess(DownloadRequest request) {
+	void updateSuccess(DownloadRequest request) {
 		updateState(request, DownloadState.SUCCESSFUL);
 		
 		/* notify the request download finish */
@@ -178,7 +178,7 @@ final class DownloadDispatcher extends Thread {
 	}
 
 	/* update download failure */
-	private void updateFailure(DownloadRequest request, int statusCode, String errMsg) {
+	 void updateFailure(DownloadRequest request, int statusCode, String errMsg) {
 		updateState(request, DownloadState.FAILURE);
 
 		/* if the status code is 0, may be cause by the net error */
@@ -217,7 +217,7 @@ final class DownloadDispatcher extends Thread {
 	}
 
 	/* execute downloading */
-	private void executeDownload(DownloadRequest request) {
+	void executeDownload(DownloadRequest request) {
 		if (Thread.currentThread().isInterrupted()) {
 			return;
 		}
@@ -304,9 +304,8 @@ final class DownloadDispatcher extends Thread {
 		}
 	}
 
-
 	/* read data from input stream */
-	private int readFromInputStream(byte[] buffer, InputStream is) {
+	int readFromInputStream(byte[] buffer, InputStream is) {
 		try {
 			return is.read(buffer);
 		} catch (IOException e) {
@@ -329,7 +328,7 @@ final class DownloadDispatcher extends Thread {
 	}
 
 	/* a utility function to close an input stream without raising an exception */
-	private static void silentCloseInputStream(InputStream is) {
+	static void silentCloseInputStream(InputStream is) {
 		try {
 			if (is != null) {
 				is.close();
@@ -343,7 +342,7 @@ final class DownloadDispatcher extends Thread {
 	 * Forces this dispatcher to quit immediately. If any download requests are still in
 	 * the queue, they are not guaranteed to be processed.
 	 */
-	protected void quit() {
+	void quit() {
 		mQuit = true;
 		
 		/* interrupt current thread */

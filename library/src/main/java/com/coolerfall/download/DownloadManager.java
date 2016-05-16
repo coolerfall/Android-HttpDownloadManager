@@ -51,9 +51,7 @@ public final class DownloadManager {
 	 * if the request is in downloading, then -1 will be returned
 	 */
 	public int add(DownloadRequest request) {
-		if (request == null) {
-			throw new IllegalArgumentException("DownloadRequest cannot be null");
-		}
+		request = Preconditions.checkNotNull(request, "request == null");
 
 		/* add download request into download request queue */
 		return mDownloadRequestQueue.add(request) ? request.downloadId() : -1;
