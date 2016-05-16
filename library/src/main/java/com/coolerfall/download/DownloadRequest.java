@@ -17,8 +17,7 @@ import static com.coolerfall.download.Preconditions.checkNotNull;
 /**
  * DownloadRequest: download request, this is designed according to Request in Andoird-Volley.
  *
- * @author Vincent Cheung
- * @since Nov. 24, 2014
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public final class DownloadRequest implements Comparable<DownloadRequest> {
 	private static final String TAG = DownloadRequest.class.getSimpleName();
@@ -114,7 +113,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	private DownloadCallback mDownloadCallback;
 
 	private DownloadRequest(Builder builder) {
-		mDownloadId = builder.downloadId;
 		if (builder.retryTime != 0) {
 			mRetryTime = new AtomicInteger(builder.retryTime);
 		}
@@ -180,10 +178,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 */
 	DownloadRequest setDownloadRequestQueue(DownloadRequestQueue queue) {
 		mDownloadRequestQueue = queue;
-		/* if download id is not set, generate one */
-		if (mDownloadId <= 0) {
-			mDownloadId = mDownloadRequestQueue.getSequenceNumber();
-		}
+		mDownloadId = mDownloadRequestQueue.getSequenceNumber();
 
 		return this;
 	}
@@ -325,7 +320,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 
 	public static final class Builder {
-		private int downloadId;
 		private int retryTime;
 		private Context context;
 		private String url;
@@ -335,11 +329,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		private int allowedNetworkTypes;
 		private Downloader downloader;
 		private DownloadCallback downloadCallback;
-
-		public Builder downloadId(int downloadId) {
-			this.downloadId = downloadId;
-			return this;
-		}
 
 		public Builder retryTime(int retryTime) {
 			this.retryTime = retryTime;
