@@ -181,9 +181,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	DownloadRequest setDownloadRequestQueue(DownloadRequestQueue queue) {
 		mDownloadRequestQueue = queue;
 		/* if download id is not set, generate one */
-		if (mDownloadId == -1) {
-			mDownloadId = mDownloadRequestQueue.getSequenceNumber();
-		}
+		mDownloadId = mDownloadRequestQueue.getSequenceNumber();
 
 		return this;
 	}
