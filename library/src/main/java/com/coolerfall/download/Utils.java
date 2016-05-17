@@ -215,7 +215,6 @@ class Utils {
 			Class.forName("okhttp3.OkHttpClient");
 			return OkHttpDownloader.create();
 		} catch (ClassNotFoundException ignored) {
-
 		}
 
 		return URLDownloader.create();

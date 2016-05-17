@@ -114,7 +114,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	private DownloadCallback mDownloadCallback;
 
 	private DownloadRequest(Builder builder) {
-		mDownloadId = builder.downloadId;
 		if (builder.retryTime != 0) {
 			mRetryTime = new AtomicInteger(builder.retryTime);
 		}
@@ -323,7 +322,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 
 	public static final class Builder {
-		private int downloadId;
 		private int retryTime;
 		private Context context;
 		private String url;
@@ -333,11 +331,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		private int allowedNetworkTypes;
 		private Downloader downloader;
 		private DownloadCallback downloadCallback;
-
-		public Builder downloadId(int downloadId) {
-			this.downloadId = downloadId;
-			return this;
-		}
 
 		public Builder retryTime(int retryTime) {
 			this.retryTime = retryTime;

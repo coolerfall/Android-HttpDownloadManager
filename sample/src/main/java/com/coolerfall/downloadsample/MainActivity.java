@@ -109,7 +109,6 @@ public class MainActivity extends Activity implements OnClickListener {
 			mDownloadManager.cancel(downloadId);
 		} else {
 			DownloadRequest request = new DownloadRequest.Builder()
-				.downloadId(downloadId)
 				.context(this)
 				.downloadCallback(new Callback())
 				.retryTime(5)
