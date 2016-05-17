@@ -28,7 +28,7 @@ final class DownloadDelivery {
 	 * @param request    download request
 	 * @param totalBytes total bytes
 	 */
-	protected void postStart(final DownloadRequest request, final long totalBytes) {
+	void postStart(final DownloadRequest request, final long totalBytes) {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -44,7 +44,7 @@ final class DownloadDelivery {
 	 *
 	 * @param request download request
 	 */
-	protected void postRetry(final DownloadRequest request) {
+	void postRetry(final DownloadRequest request) {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -62,7 +62,7 @@ final class DownloadDelivery {
 	 * @param bytesWritten the bytes have written to file
 	 * @param totalBytes   the total bytes of currnet file in downloading
 	 */
-	protected void postProgress(final DownloadRequest request,
+	void postProgress(final DownloadRequest request,
 		final long bytesWritten, final long totalBytes) {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
@@ -80,7 +80,7 @@ final class DownloadDelivery {
 	 *
 	 * @param request download request
 	 */
-	protected void postSuccess(final DownloadRequest request) {
+	void postSuccess(final DownloadRequest request) {
 		mDownloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -99,7 +99,7 @@ final class DownloadDelivery {
 	 * @param statusCode status code
 	 * @param errMsg     error message
 	 */
-	protected void postFailure(final DownloadRequest request, final int statusCode,
+	void postFailure(final DownloadRequest request, final int statusCode,
 		final String errMsg) {
 		mDownloadPoster.execute(new Runnable() {
 			@Override

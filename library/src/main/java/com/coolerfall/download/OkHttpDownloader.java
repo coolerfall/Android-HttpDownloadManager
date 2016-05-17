@@ -100,7 +100,7 @@ public final class OkHttpDownloader implements Downloader {
 		case Utils.HTTP_TEMP_REDIRECT:
 			body.close();
 			if (redirectionCount++ < Utils.MAX_REDIRECTION) {
-		  /* take redirect url and call executeDownload recursively */
+		        /* take redirect url and call executeDownload recursively */
 				String redirectUrl = response.header(Utils.LOCATION);
 				return start(Uri.parse(redirectUrl), breakpoint);
 			} else {
