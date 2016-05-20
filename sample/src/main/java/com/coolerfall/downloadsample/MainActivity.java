@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.coolerfall.download.DownloadCallback;
 import com.coolerfall.download.DownloadManager;
 import com.coolerfall.download.DownloadRequest;
+import com.coolerfall.download.OkHttpDownloader;
 
 import java.io.File;
 
@@ -67,7 +68,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		mTextSpeed3 = (TextView) findViewById(R.id.download_tv_speed3);
 		mTextSpeed4 = (TextView) findViewById(R.id.download_tv_speed4);
 
-		mDownloadManager = new DownloadManager();
+		mDownloadManager =
+			new DownloadManager.Builder().downloader(OkHttpDownloader.create()).build();
 	}
 
 	@Override

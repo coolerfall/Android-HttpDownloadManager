@@ -123,10 +123,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		mDestinationFilePath = builder.destinationFilePath;
 		mProgressInterval = builder.progressInterval;
 		mAllowedNetworkTypes = builder.allowedNetworkTypes;
-		mDownloader = builder.downloader;
-		if (mDownloader == null) {
-			mDownloader = createDefaultDownloader();
-		}
 		mDownloadCallback = builder.downloadCallback;
 	}
 
@@ -158,7 +154,15 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return {@link Downloader}
 	 */
 	Downloader downloader() {
+		if (mDownloader == null) {
+			mDownloader = createDefaultDownloader();
+		}
+
 		return mDownloader;
+	}
+
+	void setDownloader(Downloader downloader) {
+		mDownloader = downloader;
 	}
 
 	/**
@@ -329,7 +333,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		private String destinationFilePath;
 		private int progressInterval;
 		private int allowedNetworkTypes;
-		private Downloader downloader;
 		private DownloadCallback downloadCallback;
 
 		public Builder retryTime(int retryTime) {
@@ -364,11 +367,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 
 		public Builder allowedNetworkTypes(int allowedNetworkTypes) {
 			this.allowedNetworkTypes = allowedNetworkTypes;
-			return this;
-		}
-
-		public Builder downloader(Downloader downloader) {
-			this.downloader = downloader;
 			return this;
 		}
 
