@@ -16,30 +16,22 @@ public final class DownloadManager {
 	 */
 	public static final int HTTP_ERROR_SIZE = 1 << 1;
 
+	private Downloader mDownloader;
+
 	/**
 	 * Download request queue handles the download according to priority.
 	 */
 	private DownloadRequestQueue mDownloadRequestQueue;
 
 	/**
-	 * Default constructor, start the download request queue here.
-	 * The default size of work pool is 3.
-	 */
-	public DownloadManager() {
-		mDownloadRequestQueue = new DownloadRequestQueue();
-		mDownloadRequestQueue.start();
-	}
-
-	/**
 	 * Constructor with max thread pool size, allows maximum of 10 threads.
 	 * Any number higher than 10 or less than 1, then the size will be default size.
 	 * If you don't want to use default constructor to create download manager, then
 	 * you can use this construtor to create a download manager with threadPoolSize.
-	 *
-	 * @param threadPoolSize max pool size
 	 */
-	public DownloadManager(int threadPoolSize) {
-		mDownloadRequestQueue = new DownloadRequestQueue(threadPoolSize);
+	private DownloadManager(Builder builder) {
+		mDownloader = builder.downloader;
+		mDownloadRequestQueue = new DownloadRequestQueue(builder.threadPoolSize);
 		mDownloadRequestQueue.start();
 	}
 
@@ -51,9 +43,12 @@ public final class DownloadManager {
 	 * if the request is in downloading, then -1 will be returned
 	 */
 	public int add(DownloadRequest request) {
-		if (request == null) {
-			throw new IllegalArgumentException("DownloadRequest cannot be null");
+		request = Preconditions.checkNotNull(request, "request == null");
+		if (isDownloading(request.uri().toString())) {
+			return -1;
 		}
+		
+		request.setDownloader(mDownloader);
 
 		/* add download request into download request queue */
 		return mDownloadRequestQueue.add(request) ? request.downloadId() : -1;
@@ -131,6 +126,25 @@ public final class DownloadManager {
 		if (mDownloadRequestQueue != null) {
 			mDownloadRequestQueue.release();
 			mDownloadRequestQueue = null;
+		}
+	}
+
+	public static final class Builder {
+		private Downloader downloader;
+		private int threadPoolSize;
+
+		public Builder downloader(Downloader downloader) {
+			this.downloader = downloader;
+			return this;
+		}
+
+		public Builder threadPoolSize(int threadPoolSize) {
+			this.threadPoolSize = threadPoolSize;
+			return this;
+		}
+
+		public DownloadManager build() {
+			return new DownloadManager(this);
 		}
 	}
 }

@@ -30,7 +30,7 @@ public class DownloadManagerTest {
 	@Before public void setUp() throws Exception {
 		ShadowLog.stream = System.out;
 		mockWebServer = new MockWebServer();
-		downloadManager = new DownloadManager();
+		downloadManager = new DownloadManager.Builder().build();
 		String filePath =
 			ShadowEnvironment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 				+ File.separator
