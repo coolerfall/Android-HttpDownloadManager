@@ -7,15 +7,15 @@ import java.io.IOException;
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
-final class DownloadException extends IOException {
-  private int code;
+public final class DownloadException extends IOException {
+	private int code;
 
-  DownloadException(int code, String detailMessage) {
-    super(detailMessage);
-    this.code = code;
-  }
+	DownloadException(int code, String detailMessage) {
+		super(detailMessage);
+		this.code = code;
+	}
 
-  int getCode() {
-    return code;
-  }
+	int getCode() {
+		return code;
+	}
 }

@@ -87,7 +87,7 @@ public final class URLDownloader implements Downloader {
 		case HTTP_SEE_OTHER:
 		case Utils.HTTP_TEMP_REDIRECT:
 			if (redirectionCount++ < Utils.MAX_REDIRECTION) {
-		        /* take redirect url and call executeDownload recursively */
+			    /* take redirect url and call executeDownload recursively */
 				String redirectUrl = httpURLConnection.getHeaderField(Utils.LOCATION);
 				httpURLConnection.disconnect();
 				return start(Uri.parse(redirectUrl), breakpoint);
@@ -114,7 +114,7 @@ public final class URLDownloader implements Downloader {
 		}
 	}
 
-    /* read response content length from server */
+	/* read response content length from server */
 	int getContentLength(HttpURLConnection conn) {
 		String transferEncoding = conn.getHeaderField(TRANSFER_ENCODING);
 		if (transferEncoding == null || transferEncoding.equalsIgnoreCase("chunked")) {

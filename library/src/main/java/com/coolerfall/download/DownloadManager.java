@@ -1,7 +1,7 @@
 package com.coolerfall.download;
 
 /**
- * Download manager: used to manage the downloading.
+ * A manager used to manage the downloading.
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
@@ -47,7 +47,7 @@ public final class DownloadManager {
 		if (isDownloading(request.uri().toString())) {
 			return -1;
 		}
-		
+
 		request.setDownloader(mDownloader);
 
 		/* add download request into download request queue */
