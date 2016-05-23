@@ -81,7 +81,7 @@ final class DownloadDispatcher extends Thread {
 	/**
 	 * Default constructor, with queue and delivery.
 	 *
-	 * @param queue    download request queue
+	 * @param queue download request queue
 	 * @param delivery download delivery
 	 */
 	public DownloadDispatcher(BlockingQueue<DownloadRequest> queue, DownloadDelivery delivery) {
@@ -306,7 +306,7 @@ final class DownloadDispatcher extends Thread {
 
 
 	/* read data from input stream */
-	private int readFromInputStream(byte[] buffer, InputStream is) {
+	int readFromInputStream(byte[] buffer, InputStream is) {
 		try {
 			return is.read(buffer);
 		} catch (IOException e) {
@@ -329,7 +329,7 @@ final class DownloadDispatcher extends Thread {
 	}
 
 	/* a utility function to close an input stream without raising an exception */
-	private static void silentCloseInputStream(InputStream is) {
+	static void silentCloseInputStream(InputStream is) {
 		try {
 			if (is != null) {
 				is.close();
@@ -343,7 +343,7 @@ final class DownloadDispatcher extends Thread {
 	 * Forces this dispatcher to quit immediately. If any download requests are still in
 	 * the queue, they are not guaranteed to be processed.
 	 */
-	protected void quit() {
+	void quit() {
 		mQuit = true;
 		
 		/* interrupt current thread */

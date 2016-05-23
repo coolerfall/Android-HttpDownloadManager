@@ -30,7 +30,7 @@ import javax.net.ssl.X509TrustManager;
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
-class Utils {
+final class Utils {
 	static final int DEFAULT_READ_TIMEOUT = 20 * 1000;
 	static final int DEFAULT_WRITE_TIMEOUT = 20 * 1000;
 	static final int DEFAULT_CONNECT_TIMEOUT = 15 * 1000;

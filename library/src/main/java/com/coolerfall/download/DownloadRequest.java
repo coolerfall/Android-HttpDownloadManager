@@ -15,10 +15,10 @@ import static com.coolerfall.download.Utils.createDefaultDownloader;
 import static com.coolerfall.download.Preconditions.checkNotNull;
 
 /**
- * DownloadRequest: download request, this is designed according to Request in Andoird-Volley.
+ * This class represents a request for downloading, this is designed according to Request in
+ * Andoird-Volley.
  *
- * @author Vincent Cheung
- * @since Nov. 24, 2014
+ * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public final class DownloadRequest implements Comparable<DownloadRequest> {
 	private static final String TAG = DownloadRequest.class.getSimpleName();
@@ -161,6 +161,11 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		return mDownloader;
 	}
 
+	/**
+	 * Set a downloader for current reqeust to use.
+	 *
+	 * @param downloader {@link Downloader}
+	 */
 	void setDownloader(Downloader downloader) {
 		mDownloader = downloader;
 	}

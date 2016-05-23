@@ -56,18 +56,11 @@ final class DownloadRequestQueue {
 	private AtomicInteger mSequenceGenerator = new AtomicInteger();
 
 	/**
-	 * Default download reuqest queue.
-	 */
-	public DownloadRequestQueue() {
-		this(DEFAULT_DOWNLOAD_THREAD_POOL_SIZE);
-	}
-
-	/**
 	 * Create the download dispatchers according to pool size.
 	 *
 	 * @param threadPoolSize thread pool size of download dispatcher
 	 */
-	public DownloadRequestQueue(int threadPoolSize) {
+	DownloadRequestQueue(int threadPoolSize) {
 		if (threadPoolSize < 1 || threadPoolSize > 10) {
 			threadPoolSize = DEFAULT_DOWNLOAD_THREAD_POOL_SIZE;
 		}
@@ -211,7 +204,7 @@ final class DownloadRequestQueue {
 	 *
 	 * @return return the sequence number
 	 */
-	public int getSequenceNumber() {
+	int getSequenceNumber() {
 		return mSequenceGenerator.incrementAndGet();
 	}
 
