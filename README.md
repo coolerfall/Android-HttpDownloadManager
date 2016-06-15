@@ -33,7 +33,7 @@ Usage
 > 
 > 					@Override
 > 					public void onFailure(int downloadId, int statusCode, String errMsg) {
-> 					});
+> 					}});
 > 					
 >     manager.add(request);
 
