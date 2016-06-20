@@ -22,10 +22,6 @@ import static com.coolerfall.download.Preconditions.checkNotNull;
  */
 public final class DownloadRequest implements Comparable<DownloadRequest> {
 	private static final String TAG = DownloadRequest.class.getSimpleName();
-
-	/**
-	 * default download directory
-	 */
 	private static final String DEFAULT_DIR = Environment
 		.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 		.getAbsolutePath();
@@ -40,84 +36,28 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 */
 	public static final int NETWORK_WIFI = 1 << 1;
 
-	/**
-	 * Download id of this download request.
-	 */
 	private int mDownloadId = -1;
-
-	/**
-	 * Retry time when downloading failed, default is 1.
-	 */
-	private AtomicInteger mRetryTime = new AtomicInteger(1);
-
-	/**
-	 * Allowed network types, default to all network types allowed.
-	 */
+	private final AtomicInteger mRetryTime = new AtomicInteger(1);
 	private int mAllowedNetworkTypes = 0;
-
-	/**
-	 * The context used in {@link DownloadDispatcher}.
-	 */
-	private Context mContext;
-
-	/**
-	 * The download state.
-	 */
+	private final Context mContext;
 	private DownloadState mDownloadState = DownloadState.PENDING;
-
-	/**
-	 * Uri of download request.
-	 */
-	private Uri mUri;
-
-	/**
-	 * Destination directory to save file.
-	 */
-	private String mDestinationDir;
-
-	/**
-	 * Destination file path.
-	 */
+	private final Uri mUri;
+	private final String mDestinationDir;
 	private String mDestinationFilePath;
-
-	/**
-	 * Progress interval, how long should {@link DownloadDispatcher}
-	 * invoke {@link DownloadCallback#onProgress(int, long, long)}.
-	 */
-	private int mProgressInterval;
-
-	/**
-	 * Download request queue.
-	 */
+	private final int mProgressInterval;
 	private DownloadRequestQueue mDownloadRequestQueue;
-
-	/**
-	 * Timestamp of this download request when created.
-	 */
-	private long mTimestamp = System.currentTimeMillis() / 1000;
-
-	/**
-	 * The priority of this download request, normal by default.
-	 */
+	private final long mTimestamp = System.currentTimeMillis() / 1000;
 	private Priority mPriority = Priority.NORMAL;
-
-	/**
-	 * Whether or not this request has been canceled.
-	 */
 	private boolean mCanceled = false;
-
 	private Downloader mDownloader;
-
-	/**
-	 * Download callback.
-	 */
 	private DownloadCallback mDownloadCallback;
 
 	private DownloadRequest(Builder builder) {
 		if (builder.retryTime != 0) {
-			mRetryTime = new AtomicInteger(builder.retryTime);
+			mRetryTime.set(builder.retryTime);
 		}
-		mContext = checkNotNull(builder.context, "context == null");
+		checkNotNull(builder.context, "context == null");
+		mContext = builder.context.getApplicationContext();
 		mUri = Uri.parse(checkNotNull(builder.url, "url == null"));
 		mDestinationDir = builder.destinationDir;
 		mDestinationFilePath = builder.destinationFilePath;
@@ -184,14 +124,10 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * notified when this request has finished.
 	 *
 	 * @param queue download request queue
-	 * @return this Request object to allow for chaining
 	 */
-	DownloadRequest setDownloadRequestQueue(DownloadRequestQueue queue) {
+	void setDownloadRequestQueue(DownloadRequestQueue queue) {
 		mDownloadRequestQueue = queue;
-		/* if download id is not set, generate one */
 		mDownloadId = mDownloadRequestQueue.getSequenceNumber();
-
-		return this;
 	}
 
 	/**
