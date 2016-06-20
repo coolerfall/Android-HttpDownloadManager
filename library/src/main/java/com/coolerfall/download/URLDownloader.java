@@ -22,7 +22,7 @@ import static com.coolerfall.download.Utils.HTTP;
 import static com.coolerfall.download.Utils.HTTPS;
 
 /**
- * A default downloader impelemted by {@link URLConnection}.
+ * A default downloader implemented by {@link URLConnection}.
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */

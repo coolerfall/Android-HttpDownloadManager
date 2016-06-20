@@ -17,14 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 final class DownloadRequestQueue {
 	private static final String TAG = DownloadRequestQueue.class.getSimpleName();
 
-	/**
-	 * The capacity of download request queue.
-	 */
 	private static final int CAPACITY = 20;
-
-	/**
-	 * The default number of download dispatcher threads.
-	 */
 	private static final int DEFAULT_DOWNLOAD_THREAD_POOL_SIZE = 3;
 
 	/**
@@ -33,30 +26,15 @@ final class DownloadRequestQueue {
 	 * any dispatcher.
 	 */
 	private final Set<DownloadRequest> mCurrentRequests = new HashSet<>();
-
-	/**
-	 * The queue of download request.
-	 */
 	private PriorityBlockingQueue<DownloadRequest> mDownloadQueue =
 		new PriorityBlockingQueue<>(CAPACITY);
-
-	/**
-	 * The download dispatchers.
-	 */
 	private DownloadDispatcher[] mDispatchers;
-
-	/**
-	 * The download callback delivery.
-	 */
 	private DownloadDelivery mDelivery;
-
-	/**
-	 * Used for generating monotonically-increasing sequence numbers for requests.
-	 */
 	private AtomicInteger mSequenceGenerator = new AtomicInteger();
 
 	/**
-	 * Create the download dispatchers according to pool size.
+	 * Create the download dispatchers according to pool size. Any number higher than 10 or less
+	 * than 1, then the size will be default size
 	 *
 	 * @param threadPoolSize thread pool size of download dispatcher
 	 */

@@ -22,60 +22,16 @@ import static java.net.HttpURLConnection.HTTP_PARTIAL;
  */
 final class DownloadDispatcher extends Thread {
 	private static final String TAG = DownloadDispatcher.class.getSimpleName();
-
-	/**
-	 * Sleep time before download.
-	 */
 	private static final int SLEEP_BEFORE_DOWNLOAD = 1500;
-
-	/**
-	 * Sleep time before retrying download.
-	 */
 	private static final int SLEEP_BEFORE_RETRY = 3500;
-
-	/**
-	 * Buffer size used in data tranfering.
-	 */
 	private static final int BUFFER_SIZE = 4096;
-
-	/**
-	 * End of input stream.
-	 */
 	private static final String END_OF_STREAM = "unexpected end of stream";
-
-	/**
-	 * Default thread name.
-	 */
 	private static final String DEFAULT_THREAD_NAME = "DownloadDispatcher";
-
-	/**
-	 * Idle thread name.
-	 */
 	private static final String IDLE_THREAD_NAME = "DownloadDispatcher-Idle";
 
-	/**
-	 * The queue of download reuqests.
-	 */
 	private BlockingQueue<DownloadRequest> mQueue;
-
-	/**
-	 * To deliver callback on main thread.
-	 */
 	private DownloadDelivery mDelivery;
-
-	/**
-	 * Save total bytes in case.
-	 */
-	private long mTotalBytes = 0;
-
-	/**
-	 * Used to save last progress timestamp.
-	 */
 	private long mLastProgressTimestamp;
-
-	/**
-	 * Used to tell us this dispatcher has dead.
-	 */
 	private volatile boolean mQuit = false;
 
 	/**
@@ -103,8 +59,6 @@ final class DownloadDispatcher extends Thread {
 				request = mQueue.take();
 				sleep(SLEEP_BEFORE_DOWNLOAD);
 				setName(DEFAULT_THREAD_NAME);
-
-				mTotalBytes = 0;
 
 				/* start download */
 				executeDownload(request);
@@ -185,10 +139,6 @@ final class DownloadDispatcher extends Thread {
 		if ((statusCode == HTTP_INVALID || statusCode == HTTP_ERROR_SIZE) &&
 			request.retryTime() >= 0) {
 			try {
-				/* update progress in case */
-				long bytesWritten = new File(request.tempFilePath()).length();
-				updateProgress(request, bytesWritten, mTotalBytes);
-				
 				/* sleep a while before retrying */
 				sleep(SLEEP_BEFORE_RETRY);
 			} catch (InterruptedException e) {
@@ -199,7 +149,7 @@ final class DownloadDispatcher extends Thread {
 					return;
 				}
 			}
-			
+
 			/* retry downloading */
 			if (!request.isCanceled()) {
 				updateRetry(request);
@@ -211,7 +161,7 @@ final class DownloadDispatcher extends Thread {
 		
 		/* notify the request that downloading has finished */
 		request.finish();
-		
+
 		/* deliver failure message */
 		mDelivery.postFailure(request, statusCode, errMsg);
 	}
@@ -303,7 +253,6 @@ final class DownloadDispatcher extends Thread {
 			silentCloseInputStream(is);
 		}
 	}
-
 
 	/* read data from input stream */
 	int readFromInputStream(byte[] buffer, InputStream is) {

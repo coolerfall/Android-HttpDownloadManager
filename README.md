@@ -47,10 +47,17 @@ Usage
 
 Download
 ========
-Download [the latest JAR][2] or Gradle:
-	
 	compile 'com.coolerfall:android-http-download-manager:1.5.3'
 
+Snapshot
+========
+	allprojects {
+		repositories {
+			maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+		}
+	}
+	
+	compile 'com.coolerfall:android-http-download-manager:1.6.0-SNAPSHOT'
 
 Credits
 =======

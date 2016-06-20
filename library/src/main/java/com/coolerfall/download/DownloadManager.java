@@ -17,19 +17,9 @@ public final class DownloadManager {
 	public static final int HTTP_ERROR_SIZE = 1 << 1;
 
 	private Downloader mDownloader;
-
-	/**
-	 * Download request queue handles the download according to priority.
-	 */
 	private DownloadRequestQueue mDownloadRequestQueue;
 
-	/**
-	 * Constructor with max thread pool size, allows maximum of 10 threads.
-	 * Any number higher than 10 or less than 1, then the size will be default size.
-	 * If you don't want to use default constructor to create download manager, then
-	 * you can use this construtor to create a download manager with threadPoolSize.
-	 */
-	private DownloadManager(Builder builder) {
+	DownloadManager(Builder builder) {
 		mDownloader = builder.downloader;
 		mDownloadRequestQueue = new DownloadRequestQueue(builder.threadPoolSize);
 		mDownloadRequestQueue.start();
@@ -60,7 +50,7 @@ public final class DownloadManager {
 	 * @param downloadId download id
 	 * @return download state
 	 */
-	protected DownloadState query(int downloadId) {
+	DownloadState query(int downloadId) {
 		return mDownloadRequestQueue.query(downloadId);
 	}
 
@@ -70,7 +60,7 @@ public final class DownloadManager {
 	 * @param url download url
 	 * @return download state
 	 */
-	protected DownloadState query(String url) {
+	DownloadState query(String url) {
 		return mDownloadRequestQueue.query(url);
 	}
 
