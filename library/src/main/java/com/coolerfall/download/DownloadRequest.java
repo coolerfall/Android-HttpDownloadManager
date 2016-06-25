@@ -36,34 +36,34 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 */
 	public static final int NETWORK_WIFI = 1 << 1;
 
-	private int mDownloadId = -1;
-	private final AtomicInteger mRetryTime = new AtomicInteger(1);
-	private int mAllowedNetworkTypes = 0;
-	private final Context mContext;
-	private DownloadState mDownloadState = DownloadState.PENDING;
-	private final Uri mUri;
-	private final String mDestinationDir;
-	private String mDestinationFilePath;
-	private final int mProgressInterval;
-	private DownloadRequestQueue mDownloadRequestQueue;
-	private final long mTimestamp = System.currentTimeMillis() / 1000;
-	private Priority mPriority = Priority.NORMAL;
-	private boolean mCanceled = false;
-	private Downloader mDownloader;
-	private DownloadCallback mDownloadCallback;
+	private int downloadId = -1;
+	private final AtomicInteger retryTime = new AtomicInteger(1);
+	private int allowedNetworkTypes = 0;
+	private final Context context;
+	private DownloadState downloadState = DownloadState.PENDING;
+	private final Uri uri;
+	private final String destinationDir;
+	private String destinationFilePath;
+	private final int progressInterval;
+	private DownloadRequestQueue downloadRequestQueue;
+	private final long timestamp = System.currentTimeMillis() / 1000;
+	private Priority priority = Priority.NORMAL;
+	private boolean canceled = false;
+	private Downloader downloader;
+	private DownloadCallback downloadCallback;
 
 	private DownloadRequest(Builder builder) {
 		if (builder.retryTime != 0) {
-			mRetryTime.set(builder.retryTime);
+			retryTime.set(builder.retryTime);
 		}
 		checkNotNull(builder.context, "context == null");
-		mContext = builder.context.getApplicationContext();
-		mUri = Uri.parse(checkNotNull(builder.url, "url == null"));
-		mDestinationDir = builder.destinationDir;
-		mDestinationFilePath = builder.destinationFilePath;
-		mProgressInterval = builder.progressInterval;
-		mAllowedNetworkTypes = builder.allowedNetworkTypes;
-		mDownloadCallback = builder.downloadCallback;
+		context = builder.context.getApplicationContext();
+		uri = Uri.parse(checkNotNull(builder.url, "url == null"));
+		destinationDir = builder.destinationDir;
+		destinationFilePath = builder.destinationFilePath;
+		progressInterval = builder.progressInterval;
+		allowedNetworkTypes = builder.allowedNetworkTypes;
+		downloadCallback = builder.downloadCallback;
 	}
 
 	@Override public int compareTo(@NonNull DownloadRequest other) {
@@ -75,7 +75,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		 * Equal priorities are sorted by timestamp to provide FIFO ordering.
 		 */
 		return left == right ?
-			(int) (this.mTimestamp - other.mTimestamp) :
+			(int) (this.timestamp - other.timestamp) :
 			right.ordinal() - left.ordinal();
 	}
 
@@ -85,7 +85,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return {@link Priority#NORMAL} by default.
 	 */
 	Priority priority() {
-		return mPriority;
+		return priority;
 	}
 
 	/**
@@ -94,11 +94,11 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return {@link Downloader}
 	 */
 	Downloader downloader() {
-		if (mDownloader == null) {
-			mDownloader = createDefaultDownloader();
+		if (downloader == null) {
+			downloader = createDefaultDownloader();
 		}
 
-		return mDownloader;
+		return downloader;
 	}
 
 	/**
@@ -107,7 +107,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @param downloader {@link Downloader}
 	 */
 	void setDownloader(Downloader downloader) {
-		mDownloader = downloader;
+		this.downloader = downloader;
 	}
 
 	/**
@@ -116,7 +116,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return download callback
 	 */
 	DownloadCallback downloadCallback() {
-		return mDownloadCallback;
+		return downloadCallback;
 	}
 
 	/**
@@ -126,8 +126,8 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @param queue download request queue
 	 */
 	void setDownloadRequestQueue(DownloadRequestQueue queue) {
-		mDownloadRequestQueue = queue;
-		mDownloadId = mDownloadRequestQueue.getSequenceNumber();
+		downloadRequestQueue = queue;
+		downloadId = downloadRequestQueue.getSequenceNumber();
 	}
 
 	/**
@@ -136,7 +136,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @param downloadState {@link DownloadState}
 	 */
 	void updateDownloadState(DownloadState downloadState) {
-		mDownloadState = downloadState;
+		this.downloadState = downloadState;
 	}
 
 	/**
@@ -145,7 +145,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return download state
 	 */
 	DownloadState downloadState() {
-		return mDownloadState;
+		return downloadState;
 	}
 
 	/**
@@ -154,7 +154,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return download id
 	 */
 	int downloadId() {
-		return mDownloadId;
+		return downloadId;
 	}
 
 	/**
@@ -163,7 +163,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return retry time
 	 */
 	int retryTime() {
-		return mRetryTime.decrementAndGet();
+		return retryTime.decrementAndGet();
 	}
 
 	/**
@@ -172,7 +172,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return progress interval
 	 */
 	int progressInterval() {
-		return mProgressInterval;
+		return progressInterval;
 	}
 
 	/**
@@ -181,7 +181,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return all the types
 	 */
 	int allowedNetworkTypes() {
-		return mAllowedNetworkTypes;
+		return allowedNetworkTypes;
 	}
 
 	/**
@@ -190,7 +190,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return context
 	 */
 	Context context() {
-		return mContext;
+		return context;
 	}
 
 	/**
@@ -199,13 +199,13 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return the URL of this request
 	 */
 	Uri uri() {
-		return mUri;
+		return uri;
 	}
 
 	/* get absolute file path according to the directory */
 	String getFilePath() {
-		String dir = TextUtils.isEmpty(mDestinationDir) ? DEFAULT_DIR : mDestinationDir;
-		return dir + File.separator + Utils.getFilenameFromHeader(mUri.toString());
+		String dir = TextUtils.isEmpty(destinationDir) ? DEFAULT_DIR : destinationDir;
+		return dir + File.separator + Utils.getFilenameFromHeader(uri.toString());
 	}
 
 	/**
@@ -215,12 +215,12 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 */
 	@SuppressWarnings("ResultOfMethodCallIgnored") String destinationFilePath() {
 		/* if the destination file path is empty, use default file path */
-		if (TextUtils.isEmpty(mDestinationFilePath)) {
-			mDestinationFilePath = getFilePath();
+		if (TextUtils.isEmpty(destinationFilePath)) {
+			destinationFilePath = getFilePath();
 		}
 
 		/* if the destination path is directory */
-		File file = new File(mDestinationFilePath);
+		File file = new File(destinationFilePath);
 		if (file.isDirectory()) {
 			Log.w(TAG, "the destination file path cannot be directory");
 			return getFilePath();
@@ -229,7 +229,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 			file.getParentFile().mkdirs();
 		}
 
-		return mDestinationFilePath;
+		return destinationFilePath;
 	}
 
 	/**
@@ -245,7 +245,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * Mark this download request as canceled. No callback will be delivered.
 	 */
 	void cancel() {
-		mCanceled = true;
+		canceled = true;
 	}
 
 	/**
@@ -254,15 +254,15 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return Returns true if this request has been canceled.
 	 */
 	boolean isCanceled() {
-		return mCanceled;
+		return canceled;
 	}
 
 	/**
 	 * Notifies the download request queue that this request has finished(succesfully or fail)
 	 */
 	void finish() {
-		if (mDownloadRequestQueue != null) {
-			mDownloadRequestQueue.finish(this);
+		if (downloadRequestQueue != null) {
+			downloadRequestQueue.finish(this);
 		}
 	}
 

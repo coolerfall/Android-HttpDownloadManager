@@ -11,10 +11,10 @@ import java.util.concurrent.Executor;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 final class DownloadDelivery {
-	private final Executor mDownloadPoster;
+	private final Executor downloadPoster;
 
 	public DownloadDelivery(final Handler handler) {
-		mDownloadPoster = new Executor() {
+		downloadPoster = new Executor() {
 			@Override
 			public void execute(@NonNull Runnable command) {
 				handler.post(command);
@@ -29,7 +29,7 @@ final class DownloadDelivery {
 	 * @param totalBytes total bytes
 	 */
 	void postStart(final DownloadRequest request, final long totalBytes) {
-		mDownloadPoster.execute(new Runnable() {
+		downloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
 				if (request.downloadCallback() != null) {
@@ -45,7 +45,7 @@ final class DownloadDelivery {
 	 * @param request download request
 	 */
 	void postRetry(final DownloadRequest request) {
-		mDownloadPoster.execute(new Runnable() {
+		downloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
 				if (request.downloadCallback() != null) {
@@ -64,7 +64,7 @@ final class DownloadDelivery {
 	 */
 	void postProgress(final DownloadRequest request,
 		final long bytesWritten, final long totalBytes) {
-		mDownloadPoster.execute(new Runnable() {
+		downloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
 				if (request.downloadCallback() != null) {
@@ -81,7 +81,7 @@ final class DownloadDelivery {
 	 * @param request download request
 	 */
 	void postSuccess(final DownloadRequest request) {
-		mDownloadPoster.execute(new Runnable() {
+		downloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
 				if (request.downloadCallback() != null) {
@@ -101,7 +101,7 @@ final class DownloadDelivery {
 	 */
 	void postFailure(final DownloadRequest request, final int statusCode,
 		final String errMsg) {
-		mDownloadPoster.execute(new Runnable() {
+		downloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
 				if (request.downloadCallback() != null) {

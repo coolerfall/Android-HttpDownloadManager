@@ -16,13 +16,13 @@ public final class DownloadManager {
 	 */
 	public static final int HTTP_ERROR_SIZE = 1 << 1;
 
-	private Downloader mDownloader;
-	private DownloadRequestQueue mDownloadRequestQueue;
+	private Downloader downloader;
+	private DownloadRequestQueue downloadRequestQueue;
 
 	DownloadManager(Builder builder) {
-		mDownloader = builder.downloader;
-		mDownloadRequestQueue = new DownloadRequestQueue(builder.threadPoolSize);
-		mDownloadRequestQueue.start();
+		downloader = builder.downloader;
+		downloadRequestQueue = new DownloadRequestQueue(builder.threadPoolSize);
+		downloadRequestQueue.start();
 	}
 
 	/**
@@ -38,10 +38,10 @@ public final class DownloadManager {
 			return -1;
 		}
 
-		request.setDownloader(mDownloader);
+		request.setDownloader(downloader);
 
 		/* add download request into download request queue */
-		return mDownloadRequestQueue.add(request) ? request.downloadId() : -1;
+		return downloadRequestQueue.add(request) ? request.downloadId() : -1;
 	}
 
 	/**
@@ -51,7 +51,7 @@ public final class DownloadManager {
 	 * @return download state
 	 */
 	DownloadState query(int downloadId) {
-		return mDownloadRequestQueue.query(downloadId);
+		return downloadRequestQueue.query(downloadId);
 	}
 
 	/**
@@ -61,7 +61,7 @@ public final class DownloadManager {
 	 * @return download state
 	 */
 	DownloadState query(String url) {
-		return mDownloadRequestQueue.query(url);
+		return downloadRequestQueue.query(url);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public final class DownloadManager {
 	 * @return the task size
 	 */
 	public int getTaskSize() {
-		return mDownloadRequestQueue == null ? 0 : mDownloadRequestQueue.getDownloadingSize();
+		return downloadRequestQueue == null ? 0 : downloadRequestQueue.getDownloadingSize();
 	}
 
 	/**
@@ -99,23 +99,23 @@ public final class DownloadManager {
 	 * @param downloadId download id
 	 */
 	public void cancel(int downloadId) {
-		mDownloadRequestQueue.cancel(downloadId);
+		downloadRequestQueue.cancel(downloadId);
 	}
 
 	/**
 	 * Cancel all the downloading in queue.
 	 */
 	public void cancelAll() {
-		mDownloadRequestQueue.cancelAll();
+		downloadRequestQueue.cancelAll();
 	}
 
 	/**
 	 * Release all the resource.
 	 */
 	public void release() {
-		if (mDownloadRequestQueue != null) {
-			mDownloadRequestQueue.release();
-			mDownloadRequestQueue = null;
+		if (downloadRequestQueue != null) {
+			downloadRequestQueue.release();
+			downloadRequestQueue = null;
 		}
 	}
 

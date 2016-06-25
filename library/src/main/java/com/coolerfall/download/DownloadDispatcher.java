@@ -29,10 +29,10 @@ final class DownloadDispatcher extends Thread {
 	private static final String DEFAULT_THREAD_NAME = "DownloadDispatcher";
 	private static final String IDLE_THREAD_NAME = "DownloadDispatcher-Idle";
 
-	private BlockingQueue<DownloadRequest> mQueue;
-	private DownloadDelivery mDelivery;
-	private long mLastProgressTimestamp;
-	private volatile boolean mQuit = false;
+	private BlockingQueue<DownloadRequest> queue;
+	private DownloadDelivery delivery;
+	private long lastProgressTimestamp;
+	private volatile boolean quit = false;
 
 	/**
 	 * Default constructor, with queue and delivery.
@@ -41,8 +41,8 @@ final class DownloadDispatcher extends Thread {
 	 * @param delivery download delivery
 	 */
 	public DownloadDispatcher(BlockingQueue<DownloadRequest> queue, DownloadDelivery delivery) {
-		mQueue = queue;
-		mDelivery = delivery;
+		this.queue = queue;
+		this.delivery = delivery;
 		
 		/* set thread name to idle */
 		setName(IDLE_THREAD_NAME);
@@ -56,7 +56,7 @@ final class DownloadDispatcher extends Thread {
 		while (true) {
 			try {
 				setName(IDLE_THREAD_NAME);
-				request = mQueue.take();
+				request = queue.take();
 				sleep(SLEEP_BEFORE_DOWNLOAD);
 				setName(DEFAULT_THREAD_NAME);
 
@@ -64,7 +64,7 @@ final class DownloadDispatcher extends Thread {
 				executeDownload(request);
 			} catch (InterruptedException e) {
 				/* we may have been interrupted because it was time to quit */
-				if (mQuit) {
+				if (quit) {
 					if (request != null) {
 						request.finish();
 					}
@@ -90,27 +90,27 @@ final class DownloadDispatcher extends Thread {
 		
 		/* set the download state of this request as running */
 		updateState(request, DownloadState.RUNNING);
-		mDelivery.postStart(request, totalBytes);
+		delivery.postStart(request, totalBytes);
 	}
 
 	/* update download retrying */
 	private void updateRetry(DownloadRequest request) {
-		mDelivery.postRetry(request);
+		delivery.postRetry(request);
 	}
 
 	/* update download progress */
 	private void updateProgress(DownloadRequest request, long bytesWritten, long totalBytes) {
 		long currentTimestamp = System.currentTimeMillis();
 		if (bytesWritten != totalBytes &&
-			currentTimestamp - mLastProgressTimestamp < request.progressInterval()) {
+			currentTimestamp - lastProgressTimestamp < request.progressInterval()) {
 			return;
 		}
 
 		/* save progress timestamp */
-		mLastProgressTimestamp = currentTimestamp;
+		lastProgressTimestamp = currentTimestamp;
 
 		if (!request.isCanceled()) {
-			mDelivery.postProgress(request, bytesWritten, totalBytes);
+			delivery.postProgress(request, bytesWritten, totalBytes);
 		}
 	}
 
@@ -128,7 +128,7 @@ final class DownloadDispatcher extends Thread {
 		}
 
 		/* deliver success message */
-		mDelivery.postSuccess(request);
+		delivery.postSuccess(request);
 	}
 
 	/* update download failure */
@@ -143,7 +143,7 @@ final class DownloadDispatcher extends Thread {
 				sleep(SLEEP_BEFORE_RETRY);
 			} catch (InterruptedException e) {
 				/* we may have been interrupted because it was time to quit */
-				if (mQuit) {
+				if (quit) {
 					request.finish();
 
 					return;
@@ -163,7 +163,7 @@ final class DownloadDispatcher extends Thread {
 		request.finish();
 
 		/* deliver failure message */
-		mDelivery.postFailure(request, statusCode, errMsg);
+		delivery.postFailure(request, statusCode, errMsg);
 	}
 
 	/* execute downloading */
@@ -293,7 +293,7 @@ final class DownloadDispatcher extends Thread {
 	 * the queue, they are not guaranteed to be processed.
 	 */
 	void quit() {
-		mQuit = true;
+		quit = true;
 		
 		/* interrupt current thread */
 		interrupt();
