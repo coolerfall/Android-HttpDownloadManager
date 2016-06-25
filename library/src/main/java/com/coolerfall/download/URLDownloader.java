@@ -114,6 +114,10 @@ public final class URLDownloader implements Downloader {
 		}
 	}
 
+	@Override public Downloader copy() {
+		return create();
+	}
+
 	/* read response content length from server */
 	int getContentLength(HttpURLConnection conn) {
 		String transferEncoding = conn.getHeaderField(TRANSFER_ENCODING);
