@@ -41,4 +41,9 @@ public interface Downloader {
 	 * Close downloader and stop downloader.
 	 */
 	void close();
+
+	/**
+	 * Make a copy for this downloader.
+	 */
+	Downloader copy();
 }

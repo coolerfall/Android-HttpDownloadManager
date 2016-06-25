@@ -93,6 +93,7 @@ public final class OkHttpDownloader implements Downloader {
 		body = response.body();
 		switch (statusCode) {
 		case 200:
+		case 206:
 			return statusCode;
 
 		case 301:
@@ -107,9 +108,6 @@ public final class OkHttpDownloader implements Downloader {
 			} else {
 				throw new DownloadException(statusCode, response.message());
 			}
-
-		default:
-			body.close();
 		}
 
 		return statusCode;
@@ -127,6 +125,10 @@ public final class OkHttpDownloader implements Downloader {
 		if (body != null) {
 			body.close();
 		}
+	}
+
+	@Override public Downloader copy() {
+		return create(client);
 	}
 
 	/* read response content length from server */

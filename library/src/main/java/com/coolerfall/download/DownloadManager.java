@@ -38,7 +38,7 @@ public final class DownloadManager {
 			return -1;
 		}
 
-		request.setDownloader(downloader);
+		request.setDownloader(downloader.copy());
 
 		/* add download request into download request queue */
 		return downloadRequestQueue.add(request) ? request.downloadId() : -1;
