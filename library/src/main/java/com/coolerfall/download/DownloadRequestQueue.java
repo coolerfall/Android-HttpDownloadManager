@@ -25,12 +25,12 @@ final class DownloadRequestQueue {
 	 * will be in this set if it is waiting in any queue or currently being processed by
 	 * any dispatcher.
 	 */
-	private final Set<DownloadRequest> mCurrentRequests = new HashSet<>();
-	private PriorityBlockingQueue<DownloadRequest> mDownloadQueue =
+	private final Set<DownloadRequest> currentRequests = new HashSet<>();
+	private PriorityBlockingQueue<DownloadRequest> downloadQueue =
 		new PriorityBlockingQueue<>(CAPACITY);
-	private DownloadDispatcher[] mDispatchers;
-	private DownloadDelivery mDelivery;
-	private AtomicInteger mSequenceGenerator = new AtomicInteger();
+	private DownloadDispatcher[] dispatchers;
+	private DownloadDelivery delivery;
+	private AtomicInteger sequenceGenerator = new AtomicInteger();
 
 	/**
 	 * Create the download dispatchers according to pool size. Any number higher than 10 or less
@@ -43,8 +43,8 @@ final class DownloadRequestQueue {
 			threadPoolSize = DEFAULT_DOWNLOAD_THREAD_POOL_SIZE;
 		}
 
-		mDispatchers = new DownloadDispatcher[threadPoolSize];
-		mDelivery = new DownloadDelivery(new Handler(Looper.getMainLooper()));
+		dispatchers = new DownloadDispatcher[threadPoolSize];
+		delivery = new DownloadDelivery(new Handler(Looper.getMainLooper()));
 	}
 
 	/**
@@ -55,9 +55,9 @@ final class DownloadRequestQueue {
 		stop();
 		
 		/* create the download dispatcher and start it. */
-		for (int i = 0; i < mDispatchers.length; i++) {
-			DownloadDispatcher dispatcher = new DownloadDispatcher(mDownloadQueue, mDelivery);
-			mDispatchers[i] = dispatcher;
+		for (int i = 0; i < dispatchers.length; i++) {
+			DownloadDispatcher dispatcher = new DownloadDispatcher(downloadQueue, delivery);
+			dispatchers[i] = dispatcher;
 			dispatcher.start();
 		}
 	}
@@ -66,7 +66,7 @@ final class DownloadRequestQueue {
 	 * Stops the download dispatchers.
 	 */
 	void stop() {
-		for (DownloadDispatcher dispatcher : mDispatchers) {
+		for (DownloadDispatcher dispatcher : dispatchers) {
 			if (dispatcher != null) {
 				dispatcher.quit();
 			}
@@ -90,12 +90,12 @@ final class DownloadRequestQueue {
 		/* tag the request as belonging to this queue */
 		request.setDownloadRequestQueue(this);
 		/* add it to the set of current requests */
-		synchronized (mCurrentRequests) {
-			mCurrentRequests.add(request);
+		synchronized (currentRequests) {
+			currentRequests.add(request);
 		}
 
 		/* process requests in the order they are added in */
-		mDownloadQueue.add(request);
+		downloadQueue.add(request);
 
 		return true;
 	}
@@ -107,8 +107,8 @@ final class DownloadRequestQueue {
 	 * @return true if download has canceled, otherwise return false
 	 */
 	boolean cancel(int downloadId) {
-		synchronized (mCurrentRequests) {
-			for (DownloadRequest request : mCurrentRequests) {
+		synchronized (currentRequests) {
+			for (DownloadRequest request : currentRequests) {
 				if (request.downloadId() == downloadId) {
 					request.cancel();
 					return true;
@@ -123,13 +123,13 @@ final class DownloadRequestQueue {
 	 * Cancel all the download.
 	 */
 	void cancelAll() {
-		synchronized (mCurrentRequests) {
-			for (DownloadRequest request : mCurrentRequests) {
+		synchronized (currentRequests) {
+			for (DownloadRequest request : currentRequests) {
 				request.cancel();
 			}
 		}
 
-		mCurrentRequests.clear();
+		currentRequests.clear();
 	}
 
 	/**
@@ -138,7 +138,7 @@ final class DownloadRequestQueue {
 	 * @return task size
 	 */
 	int getDownloadingSize() {
-		return mCurrentRequests.size();
+		return currentRequests.size();
 	}
 
 	/**
@@ -148,8 +148,8 @@ final class DownloadRequestQueue {
 	 * @return true if the request is downloading, otherwise return false
 	 */
 	DownloadState query(int downloadId) {
-		synchronized (mCurrentRequests) {
-			for (DownloadRequest request : mCurrentRequests) {
+		synchronized (currentRequests) {
+			for (DownloadRequest request : currentRequests) {
 				if (request.downloadId() == downloadId) {
 					return request.downloadState();
 				}
@@ -166,8 +166,8 @@ final class DownloadRequestQueue {
 	 * @return true if the request is downloading, otherwise return false
 	 */
 	DownloadState query(String url) {
-		synchronized (mCurrentRequests) {
-			for (DownloadRequest request : mCurrentRequests) {
+		synchronized (currentRequests) {
+			for (DownloadRequest request : currentRequests) {
 				if (request.uri().toString().equals(url)) {
 					return request.downloadState();
 				}
@@ -183,7 +183,7 @@ final class DownloadRequestQueue {
 	 * @return return the sequence number
 	 */
 	int getSequenceNumber() {
-		return mSequenceGenerator.incrementAndGet();
+		return sequenceGenerator.incrementAndGet();
 	}
 
 	/**
@@ -192,8 +192,8 @@ final class DownloadRequestQueue {
 	 * @param request download reqeust
 	 */
 	void finish(DownloadRequest request) {
-		synchronized (mCurrentRequests) {
-			mCurrentRequests.remove(request);
+		synchronized (currentRequests) {
+			currentRequests.remove(request);
 		}
 	}
 
@@ -205,19 +205,19 @@ final class DownloadRequestQueue {
 		cancelAll();
 
 		/* release download queue */
-		if (mDownloadQueue != null) {
-			mDownloadQueue = null;
+		if (downloadQueue != null) {
+			downloadQueue = null;
 		}
 
 		/* release dispathcers */
-		if (mDispatchers != null) {
+		if (dispatchers != null) {
 			stop();
 
-			for (int i = 0; i < mDispatchers.length; i++) {
-				mDispatchers[i] = null;
+			for (int i = 0; i < dispatchers.length; i++) {
+				dispatchers[i] = null;
 			}
 
-			mDispatchers = null;
+			dispatchers = null;
 		}
 	}
 }
