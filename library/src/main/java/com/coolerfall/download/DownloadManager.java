@@ -1,5 +1,9 @@
 package com.coolerfall.download;
 
+import android.content.Context;
+
+import static com.coolerfall.download.Preconditions.checkNotNull;
+
 /**
  * A manager used to manage the downloading.
  *
@@ -16,10 +20,13 @@ public final class DownloadManager {
 	 */
 	public static final int HTTP_ERROR_SIZE = 1 << 1;
 
-	private Downloader downloader;
+	private final Context context;
+	private final Downloader downloader;
 	private DownloadRequestQueue downloadRequestQueue;
 
 	DownloadManager(Builder builder) {
+		checkNotNull(builder.context, "context == null");
+		context = builder.context.getApplicationContext();
 		downloader = builder.downloader;
 		downloadRequestQueue = new DownloadRequestQueue(builder.threadPoolSize);
 		downloadRequestQueue.start();
@@ -33,11 +40,12 @@ public final class DownloadManager {
 	 * if the request is in downloading, then -1 will be returned
 	 */
 	public int add(DownloadRequest request) {
-		request = Preconditions.checkNotNull(request, "request == null");
+		request = checkNotNull(request, "request == null");
 		if (isDownloading(request.uri().toString())) {
 			return -1;
 		}
 
+		request.setContext(context);
 		request.setDownloader(downloader.copy());
 
 		/* add download request into download request queue */
@@ -120,8 +128,14 @@ public final class DownloadManager {
 	}
 
 	public static final class Builder {
+		private Context context;
 		private Downloader downloader;
 		private int threadPoolSize;
+
+		public Builder context(Context context) {
+			this.context = context;
+			return this;
+		}
 
 		public Builder downloader(Downloader downloader) {
 			this.downloader = downloader;

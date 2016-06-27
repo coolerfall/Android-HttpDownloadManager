@@ -39,7 +39,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	private int downloadId = -1;
 	private final AtomicInteger retryTime = new AtomicInteger(1);
 	private int allowedNetworkTypes = 0;
-	private final Context context;
+	private Context context;
 	private DownloadState downloadState = DownloadState.PENDING;
 	private final Uri uri;
 	private final String destinationDir;
@@ -56,8 +56,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		if (builder.retryTime != 0) {
 			retryTime.set(builder.retryTime);
 		}
-		checkNotNull(builder.context, "context == null");
-		context = builder.context.getApplicationContext();
 		uri = Uri.parse(checkNotNull(builder.url, "url == null"));
 		destinationDir = builder.destinationDir;
 		destinationFilePath = builder.destinationFilePath;
@@ -184,6 +182,10 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		return allowedNetworkTypes;
 	}
 
+	void setContext(Context context) {
+		this.context = context;
+	}
+
 	/**
 	 * Get the context.
 	 *
@@ -268,7 +270,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 
 	public static final class Builder {
 		private int retryTime;
-		private Context context;
 		private String url;
 		private String destinationDir;
 		private String destinationFilePath;
@@ -278,11 +279,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 
 		public Builder retryTime(int retryTime) {
 			this.retryTime = retryTime;
-			return this;
-		}
-
-		public Builder context(Context context) {
-			this.context = context;
 			return this;
 		}
 
