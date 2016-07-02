@@ -136,8 +136,7 @@ final class DownloadDispatcher extends Thread {
 		updateState(request, DownloadState.FAILURE);
 
 		/* if the status code is 0, may be cause by the net error */
-		if ((statusCode == HTTP_INVALID || statusCode == HTTP_ERROR_SIZE) &&
-			request.retryTime() >= 0) {
+		if (request.retryTime() >= 0) {
 			try {
 				/* sleep a while before retrying */
 				sleep(SLEEP_BEFORE_RETRY);
