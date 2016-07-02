@@ -9,8 +9,6 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.concurrent.BlockingQueue;
 
-import static com.coolerfall.download.DownloadManager.HTTP_ERROR_SIZE;
-import static com.coolerfall.download.DownloadManager.HTTP_INVALID;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_PARTIAL;
 

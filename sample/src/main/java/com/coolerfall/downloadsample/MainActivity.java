@@ -71,7 +71,9 @@ public class MainActivity extends Activity implements OnClickListener {
 		textSpeed4 = (TextView) findViewById(R.id.download_tv_speed4);
 
 		downloadManager =
-			new DownloadManager.Builder().downloader(OkHttpDownloader.create()).build();
+			new DownloadManager.Builder().context(this)
+				.downloader(OkHttpDownloader.create())
+				.build();
 	}
 
 	@Override
@@ -114,7 +116,6 @@ public class MainActivity extends Activity implements OnClickListener {
 			downloadManager.cancel(id);
 		} else {
 			DownloadRequest request = new DownloadRequest.Builder()
-				.context(this)
 				.downloadCallback(new Callback())
 				.retryTime(5)
 				.allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
@@ -149,7 +150,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		@Override
 		public void onRetry(int downloadId) {
-			Log.d(TAG, "downloadId: " + downloadId);
+			Log.d(TAG, "retry downloadId: " + downloadId);
 		}
 
 		@SuppressLint("SetTextI18n")
