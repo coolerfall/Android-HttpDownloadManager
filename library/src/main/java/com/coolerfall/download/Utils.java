@@ -31,9 +31,9 @@ import javax.net.ssl.X509TrustManager;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 final class Utils {
-	static final int DEFAULT_READ_TIMEOUT = 20 * 1000;
-	static final int DEFAULT_WRITE_TIMEOUT = 20 * 1000;
-	static final int DEFAULT_CONNECT_TIMEOUT = 15 * 1000;
+	static final int DEFAULT_READ_TIMEOUT = 25 * 1000;
+	static final int DEFAULT_WRITE_TIMEOUT = 25 * 1000;
+	static final int DEFAULT_CONNECT_TIMEOUT = 20 * 1000;
 	static final String HTTP = "http";
 	static final String HTTPS = "https";
 	static final String LOCATION = "Location";

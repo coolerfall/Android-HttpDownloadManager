@@ -56,6 +56,9 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		if (builder.retryTime != 0) {
 			retryTime.set(builder.retryTime);
 		}
+		if (builder.priority != null) {
+			priority = builder.priority;
+		}
 		uri = Uri.parse(checkNotNull(builder.url, "url == null"));
 		destinationDir = builder.destinationDir;
 		destinationFilePath = builder.destinationFilePath;
@@ -182,6 +185,11 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		return allowedNetworkTypes;
 	}
 
+	/**
+	 * Set context to use.
+	 *
+	 * @param context context
+	 */
 	void setContext(Context context) {
 		this.context = context;
 	}
@@ -273,6 +281,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		private String url;
 		private String destinationDir;
 		private String destinationFilePath;
+		private Priority priority;
 		private int progressInterval;
 		private int allowedNetworkTypes;
 		private DownloadCallback downloadCallback;
@@ -294,6 +303,11 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 
 		public Builder destinationFilePath(String destinationFilePath) {
 			this.destinationFilePath = destinationFilePath;
+			return this;
+		}
+
+		public Builder priority(Priority priority) {
+			this.priority = priority;
 			return this;
 		}
 
