@@ -14,6 +14,7 @@ import com.coolerfall.download.DownloadCallback;
 import com.coolerfall.download.DownloadManager;
 import com.coolerfall.download.DownloadRequest;
 import com.coolerfall.download.OkHttpDownloader;
+import com.coolerfall.download.Priority;
 
 import java.io.File;
 
@@ -73,6 +74,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		downloadManager =
 			new DownloadManager.Builder().context(this)
 				.downloader(OkHttpDownloader.create())
+				.threadPoolSize(2)
 				.build();
 	}
 
@@ -120,6 +122,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				.retryTime(5)
 				.allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
 				.progressInterval(1000)
+				.priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
 				.url(URL[index])
 				.build();
 			int downloadId = downloadManager.add(request);
