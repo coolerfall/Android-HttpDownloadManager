@@ -11,7 +11,6 @@ import android.util.Log;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.coolerfall.download.Utils.createDefaultDownloader;
 import static com.coolerfall.download.Preconditions.checkNotNull;
 
 /**
@@ -95,10 +94,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return {@link Downloader}
 	 */
 	Downloader downloader() {
-		if (downloader == null) {
-			downloader = createDefaultDownloader();
-		}
-
 		return downloader;
 	}
 
