@@ -3,6 +3,7 @@ package com.coolerfall.download;
 import android.content.Context;
 
 import static com.coolerfall.download.Preconditions.checkNotNull;
+import static com.coolerfall.download.Utils.createDefaultDownloader;
 
 /**
  * A manager used to manage the downloading.
@@ -10,24 +11,17 @@ import static com.coolerfall.download.Preconditions.checkNotNull;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public final class DownloadManager {
-	/**
-	 * Custom http code invalid.
-	 */
-	public static final int HTTP_INVALID = 1;
-
-	/**
-	 * Custom http code error size.
-	 */
-	public static final int HTTP_ERROR_SIZE = 1 << 1;
-
 	private final Context context;
 	private final Downloader downloader;
 	private DownloadRequestQueue downloadRequestQueue;
 
 	DownloadManager(Builder builder) {
-		checkNotNull(builder.context, "context == null");
-		context = builder.context.getApplicationContext();
-		downloader = builder.downloader;
+		context = checkNotNull(builder.context, "context == null").getApplicationContext();
+		if (builder.downloader == null) {
+			downloader = createDefaultDownloader();
+		} else {
+			downloader = builder.downloader;
+		}
 		downloadRequestQueue = new DownloadRequestQueue(builder.threadPoolSize);
 		downloadRequestQueue.start();
 	}
@@ -46,9 +40,7 @@ public final class DownloadManager {
 		}
 
 		request.setContext(context);
-		if (downloader != null) {
-			request.setDownloader(downloader.copy());
-		}
+		request.setDownloader(downloader.copy());
 
 		/* add download request into download request queue */
 		return downloadRequestQueue.add(request) ? request.downloadId() : -1;
