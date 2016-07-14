@@ -13,16 +13,14 @@ import static com.coolerfall.download.Utils.createDefaultDownloader;
 public final class DownloadManager {
 	private final Context context;
 	private final Downloader downloader;
+	private final int threadPoolSize;
 	private DownloadRequestQueue downloadRequestQueue;
 
 	DownloadManager(Builder builder) {
 		context = checkNotNull(builder.context, "context == null").getApplicationContext();
-		if (builder.downloader == null) {
-			downloader = createDefaultDownloader();
-		} else {
-			downloader = builder.downloader;
-		}
-		downloadRequestQueue = new DownloadRequestQueue(builder.threadPoolSize);
+		downloader = builder.downloader;
+		threadPoolSize = builder.threadPoolSize;
+		downloadRequestQueue = new DownloadRequestQueue(threadPoolSize);
 		downloadRequestQueue.start();
 	}
 
@@ -121,10 +119,25 @@ public final class DownloadManager {
 		}
 	}
 
+	public Builder newBuilder() {
+		return new Builder(this);
+	}
+
 	public static final class Builder {
 		private Context context;
 		private Downloader downloader;
 		private int threadPoolSize;
+
+		public Builder() {
+			this.downloader = createDefaultDownloader();
+			this.threadPoolSize = 3;
+		}
+
+		Builder(DownloadManager downloadManager) {
+			this.context = downloadManager.context;
+			this.downloader = downloadManager.downloader;
+			this.threadPoolSize = downloadManager.threadPoolSize;
+		}
 
 		public Builder context(Context context) {
 			this.context = context;
