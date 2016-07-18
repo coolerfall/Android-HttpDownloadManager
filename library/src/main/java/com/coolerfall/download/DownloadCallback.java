@@ -7,6 +7,9 @@ package com.coolerfall.download;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public abstract class DownloadCallback {
+	static final DownloadCallback EMPTY_CALLBACK = new DownloadCallback() {
+	};
+
 	/**
 	 * Invoked when downloading is started.
 	 *
@@ -29,9 +32,9 @@ public abstract class DownloadCallback {
 	/**
 	 * Invoked when downloading is in progress.
 	 *
-	 * @param downloadId   download id in download request queue
+	 * @param downloadId download id in download request queue
 	 * @param bytesWritten the bytes has written to local disk
-	 * @param totalBytes   total bytes of the file
+	 * @param totalBytes total bytes of the file
 	 */
 	public void onProgress(int downloadId, long bytesWritten, long totalBytes) {
 
@@ -41,7 +44,7 @@ public abstract class DownloadCallback {
 	 * Invoked when downloading successfully.
 	 *
 	 * @param downloadId download id in download request queue
-	 * @param filePath   file path
+	 * @param filePath file path
 	 */
 	public void onSuccess(int downloadId, String filePath) {
 
@@ -52,7 +55,7 @@ public abstract class DownloadCallback {
 	 *
 	 * @param downloadId download id in download request queue
 	 * @param statusCode status code
-	 * @param errMsg     error message
+	 * @param errMsg error message
 	 */
 	public void onFailure(int downloadId, int statusCode, String errMsg) {
 

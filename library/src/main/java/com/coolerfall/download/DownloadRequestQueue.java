@@ -29,8 +29,8 @@ final class DownloadRequestQueue {
 	private PriorityBlockingQueue<DownloadRequest> downloadQueue =
 		new PriorityBlockingQueue<>(CAPACITY);
 	private DownloadDispatcher[] dispatchers;
-	private DownloadDelivery delivery;
-	private AtomicInteger sequenceGenerator = new AtomicInteger();
+	private final DownloadDelivery delivery;
+	private final AtomicInteger sequenceGenerator = new AtomicInteger();
 
 	/**
 	 * Create the download dispatchers according to pool size. Any number higher than 10 or less

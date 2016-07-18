@@ -18,7 +18,7 @@ public final class DownloadManager {
 
 	DownloadManager(Builder builder) {
 		context = checkNotNull(builder.context, "context == null").getApplicationContext();
-		downloader = builder.downloader;
+		downloader = checkNotNull(builder.downloader, "downloader == null");
 		threadPoolSize = builder.threadPoolSize;
 		downloadRequestQueue = new DownloadRequestQueue(threadPoolSize);
 		downloadRequestQueue.start();
