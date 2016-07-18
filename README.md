@@ -47,7 +47,7 @@ DownloadRequest request = new DownloadRequest.Builder()
 int downloadId = manager.add(request);
 ```
 
-* If you don't want to set the filename but want to set the download directory, then you can use `destinationDir(String dir)`, but this method will be ignored if `destinationFilePath((String filePath)` was used.
+* If you don't want to set the filename but want to set the download directory, then you can use `destinationDirectory(String directory)`, but this method will be ignored if `destinationFilePath((String filePath)` was used.
 * You can also set retry time with method `retryTime(int retryTime)` if necessary, default retry time is 1.
 * This manager support downloading in different network type with method `allowedNetworkTypes(int types)`, the types can be `DownloadRequest.NETWORK_MOBILE` and `DownloadRequest.NETWORK_WIFI`. This method need *android.permission.ACCESS_NETWORK_STATE* permission.
 * The thread pool size of download manager is 3 by default. If you need a larger pool, then you can try the method `threadPoolSize(int poolSize)` in `DownloadManager#Builder`.
