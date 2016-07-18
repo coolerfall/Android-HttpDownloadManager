@@ -19,6 +19,7 @@ DownloadRequest request = new DownloadRequest.Builder()
 				.progressInterval(1000)
 				.priority(Priority.HIGH)
 				.url("http://something.to.download")
+				.destinationFilePath(destPath)
 				.downloadCallback(new DownloadCallback() {
 					@Override public void onStart(int downloadId, long totalBytes) {
 						
