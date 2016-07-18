@@ -3,6 +3,7 @@ package com.coolerfall.download;
 import android.content.Context;
 
 import static com.coolerfall.download.Preconditions.checkNotNull;
+import static com.coolerfall.download.Utils.createDefaultDownloader;
 
 /**
  * A manager used to manage the downloading.
@@ -10,25 +11,16 @@ import static com.coolerfall.download.Preconditions.checkNotNull;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public final class DownloadManager {
-	/**
-	 * Custom http code invalid.
-	 */
-	public static final int HTTP_INVALID = 1;
-
-	/**
-	 * Custom http code error size.
-	 */
-	public static final int HTTP_ERROR_SIZE = 1 << 1;
-
 	private final Context context;
 	private final Downloader downloader;
+	private final int threadPoolSize;
 	private DownloadRequestQueue downloadRequestQueue;
 
 	DownloadManager(Builder builder) {
-		checkNotNull(builder.context, "context == null");
-		context = builder.context.getApplicationContext();
-		downloader = builder.downloader;
-		downloadRequestQueue = new DownloadRequestQueue(builder.threadPoolSize);
+		context = checkNotNull(builder.context, "context == null").getApplicationContext();
+		downloader = checkNotNull(builder.downloader, "downloader == null");
+		threadPoolSize = builder.threadPoolSize;
+		downloadRequestQueue = new DownloadRequestQueue(threadPoolSize);
 		downloadRequestQueue.start();
 	}
 
@@ -46,9 +38,7 @@ public final class DownloadManager {
 		}
 
 		request.setContext(context);
-		if (downloader != null) {
-			request.setDownloader(downloader.copy());
-		}
+		request.setDownloader(downloader.copy());
 
 		/* add download request into download request queue */
 		return downloadRequestQueue.add(request) ? request.downloadId() : -1;
@@ -129,10 +119,25 @@ public final class DownloadManager {
 		}
 	}
 
+	public Builder newBuilder() {
+		return new Builder(this);
+	}
+
 	public static final class Builder {
 		private Context context;
 		private Downloader downloader;
 		private int threadPoolSize;
+
+		public Builder() {
+			this.downloader = createDefaultDownloader();
+			this.threadPoolSize = 3;
+		}
+
+		Builder(DownloadManager downloadManager) {
+			this.context = downloadManager.context;
+			this.downloader = downloadManager.downloader;
+			this.threadPoolSize = downloadManager.threadPoolSize;
+		}
 
 		public Builder context(Context context) {
 			this.context = context;

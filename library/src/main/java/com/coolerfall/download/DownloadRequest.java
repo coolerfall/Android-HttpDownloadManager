@@ -11,7 +11,6 @@ import android.util.Log;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.coolerfall.download.Utils.createDefaultDownloader;
 import static com.coolerfall.download.Preconditions.checkNotNull;
 
 /**
@@ -37,34 +36,33 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	public static final int NETWORK_WIFI = 1 << 1;
 
 	private int downloadId = -1;
-	private final AtomicInteger retryTime = new AtomicInteger(1);
+	private final AtomicInteger retryTime;
 	private int allowedNetworkTypes = 0;
 	private Context context;
-	private DownloadState downloadState = DownloadState.PENDING;
+	private DownloadState downloadState;
 	private final Uri uri;
-	private final String destinationDir;
+	private final String destinationDirectory;
 	private String destinationFilePath;
 	private final int progressInterval;
 	private DownloadRequestQueue downloadRequestQueue;
-	private final long timestamp = System.currentTimeMillis() / 1000;
-	private Priority priority = Priority.NORMAL;
+	private final long timestamp;
+	private final Priority priority;
 	private boolean canceled = false;
 	private Downloader downloader;
-	private DownloadCallback downloadCallback;
+	private final DownloadCallback downloadCallback;
 
 	private DownloadRequest(Builder builder) {
-		if (builder.retryTime != 0) {
-			retryTime.set(builder.retryTime);
-		}
-		if (builder.priority != null) {
-			priority = builder.priority;
-		}
+		priority = checkNotNull(builder.priority, "priority == null");
 		uri = Uri.parse(checkNotNull(builder.url, "url == null"));
-		destinationDir = builder.destinationDir;
+		retryTime = new AtomicInteger(builder.retryTime);
+		destinationDirectory =
+			checkNotNull(builder.destinationDirectory, "destinationDirectory == null");
 		destinationFilePath = builder.destinationFilePath;
+		downloadCallback = checkNotNull(builder.downloadCallback, "downloadCallback == null");
 		progressInterval = builder.progressInterval;
 		allowedNetworkTypes = builder.allowedNetworkTypes;
-		downloadCallback = builder.downloadCallback;
+		downloadState = DownloadState.PENDING;
+		timestamp = System.currentTimeMillis() / 1000;
 	}
 
 	@Override public int compareTo(@NonNull DownloadRequest other) {
@@ -95,10 +93,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 * @return {@link Downloader}
 	 */
 	Downloader downloader() {
-		if (downloader == null) {
-			downloader = createDefaultDownloader();
-		}
-
 		return downloader;
 	}
 
@@ -212,10 +206,13 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		return uri;
 	}
 
-	/* get absolute file path according to the directory */
+	/**
+	 * Get absolute file path according to the directory
+	 *
+	 * @return file path to save file
+	 */
 	String getFilePath() {
-		String dir = TextUtils.isEmpty(destinationDir) ? DEFAULT_DIR : destinationDir;
-		return dir + File.separator + Utils.getFilenameFromHeader(uri.toString());
+		return destinationDirectory + File.separator + Utils.getFilenameFromHeader(uri.toString());
 	}
 
 	/**
@@ -279,12 +276,19 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	public static final class Builder {
 		private int retryTime;
 		private String url;
-		private String destinationDir;
+		private String destinationDirectory;
 		private String destinationFilePath;
 		private Priority priority;
 		private int progressInterval;
 		private int allowedNetworkTypes;
 		private DownloadCallback downloadCallback;
+
+		public Builder() {
+			this.retryTime = 1;
+			this.priority = Priority.NORMAL;
+			this.destinationDirectory = DEFAULT_DIR;
+			this.downloadCallback = DownloadCallback.EMPTY_CALLBACK;
+		}
 
 		public Builder retryTime(int retryTime) {
 			this.retryTime = retryTime;
@@ -296,8 +300,8 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 			return this;
 		}
 
-		public Builder destinationDir(String destinationDir) {
-			this.destinationDir = destinationDir;
+		public Builder destinationDirectory(String destinationDirectory) {
+			this.destinationDirectory = destinationDirectory;
 			return this;
 		}
 

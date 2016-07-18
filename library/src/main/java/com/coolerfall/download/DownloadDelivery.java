@@ -32,9 +32,7 @@ final class DownloadDelivery {
 		downloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.downloadCallback() != null) {
-					request.downloadCallback().onStart(request.downloadId(), totalBytes);
-				}
+				request.downloadCallback().onStart(request.downloadId(), totalBytes);
 			}
 		});
 	}
@@ -48,9 +46,7 @@ final class DownloadDelivery {
 		downloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.downloadCallback() != null) {
-					request.downloadCallback().onRetry(request.downloadId());
-				}
+				request.downloadCallback().onRetry(request.downloadId());
 			}
 		});
 	}
@@ -62,15 +58,13 @@ final class DownloadDelivery {
 	 * @param bytesWritten the bytes have written to file
 	 * @param totalBytes the total bytes of currnet file in downloading
 	 */
-	void postProgress(final DownloadRequest request,
-		final long bytesWritten, final long totalBytes) {
+	void postProgress(final DownloadRequest request, final long bytesWritten,
+		final long totalBytes) {
 		downloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.downloadCallback() != null) {
-					request.downloadCallback().onProgress(
-						request.downloadId(), bytesWritten, totalBytes);
-				}
+				request.downloadCallback()
+					.onProgress(request.downloadId(), bytesWritten, totalBytes);
 			}
 		});
 	}
@@ -84,10 +78,8 @@ final class DownloadDelivery {
 		downloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.downloadCallback() != null) {
-					request.downloadCallback().onSuccess(
-						request.downloadId(), request.destinationFilePath());
-				}
+				request.downloadCallback()
+					.onSuccess(request.downloadId(), request.destinationFilePath());
 			}
 		});
 	}
@@ -99,15 +91,11 @@ final class DownloadDelivery {
 	 * @param statusCode status code
 	 * @param errMsg error message
 	 */
-	void postFailure(final DownloadRequest request, final int statusCode,
-		final String errMsg) {
+	void postFailure(final DownloadRequest request, final int statusCode, final String errMsg) {
 		downloadPoster.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (request.downloadCallback() != null) {
-					request.downloadCallback().onFailure(
-						request.downloadId(), statusCode, errMsg);
-				}
+				request.downloadCallback().onFailure(request.downloadId(), statusCode, errMsg);
 			}
 		});
 	}

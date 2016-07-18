@@ -73,8 +73,13 @@ final class Utils {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			md.update(origin.getBytes("UTF-8"));
 			BigInteger bi = new BigInteger(1, md.digest());
+			String hash = bi.toString(16);
 
-			return bi.toString(16);
+			while (hash.length() < 32) {
+				hash = "0" + hash;
+			}
+
+			return hash;
 		} catch (Exception e) {
 			return getUuid();
 		}

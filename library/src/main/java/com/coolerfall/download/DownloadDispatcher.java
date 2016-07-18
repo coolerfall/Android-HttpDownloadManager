@@ -27,8 +27,8 @@ final class DownloadDispatcher extends Thread {
 	private static final String DEFAULT_THREAD_NAME = "DownloadDispatcher";
 	private static final String IDLE_THREAD_NAME = "DownloadDispatcher-Idle";
 
-	private BlockingQueue<DownloadRequest> queue;
-	private DownloadDelivery delivery;
+	private final BlockingQueue<DownloadRequest> queue;
+	private final DownloadDelivery delivery;
 	private long lastProgressTimestamp;
 	private volatile boolean quit = false;
 
