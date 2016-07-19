@@ -17,6 +17,7 @@ import com.coolerfall.download.OkHttpDownloader;
 import com.coolerfall.download.Priority;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends Activity implements OnClickListener {
 	private static final String TAG = "Vtag";
@@ -121,7 +122,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				.downloadCallback(new Callback())
 				.retryTime(5)
 				.allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
-				.progressInterval(1000)
+				.progressInterval(1, TimeUnit.SECONDS)
 				.priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
 				.url(URL[index])
 				.build();
