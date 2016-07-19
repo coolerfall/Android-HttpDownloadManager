@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.coolerfall.download.Preconditions.checkNotNull;
@@ -43,7 +44,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	private final Uri uri;
 	private final String destinationDirectory;
 	private String destinationFilePath;
-	private final int progressInterval;
+	private final long progressInterval;
 	private DownloadRequestQueue downloadRequestQueue;
 	private final long timestamp;
 	private final Priority priority;
@@ -62,7 +63,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		progressInterval = builder.progressInterval;
 		allowedNetworkTypes = builder.allowedNetworkTypes;
 		downloadState = DownloadState.PENDING;
-		timestamp = System.currentTimeMillis() / 1000;
+		timestamp = System.currentTimeMillis();
 	}
 
 	@Override public int compareTo(@NonNull DownloadRequest other) {
@@ -166,7 +167,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return progress interval
 	 */
-	int progressInterval() {
+	long progressInterval() {
 		return progressInterval;
 	}
 
@@ -279,7 +280,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		private String destinationDirectory;
 		private String destinationFilePath;
 		private Priority priority;
-		private int progressInterval;
+		private long progressInterval;
 		private int allowedNetworkTypes;
 		private DownloadCallback downloadCallback;
 
@@ -315,8 +316,21 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 			return this;
 		}
 
-		public Builder progressInterval(int progressInterval) {
-			this.progressInterval = progressInterval;
+		public Builder progressInterval(long interval, TimeUnit unit) {
+			if (interval < 0) {
+				throw new IllegalArgumentException("interval < 0");
+			}
+
+			if (unit == null) {
+				throw new NullPointerException("unit == null");
+			}
+
+			long millis = unit.toMillis(interval);
+			if (millis > Integer.MAX_VALUE) {
+				throw new IllegalArgumentException("interval too large");
+			}
+
+			this.progressInterval = millis;
 			return this;
 		}
 

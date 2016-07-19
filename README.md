@@ -16,7 +16,7 @@ String destPath = Environment.getExternalStorageDirectory() + File.separator + "
 DownloadRequest request = new DownloadRequest.Builder()
 				.retryTime(3)
 				.allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
-				.progressInterval(1000)
+				.progressInterval(1, TimeUnit.SECONDS)
 				.priority(Priority.HIGH)
 				.url("http://something.to.download")
 				.destinationFilePath(destPath)
@@ -53,7 +53,7 @@ int downloadId = manager.add(request);
 * The thread pool size of download manager is 3 by default. If you need a larger pool, then you can try the method `threadPoolSize(int poolSize)` in `DownloadManager#Builder`.
 * You need *android.permission.WRITE_EXTERNAL_STORAGE* permission if you don't use public directory in SDCard as download destination file path. Don't forget to add *android.permission.INTERNET* permission.
 * This download manager support breakpoint downloading, so you can restart the downloading after pause.
-* If you don't want DownloadDispathcer invoke `onProgress(int downloadId, long bytesWritten, long totalBytes)` frequently, then you can use `progressInterval(int millisec)`.
+* If you don't want DownloadDispathcer invoke `onProgress(int downloadId, long bytesWritten, long totalBytes)` frequently, then you can use `.progressInterval(long interval, TimeUnit unit)`.
 * If you want one download request get high priority, then you can use `priority(Priority priority)`.
 * The download manager provides two kinds of `Downloader`(`URLDownloader` and `OkHttpDownloader`), and the it will detect which downloader to use. You can also implement your own `Downloader` just like what `URLDownloader` and `OkHttpDownloader` do.
 
