@@ -5,7 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -206,12 +206,20 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 
 	/**
-	 * Get absolute file path according to the directory
+	 * Update absolute file path according to the directory and filename.
 	 *
-	 * @return file path to save file
+	 * @param filename filename to save
 	 */
-	String getFilePath() {
-		return destinationDirectory + File.separator + Utils.getFilenameFromHeader(uri.toString());
+	@SuppressWarnings("ResultOfMethodCallIgnored") void updateDestinationFilePath(String filename) {
+		String separator = destinationDirectory.endsWith("/") ? "" : File.separator;
+		destinationFilePath = destinationDirectory + separator + filename;
+		Log.d("TAG", "destinationFilePath: " + destinationFilePath);
+		/* if the destination path is directory */
+		File file = new File(destinationFilePath);
+		if (!file.getParentFile().exists()) {
+			/* make dirs in case */
+			file.getParentFile().mkdirs();
+		}
 	}
 
 	/**
@@ -219,19 +227,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	 *
 	 * @return destination file path
 	 */
-	@SuppressWarnings("ResultOfMethodCallIgnored") String destinationFilePath() {
-		/* if the destination file path is empty, use default file path */
-		if (TextUtils.isEmpty(destinationFilePath)) {
-			destinationFilePath = getFilePath();
-		}
-
-		/* if the destination path is directory */
-		File file = new File(destinationFilePath);
-		if (!file.getParentFile().exists()) {
-			/* make dirs in case */
-			file.getParentFile().mkdirs();
-		}
-
+	String destinationFilePath() {
 		return destinationFilePath;
 	}
 
