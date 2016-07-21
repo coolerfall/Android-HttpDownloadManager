@@ -1,15 +1,9 @@
 package com.coolerfall.download;
 
-import android.annotation.SuppressLint;
 import android.net.Uri;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -28,7 +22,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public final class OkHttpDownloader implements Downloader {
-	private OkHttpClient client;
+	private final OkHttpClient client;
 	private ResponseBody body;
 	private int redirectionCount = 0;
 
@@ -68,20 +62,6 @@ public final class OkHttpDownloader implements Downloader {
 			throw new DownloadException(0, "url should start with http or https");
 		}
 
-		OkHttpClient.Builder okHttpbuilder = client.newBuilder();
-		SSLContext sslContext = Utils.createSSLContext();
-		if (sslContext != null) {
-			SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-			okHttpbuilder.sslSocketFactory(sslSocketFactory);
-			okHttpbuilder.hostnameVerifier(new HostnameVerifier() {
-				@SuppressLint("BadHostnameVerifier") @Override
-				public boolean verify(String hostname, SSLSession session) {
-					return true;
-				}
-			});
-			client = okHttpbuilder.build();
-		}
-
 		Request.Builder builder = new Request.Builder().url(uri.toString());
 		if (breakpoint > 0) {
 			builder.header("Accept-Encoding", "identity")
@@ -102,11 +82,11 @@ public final class OkHttpDownloader implements Downloader {
 		case Utils.HTTP_TEMP_REDIRECT:
 			body.close();
 			if (redirectionCount++ < Utils.MAX_REDIRECTION) {
-			    /* take redirect url and call executeDownload recursively */
+			    /* take redirect url and call start recursively */
 				String redirectUrl = response.header(Utils.LOCATION);
 				return start(Uri.parse(redirectUrl), breakpoint);
 			} else {
-				throw new DownloadException(statusCode, response.message());
+				throw new DownloadException(statusCode, "redirects too many times");
 			}
 		}
 
@@ -128,7 +108,7 @@ public final class OkHttpDownloader implements Downloader {
 	}
 
 	@Override public Downloader copy() {
-		return create(client);
+		return create(client.newBuilder().build());
 	}
 
 	/* read response content length from server */

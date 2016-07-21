@@ -1,6 +1,5 @@
 package com.coolerfall.download;
 
-import android.annotation.SuppressLint;
 import android.net.Uri;
 
 import java.io.IOException;
@@ -9,17 +8,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 
+import static com.coolerfall.download.Utils.HTTP;
+import static com.coolerfall.download.Utils.HTTPS;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
-import static com.coolerfall.download.Utils.HTTP;
-import static com.coolerfall.download.Utils.HTTPS;
 
 /**
  * A default downloader implemented by {@link URLConnection}.
@@ -59,12 +56,6 @@ public final class URLDownloader implements Downloader {
 			if (sslContext != null) {
 				SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 				httpsURLConnection.setSSLSocketFactory(sslSocketFactory);
-				httpsURLConnection.setHostnameVerifier(new HostnameVerifier() {
-					@SuppressLint("BadHostnameVerifier") @Override
-					public boolean verify(String hostname, SSLSession session) {
-						return true;
-					}
-				});
 			}
 			httpURLConnection = httpsURLConnection;
 		} else {
@@ -87,12 +78,12 @@ public final class URLDownloader implements Downloader {
 		case HTTP_SEE_OTHER:
 		case Utils.HTTP_TEMP_REDIRECT:
 			if (redirectionCount++ < Utils.MAX_REDIRECTION) {
-			    /* take redirect url and call executeDownload recursively */
+			    /* take redirect url and call start recursively */
 				String redirectUrl = httpURLConnection.getHeaderField(Utils.LOCATION);
 				httpURLConnection.disconnect();
 				return start(Uri.parse(redirectUrl), breakpoint);
 			} else {
-				throw new DownloadException(statusCode, httpURLConnection.getResponseMessage());
+				throw new DownloadException(statusCode, "redirects too many times");
 			}
 
 		default:

@@ -38,6 +38,8 @@ final class Utils {
 	static final String HTTPS = "https";
 	static final String LOCATION = "Location";
 	static final int MAX_REDIRECTION = 5;
+	static final int HTTP_OK = 200;
+	static final int HTTP_PARTIAL = 206;
 	static final int HTTP_TEMP_REDIRECT = 307;
 	static final AtomicInteger REDIRECT_TIME = new AtomicInteger(0);
 

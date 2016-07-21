@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +20,6 @@ import static com.coolerfall.download.Preconditions.checkNotNull;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public final class DownloadRequest implements Comparable<DownloadRequest> {
-	private static final String TAG = DownloadRequest.class.getSimpleName();
 	private static final String DEFAULT_DIR = Environment
 		.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 		.getAbsolutePath();
@@ -229,10 +227,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 
 		/* if the destination path is directory */
 		File file = new File(destinationFilePath);
-		if (file.isDirectory()) {
-			Log.w(TAG, "the destination file path cannot be directory");
-			return getFilePath();
-		} else if (!file.getParentFile().exists()) {
+		if (!file.getParentFile().exists()) {
 			/* make dirs in case */
 			file.getParentFile().mkdirs();
 		}
@@ -292,6 +287,10 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		}
 
 		public Builder retryTime(int retryTime) {
+			if (retryTime < 0) {
+				throw new IllegalArgumentException("retryTime < 0");
+			}
+
 			this.retryTime = retryTime;
 			return this;
 		}
@@ -307,6 +306,10 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 		}
 
 		public Builder destinationFilePath(String destinationFilePath) {
+			/* if the destination path is directory */
+			if (new File(destinationFilePath).isDirectory()) {
+				throw new IllegalArgumentException("destinationFilePath cannot be a directory");
+			}
 			this.destinationFilePath = destinationFilePath;
 			return this;
 		}

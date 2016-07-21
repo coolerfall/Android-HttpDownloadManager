@@ -9,8 +9,8 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.concurrent.BlockingQueue;
 
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_PARTIAL;
+import static com.coolerfall.download.Utils.HTTP_OK;
+import static com.coolerfall.download.Utils.HTTP_PARTIAL;
 
 /**
  * Download dispatcher: used to dispatch downloader, this is desinged according to
@@ -142,7 +142,6 @@ final class DownloadDispatcher extends Thread {
 				/* we may have been interrupted because it was time to quit */
 				if (quit) {
 					request.finish();
-
 					return;
 				}
 			}
