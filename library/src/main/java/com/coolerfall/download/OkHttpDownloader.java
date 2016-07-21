@@ -9,9 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okio.Buffer;
-import okio.BufferedSource;
 
 import static com.coolerfall.download.Utils.CONTENT_DISPOSITION;
 import static com.coolerfall.download.Utils.DEFAULT_CONNECT_TIMEOUT;
@@ -78,7 +75,7 @@ public final class OkHttpDownloader implements Downloader {
 	}
 
 	@Override public long contentLength() {
-		return getContentLength(response.body());
+		return response == null ? -1 : response.body().contentLength();
 	}
 
 	@Override public InputStream byteStream() {
@@ -111,7 +108,7 @@ public final class OkHttpDownloader implements Downloader {
 		case HTTP_TEMP_REDIRECT:
 			response.close();
 			if (redirectionCount.decrementAndGet() >= 0) {
-			    /* take redirect url and call start recursively */
+				/* take redirect url and call start recursively */
 				String redirectUrl = response.header(LOCATION);
 				return innerRequest(client, Uri.parse(redirectUrl), breakpoint);
 			} else {
@@ -120,26 +117,5 @@ public final class OkHttpDownloader implements Downloader {
 		}
 
 		return response;
-	}
-
-	/* read response content length from server */
-	long getContentLength(ResponseBody body) {
-		if (body == null) {
-			return -1;
-		}
-
-		long contentLength = body.contentLength();
-		if (contentLength <= 0) {
-			BufferedSource source = body.source();
-			try {
-				source.request(Long.MAX_VALUE);
-				Buffer buffer = source.buffer();
-				contentLength = buffer.size();
-			} catch (IOException e) {
-				return -1;
-			}
-		}
-
-		return contentLength;
 	}
 }
