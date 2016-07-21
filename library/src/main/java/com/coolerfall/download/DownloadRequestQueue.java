@@ -1,5 +1,6 @@
 package com.coolerfall.download;
 
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -82,7 +83,7 @@ final class DownloadRequestQueue {
 	boolean add(DownloadRequest request) {
 		/* if the request is downloading, do nothing */
 		if (query(request.downloadId()) != DownloadState.INVALID ||
-			query(request.uri().toString()) != DownloadState.INVALID) {
+			query(request.uri()) != DownloadState.INVALID) {
 			Log.w(TAG, "the download requst is in downloading");
 			return false;
 		}
@@ -162,13 +163,13 @@ final class DownloadRequestQueue {
 	/**
 	 * To check if the request is downloading according to download url.
 	 *
-	 * @param url the url to check
+	 * @param uri the uri to check
 	 * @return true if the request is downloading, otherwise return false
 	 */
-	DownloadState query(String url) {
+	DownloadState query(Uri uri) {
 		synchronized (currentRequests) {
 			for (DownloadRequest request : currentRequests) {
-				if (request.uri().toString().equals(url)) {
+				if (request.uri().toString().equals(uri.toString())) {
 					return request.downloadState();
 				}
 			}

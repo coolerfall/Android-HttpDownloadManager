@@ -5,7 +5,7 @@ An useful and effective http download manager for Android. This download manager
 
 Usage
 =====
-* If you don't set the destination file path, the download manager will use `Environment.DIRECTORY_DOWNLOADS` in SDCard as default directory:
+* If you don't set the destination file path, the download manager will use `Environment.DIRECTORY_DOWNLOADS` in SDCard as default directory, and it will detect filename automatically if destinationFilePath not set:
 ```java
 DownloadManager manager = downloadManager =
 			new DownloadManager.Builder().context(this)
@@ -14,11 +14,12 @@ DownloadManager manager = downloadManager =
 				.build();
 String destPath = Environment.getExternalStorageDirectory() + File.separator + "test.apk";
 DownloadRequest request = new DownloadRequest.Builder()
-				.retryTime(3)
-				.allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
-				.progressInterval(1, TimeUnit.SECONDS)
-				.priority(Priority.HIGH)
 				.url("http://something.to.download")
+				.retryTime(5)
+				.retryInterval(2, TimeUnit.SECONDS)
+				.progressInterval(1, TimeUnit.SECONDS)
+				.priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
+				.allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
 				.destinationFilePath(destPath)
 				.downloadCallback(new DownloadCallback() {
 					@Override public void onStart(int downloadId, long totalBytes) {
@@ -48,7 +49,7 @@ int downloadId = manager.add(request);
 ```
 
 * If you don't want to set the filename but want to set the download directory, then you can use `destinationDirectory(String directory)`, but this method will be ignored if `destinationFilePath((String filePath)` was used.
-* You can also set retry time with method `retryTime(int retryTime)` if necessary, default retry time is 1.
+* You can also set retry time with method `retryTime(int retryTime)` if necessary, default retry time is 1. You can set retry interval to decide how long to retry with method `retryInterval(long interval, TimeUnit unit)`.
 * This manager support downloading in different network type with method `allowedNetworkTypes(int types)`, the types can be `DownloadRequest.NETWORK_MOBILE` and `DownloadRequest.NETWORK_WIFI`. This method need *android.permission.ACCESS_NETWORK_STATE* permission.
 * The thread pool size of download manager is 3 by default. If you need a larger pool, then you can try the method `threadPoolSize(int poolSize)` in `DownloadManager#Builder`.
 * You need *android.permission.WRITE_EXTERNAL_STORAGE* permission if you don't use public directory in SDCard as download destination file path. Don't forget to add *android.permission.INTERNET* permission.

@@ -4,6 +4,7 @@ import android.net.Uri;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -16,8 +17,6 @@ import static com.coolerfall.download.Utils.CONTENT_DISPOSITION;
 import static com.coolerfall.download.Utils.DEFAULT_CONNECT_TIMEOUT;
 import static com.coolerfall.download.Utils.DEFAULT_READ_TIMEOUT;
 import static com.coolerfall.download.Utils.DEFAULT_WRITE_TIMEOUT;
-import static com.coolerfall.download.Utils.HTTP;
-import static com.coolerfall.download.Utils.HTTPS;
 import static com.coolerfall.download.Utils.HTTP_TEMP_REDIRECT;
 import static com.coolerfall.download.Utils.LOCATION;
 import static com.coolerfall.download.Utils.MAX_REDIRECTION;
@@ -32,7 +31,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public final class OkHttpDownloader implements Downloader {
 	private final OkHttpClient client;
 	private Response response;
-	private int redirectionCount = 0;
+	private final AtomicInteger redirectionCount = new AtomicInteger();
 
 	private static OkHttpClient defaultOkHttpClient() {
 		return new OkHttpClient.Builder().connectTimeout(DEFAULT_CONNECT_TIMEOUT, MILLISECONDS)
@@ -64,7 +63,7 @@ public final class OkHttpDownloader implements Downloader {
 	}
 
 	@Override public String detectFilename(Uri uri) throws IOException {
-		redirectionCount = 0;
+		redirectionCount.set(MAX_REDIRECTION);
 		Response response = innerRequest(client, uri, 0);
 		String url = response.request().url().toString();
 		String contentDisposition = response.header(CONTENT_DISPOSITION);
@@ -73,7 +72,7 @@ public final class OkHttpDownloader implements Downloader {
 	}
 
 	@Override public int start(Uri uri, long breakpoint) throws IOException {
-		redirectionCount = 0;
+		redirectionCount.set(MAX_REDIRECTION);
 		response = innerRequest(client, uri, breakpoint);
 		return response.code();
 	}
@@ -97,11 +96,6 @@ public final class OkHttpDownloader implements Downloader {
 	}
 
 	Response innerRequest(OkHttpClient client, Uri uri, long breakpoint) throws IOException {
-		String scheme = uri.getScheme();
-		if (!HTTP.equals(scheme) && !HTTPS.equals(scheme)) {
-			throw new DownloadException(0, "url should start with http or https");
-		}
-
 		Request.Builder builder = new Request.Builder().url(uri.toString());
 		if (breakpoint > 0) {
 			builder.header("Accept-Encoding", "identity")
@@ -116,7 +110,7 @@ public final class OkHttpDownloader implements Downloader {
 		case 303:
 		case HTTP_TEMP_REDIRECT:
 			response.close();
-			if (redirectionCount++ < MAX_REDIRECTION) {
+			if (redirectionCount.decrementAndGet() >= 0) {
 			    /* take redirect url and call start recursively */
 				String redirectUrl = response.header(LOCATION);
 				return innerRequest(client, Uri.parse(redirectUrl), breakpoint);

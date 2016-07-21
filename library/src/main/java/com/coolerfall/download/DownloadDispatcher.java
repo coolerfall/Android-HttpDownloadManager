@@ -13,15 +13,14 @@ import static com.coolerfall.download.Utils.HTTP_OK;
 import static com.coolerfall.download.Utils.HTTP_PARTIAL;
 
 /**
- * Download dispatcher: used to dispatch downloader, this is desinged according to
- * NetworkDispatcher in Android-Volley.
+ * This class used to dispatch downloader, this is desinged according to NetworkDispatcher in
+ * Android-Volley.
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 final class DownloadDispatcher extends Thread {
 	private static final String TAG = DownloadDispatcher.class.getSimpleName();
 	private static final int SLEEP_BEFORE_DOWNLOAD = 500;
-	private static final int SLEEP_BEFORE_RETRY = 2500;
 	private static final int BUFFER_SIZE = 4096;
 	private static final String END_OF_STREAM = "unexpected end of stream";
 	private static final String DEFAULT_THREAD_NAME = "DownloadDispatcher";
@@ -137,7 +136,7 @@ final class DownloadDispatcher extends Thread {
 		if (request.retryTime() >= 0) {
 			try {
 				/* sleep a while before retrying */
-				sleep(SLEEP_BEFORE_RETRY);
+				sleep(request.retryInterval());
 			} catch (InterruptedException e) {
 				/* we may have been interrupted because it was time to quit */
 				if (quit) {
@@ -215,7 +214,7 @@ final class DownloadDispatcher extends Thread {
 					/* if current is not wifi and mobile network is not allowed, stop */
 					if (request.allowedNetworkTypes() != 0 && !Utils.isWifi(request.context()) &&
 						(request.allowedNetworkTypes() & DownloadRequest.NETWORK_MOBILE) == 0) {
-						throw new DownloadException(statusCode, "network error");
+						throw new DownloadException(statusCode, "allow network error");
 					}
 
 					/* read data into buffer from input stream */
@@ -283,8 +282,7 @@ final class DownloadDispatcher extends Thread {
 			if (is != null) {
 				is.close();
 			}
-		} catch (IOException e) {
-			Log.w(TAG, "cannot close input stream", e);
+		} catch (IOException ignore) {
 		}
 	}
 

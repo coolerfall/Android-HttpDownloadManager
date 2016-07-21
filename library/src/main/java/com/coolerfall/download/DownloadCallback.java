@@ -2,7 +2,6 @@ package com.coolerfall.download;
 
 /**
  * This is a callback to be invoked when downloading.
- * This download listener contains detail download information.
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
