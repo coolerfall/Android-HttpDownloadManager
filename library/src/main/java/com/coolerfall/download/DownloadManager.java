@@ -1,6 +1,7 @@
 package com.coolerfall.download;
 
 import android.content.Context;
+import android.net.Uri;
 
 import static com.coolerfall.download.Preconditions.checkNotNull;
 import static com.coolerfall.download.Utils.createDefaultDownloader;
@@ -61,7 +62,7 @@ public final class DownloadManager {
 	 * @return download state
 	 */
 	DownloadState query(String url) {
-		return downloadRequestQueue.query(url);
+		return downloadRequestQueue.query(Uri.parse(url));
 	}
 
 	/**

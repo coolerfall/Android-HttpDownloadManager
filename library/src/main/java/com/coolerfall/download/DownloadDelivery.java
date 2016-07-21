@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import java.util.concurrent.Executor;
 
 /**
- * Download delivery: used to delivery callback to call back in main thread.
+ * This class is used to delivery callback to call back in main thread.
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */

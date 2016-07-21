@@ -17,11 +17,11 @@ ext {
 	libraries = [
 			appcompatv7       : 'com.android.support:appcompat-v7:24.0.0',
 			supportAnnotation : 'com.android.support:support-annotations:24.0.0',
-			okHttp3           : 'com.squareup.okhttp3:okhttp:3.3.1',
-			loggingInterceptor: 'com.squareup.okhttp3:logging-interceptor:3.3.1',
+			okHttp3           : 'com.squareup.okhttp3:okhttp:3.4.1',
+			loggingInterceptor: 'com.squareup.okhttp3:logging-interceptor:3.4.1',
 	]
 
 	testingLibraries = [robolectric  : 'org.robolectric:robolectric:3.0',
 	                    mock         : 'org.mockito:mockito-core:1.9.5',
-	                    mockWebServer: 'com.squareup.okhttp3:mockwebserver:3.3.1']
+	                    mockWebServer: 'com.squareup.okhttp3:mockwebserver:3.4.1']
 }

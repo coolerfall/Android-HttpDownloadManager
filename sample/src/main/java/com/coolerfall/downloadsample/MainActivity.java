@@ -125,12 +125,13 @@ public class MainActivity extends Activity implements OnClickListener {
 			downloadManager.cancel(id);
 		} else {
 			DownloadRequest request = new DownloadRequest.Builder()
+				.url(URL[index])
 				.downloadCallback(new Callback())
 				.retryTime(5)
-				.allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
+				.retryInterval(3, TimeUnit.SECONDS)
 				.progressInterval(1, TimeUnit.SECONDS)
 				.priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
-				.url(URL[index])
+				.allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
 				.build();
 			int downloadId = downloadManager.add(request);
 			ids.put(index, downloadId);

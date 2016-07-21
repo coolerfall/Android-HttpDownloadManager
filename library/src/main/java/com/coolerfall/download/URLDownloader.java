@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -15,7 +16,6 @@ import javax.net.ssl.SSLSocketFactory;
 import static com.coolerfall.download.Utils.CONTENT_DISPOSITION;
 import static com.coolerfall.download.Utils.DEFAULT_CONNECT_TIMEOUT;
 import static com.coolerfall.download.Utils.DEFAULT_READ_TIMEOUT;
-import static com.coolerfall.download.Utils.HTTP;
 import static com.coolerfall.download.Utils.HTTPS;
 import static com.coolerfall.download.Utils.HTTP_TEMP_REDIRECT;
 import static com.coolerfall.download.Utils.LOCATION;
@@ -36,8 +36,8 @@ public final class URLDownloader implements Downloader {
 	private static final String TRANSFER_ENCODING = "Transfer-Encoding";
 	private static final String CONTENT_LENGTH = "Content-Length";
 
-	private int redirectionCount = 0;
 	private HttpURLConnection httpURLConnection;
+	private final AtomicInteger redirectionCount = new AtomicInteger();
 
 	private URLDownloader() {
 	}
@@ -52,6 +52,7 @@ public final class URLDownloader implements Downloader {
 	}
 
 	@Override public String detectFilename(Uri uri) throws IOException {
+		redirectionCount.set(MAX_REDIRECTION);
 		HttpURLConnection httpURLConnection = innerRequest(uri, 0);
 		String url = httpURLConnection.getURL().toString();
 		String contentDispisition = httpURLConnection.getHeaderField(CONTENT_DISPOSITION);
@@ -60,6 +61,7 @@ public final class URLDownloader implements Downloader {
 	}
 
 	@Override public int start(Uri uri, long breakpoint) throws IOException {
+		redirectionCount.set(MAX_REDIRECTION);
 		httpURLConnection = innerRequest(uri, breakpoint);
 		return httpURLConnection.getResponseCode();
 	}
@@ -83,14 +85,9 @@ public final class URLDownloader implements Downloader {
 	}
 
 	HttpURLConnection innerRequest(Uri uri, long breakpoint) throws IOException {
-		String scheme = uri.getScheme();
-		if (!HTTP.equals(scheme) && !HTTPS.equals(scheme)) {
-			throw new DownloadException(0, "url should start with http or https");
-		}
-
 		HttpURLConnection httpURLConnection;
 		URL url = new URL(uri.toString());
-		if (HTTPS.equals(scheme)) {
+		if (HTTPS.equals(uri.getScheme())) {
 			HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
 			SSLContext sslContext = createSSLContext();
 			if (sslContext != null) {
@@ -117,7 +114,7 @@ public final class URLDownloader implements Downloader {
 		case HTTP_MOVED_TEMP:
 		case HTTP_SEE_OTHER:
 		case HTTP_TEMP_REDIRECT:
-			if (redirectionCount++ < MAX_REDIRECTION) {
+			if (redirectionCount.decrementAndGet() >= 0) {
 			    /* take redirect url and call start recursively */
 				String redirectUrl = httpURLConnection.getHeaderField(LOCATION);
 				httpURLConnection.disconnect();

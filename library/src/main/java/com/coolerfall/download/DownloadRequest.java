@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.coolerfall.download.Preconditions.checkNotNull;
+import static com.coolerfall.download.Utils.HTTP;
+import static com.coolerfall.download.Utils.HTTPS;
 
 /**
  * This class represents a request for downloading, this is designed according to Request in
@@ -43,6 +45,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	private final String destinationDirectory;
 	private String destinationFilePath;
 	private final long progressInterval;
+	private final long retryInterval;
 	private DownloadRequestQueue downloadRequestQueue;
 	private final long timestamp;
 	private final Priority priority;
@@ -51,14 +54,15 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	private final DownloadCallback downloadCallback;
 
 	private DownloadRequest(Builder builder) {
+		uri = builder.uri;
 		priority = checkNotNull(builder.priority, "priority == null");
-		uri = Uri.parse(checkNotNull(builder.url, "url == null"));
 		retryTime = new AtomicInteger(builder.retryTime);
 		destinationDirectory =
 			checkNotNull(builder.destinationDirectory, "destinationDirectory == null");
 		destinationFilePath = builder.destinationFilePath;
 		downloadCallback = checkNotNull(builder.downloadCallback, "downloadCallback == null");
 		progressInterval = builder.progressInterval;
+		retryInterval = builder.retryInterval;
 		allowedNetworkTypes = builder.allowedNetworkTypes;
 		downloadState = DownloadState.PENDING;
 		timestamp = System.currentTimeMillis();
@@ -170,6 +174,15 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 
 	/**
+	 * Get retry interval, used in {@link DownloadDispatcher}.
+	 *
+	 * @return retry interval
+	 */
+	long retryInterval() {
+		return retryInterval;
+	}
+
+	/**
 	 * Get the types of allowed network.
 	 *
 	 * @return all the types
@@ -266,8 +279,9 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 	}
 
 	public static final class Builder {
+		private Uri uri;
 		private int retryTime;
-		private String url;
+		private long retryInterval;
 		private String destinationDirectory;
 		private String destinationFilePath;
 		private Priority priority;
@@ -277,22 +291,23 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 
 		public Builder() {
 			this.retryTime = 1;
+			this.retryInterval = 3_000;
+			this.progressInterval = 100;
 			this.priority = Priority.NORMAL;
 			this.destinationDirectory = DEFAULT_DIR;
 			this.downloadCallback = DownloadCallback.EMPTY_CALLBACK;
 		}
 
-		public Builder retryTime(int retryTime) {
-			if (retryTime < 0) {
-				throw new IllegalArgumentException("retryTime < 0");
-			}
-
-			this.retryTime = retryTime;
-			return this;
+		public Builder url(String url) {
+			return uri(Uri.parse(url));
 		}
 
-		public Builder url(String url) {
-			this.url = url;
+		public Builder uri(Uri uri) {
+			this.uri = checkNotNull(uri, "uri == null");
+			String scheme = uri.getScheme();
+			if (!HTTP.equals(scheme) && !HTTPS.equals(scheme)) {
+				throw new IllegalArgumentException("url should start with http or https");
+			}
 			return this;
 		}
 
@@ -315,15 +330,36 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 			return this;
 		}
 
+		public Builder retryTime(int retryTime) {
+			if (retryTime < 0) {
+				throw new IllegalArgumentException("retryTime < 0");
+			}
+
+			this.retryTime = retryTime;
+			return this;
+		}
+
+		public Builder retryInterval(long interval, TimeUnit unit) {
+			if (interval <= 0) {
+				throw new IllegalArgumentException("interval <= 0");
+			}
+
+			unit = checkNotNull(unit, "unit == null");
+			long millis = unit.toMillis(interval);
+			if (millis > Integer.MAX_VALUE) {
+				throw new IllegalArgumentException("interval too large");
+			}
+
+			this.retryInterval = millis;
+			return this;
+		}
+
 		public Builder progressInterval(long interval, TimeUnit unit) {
 			if (interval < 0) {
 				throw new IllegalArgumentException("interval < 0");
 			}
 
-			if (unit == null) {
-				throw new NullPointerException("unit == null");
-			}
-
+			unit = checkNotNull(unit, "unit == null");
 			long millis = unit.toMillis(interval);
 			if (millis > Integer.MAX_VALUE) {
 				throw new IllegalArgumentException("interval too large");
