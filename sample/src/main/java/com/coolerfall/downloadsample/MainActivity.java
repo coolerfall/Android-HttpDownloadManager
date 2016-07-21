@@ -19,6 +19,9 @@ import com.coolerfall.download.Priority;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+
 public class MainActivity extends Activity implements OnClickListener {
 	private static final String TAG = "Vtag";
 	private static final String[] URL = {
@@ -72,9 +75,12 @@ public class MainActivity extends Activity implements OnClickListener {
 		textSpeed3 = (TextView) findViewById(R.id.download_tv_speed3);
 		textSpeed4 = (TextView) findViewById(R.id.download_tv_speed4);
 
+		OkHttpClient client =
+			new OkHttpClient.Builder().addInterceptor(new HttpLoggingInterceptor().setLevel(
+				HttpLoggingInterceptor.Level.BODY)).build();
 		downloadManager =
 			new DownloadManager.Builder().context(this)
-				.downloader(OkHttpDownloader.create())
+				.downloader(OkHttpDownloader.create(client))
 				.threadPoolSize(2)
 				.build();
 	}

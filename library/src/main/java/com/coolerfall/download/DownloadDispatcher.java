@@ -20,8 +20,8 @@ import static com.coolerfall.download.Utils.HTTP_PARTIAL;
  */
 final class DownloadDispatcher extends Thread {
 	private static final String TAG = DownloadDispatcher.class.getSimpleName();
-	private static final int SLEEP_BEFORE_DOWNLOAD = 1500;
-	private static final int SLEEP_BEFORE_RETRY = 3500;
+	private static final int SLEEP_BEFORE_DOWNLOAD = 500;
+	private static final int SLEEP_BEFORE_RETRY = 2500;
 	private static final int BUFFER_SIZE = 4096;
 	private static final String END_OF_STREAM = "unexpected end of stream";
 	private static final String DEFAULT_THREAD_NAME = "DownloadDispatcher";
@@ -173,6 +173,10 @@ final class DownloadDispatcher extends Thread {
 		InputStream is = null;
 
 		try {
+			if (request.destinationFilePath() == null) {
+				request.updateDestinationFilePath(downloader.detectFilename(request.uri()));
+			}
+
 			File file = new File(request.tempFilePath());
 			raf = new RandomAccessFile(file, "rw");
 			long breakpoint = file.length();

@@ -12,8 +12,16 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
+import static com.coolerfall.download.Utils.CONTENT_DISPOSITION;
+import static com.coolerfall.download.Utils.DEFAULT_CONNECT_TIMEOUT;
+import static com.coolerfall.download.Utils.DEFAULT_READ_TIMEOUT;
 import static com.coolerfall.download.Utils.HTTP;
 import static com.coolerfall.download.Utils.HTTPS;
+import static com.coolerfall.download.Utils.HTTP_TEMP_REDIRECT;
+import static com.coolerfall.download.Utils.LOCATION;
+import static com.coolerfall.download.Utils.MAX_REDIRECTION;
+import static com.coolerfall.download.Utils.createSSLContext;
+import static com.coolerfall.download.Utils.getFilenameFromHeader;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
@@ -43,52 +51,17 @@ public final class URLDownloader implements Downloader {
 		return new URLDownloader();
 	}
 
+	@Override public String detectFilename(Uri uri) throws IOException {
+		HttpURLConnection httpURLConnection = innerRequest(uri, 0);
+		String url = httpURLConnection.getURL().toString();
+		String contentDispisition = httpURLConnection.getHeaderField(CONTENT_DISPOSITION);
+		httpURLConnection.disconnect();
+		return getFilenameFromHeader(url, contentDispisition);
+	}
+
 	@Override public int start(Uri uri, long breakpoint) throws IOException {
-		String scheme = uri.getScheme();
-		if (!HTTP.equals(scheme) && !HTTPS.equals(scheme)) {
-			throw new DownloadException(0, "url should start with http or https");
-		}
-
-		URL url = new URL(uri.toString());
-		if (HTTPS.equals(scheme)) {
-			HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
-			SSLContext sslContext = Utils.createSSLContext();
-			if (sslContext != null) {
-				SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-				httpsURLConnection.setSSLSocketFactory(sslSocketFactory);
-			}
-			httpURLConnection = httpsURLConnection;
-		} else {
-			httpURLConnection = (HttpURLConnection) url.openConnection();
-		}
-
-		httpURLConnection.setInstanceFollowRedirects(false);
-		httpURLConnection.setUseCaches(false);
-		httpURLConnection.setRequestProperty(ACCPET_ENCODING, "identity");
-		httpURLConnection.setConnectTimeout(Utils.DEFAULT_CONNECT_TIMEOUT);
-		httpURLConnection.setReadTimeout(Utils.DEFAULT_READ_TIMEOUT);
-		if (breakpoint > 0) {
-			httpURLConnection.setRequestProperty("Range", "bytes=" + breakpoint + "-");
-		}
-
-		int statusCode = httpURLConnection.getResponseCode();
-		switch (statusCode) {
-		case HTTP_MOVED_PERM:
-		case HTTP_MOVED_TEMP:
-		case HTTP_SEE_OTHER:
-		case Utils.HTTP_TEMP_REDIRECT:
-			if (redirectionCount++ < Utils.MAX_REDIRECTION) {
-			    /* take redirect url and call start recursively */
-				String redirectUrl = httpURLConnection.getHeaderField(Utils.LOCATION);
-				httpURLConnection.disconnect();
-				return start(Uri.parse(redirectUrl), breakpoint);
-			} else {
-				throw new DownloadException(statusCode, "redirects too many times");
-			}
-
-		default:
-			return statusCode;
-		}
+		httpURLConnection = innerRequest(uri, breakpoint);
+		return httpURLConnection.getResponseCode();
 	}
 
 	@Override public long contentLength() {
@@ -107,6 +80,55 @@ public final class URLDownloader implements Downloader {
 
 	@Override public Downloader copy() {
 		return create();
+	}
+
+	HttpURLConnection innerRequest(Uri uri, long breakpoint) throws IOException {
+		String scheme = uri.getScheme();
+		if (!HTTP.equals(scheme) && !HTTPS.equals(scheme)) {
+			throw new DownloadException(0, "url should start with http or https");
+		}
+
+		HttpURLConnection httpURLConnection;
+		URL url = new URL(uri.toString());
+		if (HTTPS.equals(scheme)) {
+			HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
+			SSLContext sslContext = createSSLContext();
+			if (sslContext != null) {
+				SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+				httpsURLConnection.setSSLSocketFactory(sslSocketFactory);
+			}
+			httpURLConnection = httpsURLConnection;
+		} else {
+			httpURLConnection = (HttpURLConnection) url.openConnection();
+		}
+
+		httpURLConnection.setInstanceFollowRedirects(true);
+		httpURLConnection.setUseCaches(false);
+		httpURLConnection.setRequestProperty(ACCPET_ENCODING, "identity");
+		httpURLConnection.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
+		httpURLConnection.setReadTimeout(DEFAULT_READ_TIMEOUT);
+		if (breakpoint > 0) {
+			httpURLConnection.setRequestProperty("Range", "bytes=" + breakpoint + "-");
+		}
+
+		int statusCode = httpURLConnection.getResponseCode();
+		switch (statusCode) {
+		case HTTP_MOVED_PERM:
+		case HTTP_MOVED_TEMP:
+		case HTTP_SEE_OTHER:
+		case HTTP_TEMP_REDIRECT:
+			if (redirectionCount++ < MAX_REDIRECTION) {
+			    /* take redirect url and call start recursively */
+				String redirectUrl = httpURLConnection.getHeaderField(LOCATION);
+				httpURLConnection.disconnect();
+				return innerRequest(Uri.parse(redirectUrl), breakpoint);
+			} else {
+				throw new DownloadException(statusCode, "redirects too many times");
+			}
+
+		default:
+			return httpURLConnection;
+		}
 	}
 
 	/* read response content length from server */

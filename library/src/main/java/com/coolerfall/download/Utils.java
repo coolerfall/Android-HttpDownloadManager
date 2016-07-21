@@ -6,11 +6,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.text.TextUtils;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.security.KeyManagementException;
 import java.security.MessageDigest;
@@ -19,7 +16,6 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -30,18 +26,18 @@ import javax.net.ssl.X509TrustManager;
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
-final class Utils {
+public final class Utils {
 	static final int DEFAULT_READ_TIMEOUT = 25 * 1000;
 	static final int DEFAULT_WRITE_TIMEOUT = 25 * 1000;
 	static final int DEFAULT_CONNECT_TIMEOUT = 20 * 1000;
 	static final String HTTP = "http";
 	static final String HTTPS = "https";
 	static final String LOCATION = "Location";
+	static final String CONTENT_DISPOSITION = "Content-Disposition";
 	static final int MAX_REDIRECTION = 5;
 	static final int HTTP_OK = 200;
 	static final int HTTP_PARTIAL = 206;
 	static final int HTTP_TEMP_REDIRECT = 307;
-	static final AtomicInteger REDIRECT_TIME = new AtomicInteger(0);
 
 	private Utils() {
 	}
@@ -91,14 +87,14 @@ final class Utils {
 	 * Get filename from url.
 	 *
 	 * @param url url
-	 * @return filename or null if no available filename
+	 * @return filename or md5 if no available filename
 	 */
 	static String getFilenameFromUrl(String url) {
 		String filename = md5(url) + ".down";
 
 		int index = url.lastIndexOf("/");
 		if (index > 0) {
-			String tmpFilename = url.substring(index);
+			String tmpFilename = url.substring(index + 1);
 			int qmarkIndex = tmpFilename.indexOf("?");
 			if (qmarkIndex > 0) {
 				tmpFilename = tmpFilename.substring(0, qmarkIndex - 1);
@@ -114,59 +110,25 @@ final class Utils {
 	}
 
 	/**
-	 * Get real filename from http header.
+	 * Get filename from content disposition in header.
 	 *
-	 * @param downloadUrl the url to download
-	 * @return real filename
+	 * @param url url of current file to download
+	 * @param contentDisposition content disposition in header
+	 * @return filename in header if existed, otherwise get from url
 	 */
-	static String getFilenameFromHeader(String downloadUrl) {
-		String filename = md5(downloadUrl) + ".down";
-		HttpURLConnection conn = null;
-		try {
-			URL url = new URL(downloadUrl);
-			conn = (HttpURLConnection) url.openConnection();
-			conn.setInstanceFollowRedirects(false);
-
-			int statusCode = conn.getResponseCode();
-			switch (statusCode) {
-			case 301:
-			case 302:
-			case 303:
-			case 307:
-				String location = conn.getHeaderField("Location");
-				/* avoid to much redirection */
-				if (REDIRECT_TIME.addAndGet(1) > 5 || TextUtils.isEmpty(location)) {
-					filename = getFilenameFromUrl(downloadUrl);
-				} else {
-					filename = getFilenameFromHeader(location);
-				}
-				break;
-
-			case 200:
-			default:
-				/* try to get filename from content disposition */
-				String contentDispos = conn.getHeaderField("Content-Disposition");
-				if (!TextUtils.isEmpty(contentDispos)) {
-					int index = contentDispos.indexOf("filename");
-					if (index > 0) {
-						filename = contentDispos.substring(
-							index + 10, contentDispos.length() - 1);
-					} else {
-						filename = getFilenameFromUrl(downloadUrl);
-					}
-				} else {
-					filename = getFilenameFromUrl(downloadUrl);
-				}
-				break;
+	public static String getFilenameFromHeader(String url, String contentDisposition) {
+		String filename;
+		if (!TextUtils.isEmpty(contentDisposition)) {
+			int index = contentDisposition.indexOf("filename");
+			if (index > 0) {
+				filename =
+					contentDisposition.substring(index + 10, contentDisposition.length() - 1);
+				return filename;
+			} else {
+				filename = getFilenameFromUrl(url);
 			}
-		} catch (IOException e) {
-			return filename;
-		} finally {
-			if (conn != null) {
-				conn.disconnect();
-			}
-
-			REDIRECT_TIME.set(5);
+		} else {
+			filename = getFilenameFromUrl(url);
 		}
 
 		try {
