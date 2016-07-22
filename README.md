@@ -5,7 +5,7 @@ An useful and effective http download manager for Android. This download manager
 
 Usage
 =====
-* If you don't set the destination file path, the download manager will use `Environment.DIRECTORY_DOWNLOADS` in SDCard as default directory, and it will detect filename automatically if destinationFilePath not set:
+* If you don't set the destination file path, the download manager will use `Environment.DIRECTORY_DOWNLOADS` in SDCard as default directory, and it will detect filename automatically from header or url if destinationFilePath not set:
 ```java
 DownloadManager manager = downloadManager =
 			new DownloadManager.Builder().context(this)
@@ -18,7 +18,7 @@ DownloadRequest request = new DownloadRequest.Builder()
 				.retryTime(5)
 				.retryInterval(2, TimeUnit.SECONDS)
 				.progressInterval(1, TimeUnit.SECONDS)
-				.priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
+				.priority(Priority.HIGH)
 				.allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
 				.destinationFilePath(destPath)
 				.downloadCallback(new DownloadCallback() {
@@ -68,6 +68,10 @@ Download
 
 	compile 'com.coolerfall:android-http-download-manager:1.6.0-SNAPSHOT'
 
+Note
+====
+If you're using `OkHttpDownloader` with custom `OkHttpClient` as `Downloader` in `DownloadManager`, then you should not add [HttpLoggingInterceptor][2] in your custom `OkHttpClient`. It may be crashed(OOM) as `HttpLoggingInterceptor ` use `okio` to reqeust the whole body in memory.
+
 Credits
 =======
   * [Volley][1] - Google networking library for android.
@@ -92,4 +96,5 @@ License
 
 
 [1]: https://android.googlesource.com/platform/frameworks/volley
-[2]: https://search.maven.org/remote_content?g=com.coolerfall&a=android-http-download-manager&v=LATEST
+[2]: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor
+[3]: https://search.maven.org/remote_content?g=com.coolerfall&a=android-http-download-manager&v=LATEST
