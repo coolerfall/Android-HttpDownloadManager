@@ -60,13 +60,8 @@ int downloadId = manager.add(request);
 
 Download
 ========
-	allprojects {
-		repositories {
-			maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-		}
-	}
 
-	compile 'com.coolerfall:android-http-download-manager:1.6.0-SNAPSHOT'
+	compile 'com.coolerfall:android-http-download-manager:1.6.0'
 
 Note
 ====
@@ -93,7 +88,6 @@ License
     See the License for the specific language governing permissions and
     limitations under the License.
  
-
 
 [1]: https://android.googlesource.com/platform/frameworks/volley
 [2]: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor
