@@ -9,14 +9,11 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.io.IOException;
-
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 
 /**
  * @author Vincent Cheung (coolingfall@gmail.com)
@@ -70,9 +67,9 @@ public class URLDownloaderTest {
 	@Test public void testBadUrl() {
 		try {
 			urlDownloader.start(Uri.parse("www.baidu.com"), 0);
-		} catch (IOException e) {
-			if (e instanceof DownloadException) {
-				assertSame("url should start with http or https", e.getMessage());
+		} catch (Exception e) {
+			if (e instanceof IllegalArgumentException) {
+				assertEquals("unexpected url: www.baidu.com", e.getMessage());
 			}
 		}
 	}
