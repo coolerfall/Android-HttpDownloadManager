@@ -1,7 +1,6 @@
 package com.coolerfall.download;
 
 import android.os.Process;
-import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +18,6 @@ import static com.coolerfall.download.Utils.HTTP_PARTIAL;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 final class DownloadDispatcher extends Thread {
-	private static final String TAG = DownloadDispatcher.class.getSimpleName();
 	private static final int SLEEP_BEFORE_DOWNLOAD = 500;
 	private static final int BUFFER_SIZE = 4096;
 	private static final String END_OF_STREAM = "unexpected end of stream";
@@ -112,8 +110,8 @@ final class DownloadDispatcher extends Thread {
 	}
 
 	/* update download success */
-	@SuppressWarnings("ResultOfMethodCallIgnored")
-	private void updateSuccess(DownloadRequest request) {
+	@SuppressWarnings("ResultOfMethodCallIgnored") private void updateSuccess(
+		DownloadRequest request) {
 		updateState(request, DownloadState.SUCCESSFUL);
 		
 		/* notify the request download finish */
@@ -196,6 +194,7 @@ final class DownloadDispatcher extends Thread {
 			if (contentLength <= 0 && is == null) {
 				throw new DownloadException(statusCode, "content length error");
 			}
+			boolean noContentLength = contentLength <= 0;
 			contentLength += bytesWritten;
 
 			updateStart(request, contentLength);
@@ -220,7 +219,7 @@ final class DownloadDispatcher extends Thread {
 					/* read data into buffer from input stream */
 					length = readFromInputStream(buffer, is);
 					long fileSize = raf.length();
-					long totalBytes = contentLength <= 0 ? fileSize : contentLength;
+					long totalBytes = noContentLength ? fileSize : contentLength;
 
 					if (length == -1) {
 						updateSuccess(request);
@@ -295,7 +294,5 @@ final class DownloadDispatcher extends Thread {
 		
 		/* interrupt current thread */
 		interrupt();
-
-		Log.i(TAG, "download dispatcher has quit");
 	}
 }
