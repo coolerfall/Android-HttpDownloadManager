@@ -13,6 +13,14 @@ import java.io.InputStream;
  */
 public interface Downloader {
 	/**
+	 * Detect filename from http header/url if existed.
+	 *
+	 * @return filename to save
+	 * @throws IOException
+	 */
+	String detectFilename(Uri uri) throws IOException;
+
+	/**
 	 * Init downloader and start to download. The downloader should handle redirect
 	 * status code, such as 301, 302 and so on.
 	 *

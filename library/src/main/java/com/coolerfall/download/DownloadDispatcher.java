@@ -1,7 +1,6 @@
 package com.coolerfall.download;
 
 import android.os.Process;
-import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,26 +8,24 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.concurrent.BlockingQueue;
 
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_PARTIAL;
+import static com.coolerfall.download.Utils.HTTP_OK;
+import static com.coolerfall.download.Utils.HTTP_PARTIAL;
 
 /**
- * Download dispatcher: used to dispatch downloader, this is desinged according to
- * NetworkDispatcher in Android-Volley.
+ * This class used to dispatch downloader, this is desinged according to NetworkDispatcher in
+ * Android-Volley.
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 final class DownloadDispatcher extends Thread {
-	private static final String TAG = DownloadDispatcher.class.getSimpleName();
-	private static final int SLEEP_BEFORE_DOWNLOAD = 1500;
-	private static final int SLEEP_BEFORE_RETRY = 3500;
+	private static final int SLEEP_BEFORE_DOWNLOAD = 500;
 	private static final int BUFFER_SIZE = 4096;
 	private static final String END_OF_STREAM = "unexpected end of stream";
 	private static final String DEFAULT_THREAD_NAME = "DownloadDispatcher";
 	private static final String IDLE_THREAD_NAME = "DownloadDispatcher-Idle";
 
-	private BlockingQueue<DownloadRequest> queue;
-	private DownloadDelivery delivery;
+	private final BlockingQueue<DownloadRequest> queue;
+	private final DownloadDelivery delivery;
 	private long lastProgressTimestamp;
 	private volatile boolean quit = false;
 
@@ -113,8 +110,8 @@ final class DownloadDispatcher extends Thread {
 	}
 
 	/* update download success */
-	@SuppressWarnings("ResultOfMethodCallIgnored")
-	private void updateSuccess(DownloadRequest request) {
+	@SuppressWarnings("ResultOfMethodCallIgnored") private void updateSuccess(
+		DownloadRequest request) {
 		updateState(request, DownloadState.SUCCESSFUL);
 		
 		/* notify the request download finish */
@@ -137,12 +134,11 @@ final class DownloadDispatcher extends Thread {
 		if (request.retryTime() >= 0) {
 			try {
 				/* sleep a while before retrying */
-				sleep(SLEEP_BEFORE_RETRY);
+				sleep(request.retryInterval());
 			} catch (InterruptedException e) {
 				/* we may have been interrupted because it was time to quit */
 				if (quit) {
 					request.finish();
-
 					return;
 				}
 			}
@@ -174,6 +170,10 @@ final class DownloadDispatcher extends Thread {
 		InputStream is = null;
 
 		try {
+			if (request.destinationFilePath() == null) {
+				request.updateDestinationFilePath(downloader.detectFilename(request.uri()));
+			}
+
 			File file = new File(request.tempFilePath());
 			raf = new RandomAccessFile(file, "rw");
 			long breakpoint = file.length();
@@ -194,6 +194,7 @@ final class DownloadDispatcher extends Thread {
 			if (contentLength <= 0 && is == null) {
 				throw new DownloadException(statusCode, "content length error");
 			}
+			boolean noContentLength = contentLength <= 0;
 			contentLength += bytesWritten;
 
 			updateStart(request, contentLength);
@@ -212,13 +213,13 @@ final class DownloadDispatcher extends Thread {
 					/* if current is not wifi and mobile network is not allowed, stop */
 					if (request.allowedNetworkTypes() != 0 && !Utils.isWifi(request.context()) &&
 						(request.allowedNetworkTypes() & DownloadRequest.NETWORK_MOBILE) == 0) {
-						throw new DownloadException(statusCode, "network error");
+						throw new DownloadException(statusCode, "allow network error");
 					}
 
 					/* read data into buffer from input stream */
 					length = readFromInputStream(buffer, is);
 					long fileSize = raf.length();
-					long totalBytes = contentLength <= 0 ? fileSize : contentLength;
+					long totalBytes = noContentLength ? fileSize : contentLength;
 
 					if (length == -1) {
 						updateSuccess(request);
@@ -280,8 +281,7 @@ final class DownloadDispatcher extends Thread {
 			if (is != null) {
 				is.close();
 			}
-		} catch (IOException e) {
-			Log.w(TAG, "cannot close input stream", e);
+		} catch (IOException ignore) {
 		}
 	}
 
@@ -294,7 +294,5 @@ final class DownloadDispatcher extends Thread {
 		
 		/* interrupt current thread */
 		interrupt();
-
-		Log.i(TAG, "download dispatcher has quit");
 	}
 }
