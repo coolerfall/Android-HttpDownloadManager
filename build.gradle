@@ -14,6 +14,11 @@ allprojects {
 }
 
 ext {
+	versions = [compileSdk: 23,
+	            buildTools: '23.0.3',
+	            minSdk    : 15,
+	            targetSdk : 23]
+
 	libraries = [
 			appcompatv7       : 'com.android.support:appcompat-v7:24.0.0',
 			supportAnnotation : 'com.android.support:support-annotations:24.0.0',
