@@ -47,6 +47,13 @@ DownloadRequest request = new DownloadRequest.Builder()
 				
 int downloadId = manager.add(request);
 ```
+It's easy to stop:
+```java
+	/* stop single */
+	manager.cancel(downloadId);
+	/* stop all */
+	manager.cancelAll();
+```
 
 * If you don't want to set the filename but want to set the download directory, then you can use `destinationDirectory(String directory)`, but this method will be ignored if `destinationFilePath((String filePath)` was used.
 * You can also set retry time with method `retryTime(int retryTime)` if necessary, default retry time is 1. You can set retry interval to decide how long to retry with method `retryInterval(long interval, TimeUnit unit)`.
