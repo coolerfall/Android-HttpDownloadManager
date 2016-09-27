@@ -32,6 +32,7 @@ final class DownloadRequestQueue {
 	private DownloadDispatcher[] dispatchers;
 	private final DownloadDelivery delivery;
 	private final AtomicInteger sequenceGenerator = new AtomicInteger();
+	private final Logger logger;
 
 	/**
 	 * Create the download dispatchers according to pool size. Any number higher than 10 or less
@@ -39,11 +40,12 @@ final class DownloadRequestQueue {
 	 *
 	 * @param threadPoolSize thread pool size of download dispatcher
 	 */
-	DownloadRequestQueue(int threadPoolSize) {
+	DownloadRequestQueue(int threadPoolSize, Logger logger) {
 		if (threadPoolSize < 1 || threadPoolSize > 10) {
 			threadPoolSize = DEFAULT_DOWNLOAD_THREAD_POOL_SIZE;
 		}
 
+		this.logger = logger;
 		dispatchers = new DownloadDispatcher[threadPoolSize];
 		delivery = new DownloadDelivery(new Handler(Looper.getMainLooper()));
 	}
@@ -57,10 +59,12 @@ final class DownloadRequestQueue {
 		
 		/* create the download dispatcher and start it. */
 		for (int i = 0; i < dispatchers.length; i++) {
-			DownloadDispatcher dispatcher = new DownloadDispatcher(downloadQueue, delivery);
+			DownloadDispatcher dispatcher = new DownloadDispatcher(downloadQueue, delivery, logger);
 			dispatchers[i] = dispatcher;
 			dispatcher.start();
 		}
+
+		logger.log("Thread pool size: " + dispatchers.length);
 	}
 
 	/**

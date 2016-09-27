@@ -15,13 +15,15 @@ public final class DownloadManager {
 	private final Context context;
 	private final Downloader downloader;
 	private final int threadPoolSize;
+	private final Logger logger;
 	private DownloadRequestQueue downloadRequestQueue;
 
 	DownloadManager(Builder builder) {
 		context = checkNotNull(builder.context, "context == null").getApplicationContext();
 		downloader = checkNotNull(builder.downloader, "downloader == null");
 		threadPoolSize = builder.threadPoolSize;
-		downloadRequestQueue = new DownloadRequestQueue(threadPoolSize);
+		logger = builder.logger;
+		downloadRequestQueue = new DownloadRequestQueue(threadPoolSize, logger);
 		downloadRequestQueue.start();
 	}
 
@@ -128,16 +130,19 @@ public final class DownloadManager {
 		private Context context;
 		private Downloader downloader;
 		private int threadPoolSize;
+		private Logger logger;
 
 		public Builder() {
 			this.downloader = createDefaultDownloader();
 			this.threadPoolSize = 3;
+			this.logger = Logger.EMPTY;
 		}
 
 		Builder(DownloadManager downloadManager) {
 			this.context = downloadManager.context;
 			this.downloader = downloadManager.downloader;
 			this.threadPoolSize = downloadManager.threadPoolSize;
+			this.logger = downloadManager.logger;
 		}
 
 		public Builder context(Context context) {
@@ -152,6 +157,11 @@ public final class DownloadManager {
 
 		public Builder threadPoolSize(int threadPoolSize) {
 			this.threadPoolSize = threadPoolSize;
+			return this;
+		}
+
+		public Builder logger(Logger logger) {
+			this.logger = logger;
 			return this;
 		}
 

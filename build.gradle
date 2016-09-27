@@ -24,6 +24,7 @@ ext {
 			supportAnnotation : 'com.android.support:support-annotations:24.0.0',
 			okHttp3           : 'com.squareup.okhttp3:okhttp:3.4.1',
 			loggingInterceptor: 'com.squareup.okhttp3:logging-interceptor:3.4.1',
+			easypermissions   : 'pub.devrel:easypermissions:0.2.0'
 	]
 
 	testingLibraries = [robolectric  : 'org.robolectric:robolectric:3.1.2',
