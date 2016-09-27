@@ -28,5 +28,6 @@ dependencies {
 	compile libraries.appcompatv7
 	compile libraries.okHttp3
 	compile libraries.loggingInterceptor
+	compile libraries.easypermissions
 	compile project(':library')
 }

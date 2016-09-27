@@ -1,5 +1,6 @@
 package com.coolerfall.downloadsample;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.coolerfall.download.DownloadCallback;
 import com.coolerfall.download.DownloadManager;
 import com.coolerfall.download.DownloadRequest;
+import com.coolerfall.download.Logger;
 import com.coolerfall.download.OkHttpDownloader;
 import com.coolerfall.download.Priority;
 
@@ -20,11 +22,12 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends Activity implements OnClickListener {
 	private static final String TAG = "Vtag";
 	private static final String[] URL = {
-		"http://g10.gdl.netease.com/stzb_netease_8_56345_20160712_181259.apk",
+		"http://p.gdown.baidu.com/ee4f8b76a139aa2755dc849ca42fff18df14a18dcb0c5aae3672b1a01c41cece539de93e4e8a800ae042d6511fb7472effa27b700876b33052651f73c5d0e634459515ed930a3448da2cef4d029f9d5f8e3a85c623ff79fa0438e0d82fbdca78fa8cd198bf589bd52f05c0c5302ffbb8a7d7769eb0da35368c476489856a401120c5250eb2ec610101169a24dcea7cb4",
 		"http://gdown.baidu.com/data/wisegame/07140005cb121398/zuimeitianqi_2014112000.apk",
 		"http://gdown.baidu.com/data/wisegame/024ebaed2f796a48/wangyiyunyinle_35.apk",
 		"http://t.cn/RLGOYCD",
@@ -36,6 +39,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	private static final int INDEX_2 = 2;
 	private static final int INDEX_3 = 3;
 	private static final int INDEX_4 = 4;
+	private static final String[] PERMISSIONS =
+		new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
 	private SparseIntArray ids = new SparseIntArray();
 
 	private ProgressBar progressBar;
@@ -79,6 +84,11 @@ public class MainActivity extends Activity implements OnClickListener {
 			new DownloadManager.Builder().context(this)
 				.downloader(OkHttpDownloader.create(client))
 				.threadPoolSize(2)
+				.logger(new Logger() {
+					@Override public void log(String message) {
+						Log.d("TAG", message);
+					}
+				})
 				.build();
 	}
 
@@ -90,6 +100,12 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
+		if (!EasyPermissions.hasPermissions(this, PERMISSIONS)) {
+			EasyPermissions.requestPermissions(this, "Download need external permission", 0x01,
+				PERMISSIONS);
+			return;
+		}
+
 		int index = 0;
 
 		switch (v.getId()) {
