@@ -27,8 +27,8 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class MainActivity extends Activity implements OnClickListener {
 	private static final String TAG = "Vtag";
 	private static final String[] URL = {
-		"http://p.gdown.baidu.com/ee4f8b76a139aa2755dc849ca42fff18df14a18dcb0c5aae3672b1a01c41cece539de93e4e8a800ae042d6511fb7472effa27b700876b33052651f73c5d0e634459515ed930a3448da2cef4d029f9d5f8e3a85c623ff79fa0438e0d82fbdca78fa8cd198bf589bd52f05c0c5302ffbb8a7d7769eb0da35368c476489856a401120c5250eb2ec610101169a24dcea7cb4",
-		"http://gdown.baidu.com/data/wisegame/07140005cb121398/zuimeitianqi_2014112000.apk",
+		"http://podcast.canaltech.com.br/1735x.mp3",
+		"http://podcast.canaltech.com.br/1735x.mp3",
 		"http://gdown.baidu.com/data/wisegame/024ebaed2f796a48/wangyiyunyinle_35.apk",
 		"http://t.cn/RLGOYCD",
 		"http://p.gdown.baidu.com/df1cc8402c66d5a8f724dd5f5824c918ce8360987501ba8c9af58f24a18e6f4e1c0990be72787aa995075b10f4e38427a1b06c1f9db0dce4992cc346c665ff5cd003ff3f09e9b3ba3761ddef6636295e7b852854c7f5263b6a5a7a8fb5326e905950942d3e56d60f6ecd567a1ca04a21f7a4186af1f7e8f82e927cb541f43db73c6ff255e71f631caeea5b247a52feec3fc64636f10f39bf2736a0667bdfb7d22c276629f7be1c1a598fd3450492a4cc0874e191879d1c503c457b0d85676a0009aaabbd0f4b2980c233208afaf611a1eee2bc3785402fbc7753ddea2cc982d59f364259e4b7ee3febfeb5272452773ed714e6be0b23ea0052651f73c5d0e6348b7b21608a317b08e8a46fc094f94d5d55d734d53b211b7282ae5f9c1f97e9ff678d2c19162f6f1ef297b736db87dae72d6bf42f919cf934bd5f0a5a6bb97914ec5854f4c4cbde51",
@@ -83,7 +83,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		downloadManager =
 			new DownloadManager.Builder().context(this)
 				.downloader(OkHttpDownloader.create(client))
-				.threadPoolSize(2)
+				.threadPoolSize(3)
 				.logger(new Logger() {
 					@Override public void log(String message) {
 						Log.d("TAG", message);
@@ -140,7 +140,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			DownloadRequest request = new DownloadRequest.Builder()
 				.url(URL[index])
 				.downloadCallback(new Callback())
-				.retryTime(5)
+//				.retryTime(5)
 				.retryInterval(3, TimeUnit.SECONDS)
 				.progressInterval(1, TimeUnit.SECONDS)
 				.priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
