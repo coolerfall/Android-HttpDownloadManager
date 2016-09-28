@@ -136,7 +136,8 @@ final class DownloadDispatcher extends Thread {
 		updateState(request, DownloadState.FAILURE);
 
 		/* if the status code is 0, may be cause by the net error */
-		if (request.retryTime() >= 0) {
+		int leftRetryTime = request.retryTime();
+		if (leftRetryTime >= 0) {
 			try {
 				/* sleep a while before retrying */
 				sleep(request.retryInterval());
@@ -150,6 +151,8 @@ final class DownloadDispatcher extends Thread {
 
 			/* retry downloading */
 			if (!request.isCanceled()) {
+				logger.log("Retry DownloadRequest: " + request.downloadId() + " left retry time: " +
+					leftRetryTime);
 				updateRetry(request);
 				executeDownload(request);
 			}
@@ -188,16 +191,16 @@ final class DownloadDispatcher extends Thread {
 				raf.seek(breakpoint);
 				bytesWritten = breakpoint;
 				logger.log("Detect existed file with " + breakpoint +
-					"bytes, start breakpoint downloading");
+					" bytes, start breakpoint downloading");
 			}
 
 			int statusCode = downloader.start(request.uri(), breakpoint);
+			is = downloader.byteStream();
 			if (statusCode != HTTP_OK && statusCode != HTTP_PARTIAL) {
-				logger.log("No correct http code got");
+				logger.log("Incorrect http code got: " + statusCode);
 				throw new DownloadException(statusCode, "download fail");
 			}
 
-			is = downloader.byteStream();
 			long contentLength = downloader.contentLength();
 			if (contentLength <= 0 && is == null) {
 				throw new DownloadException(statusCode, "content length error");
@@ -257,7 +260,6 @@ final class DownloadDispatcher extends Thread {
 				updateFailure(request, 0, e.getMessage());
 			}
 		} finally {
-			logger.log("Current download request has finished: " + request.downloadId());
 			downloader.close();
 			silentCloseFile(raf);
 			silentCloseInputStream(is);

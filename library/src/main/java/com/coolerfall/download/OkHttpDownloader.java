@@ -89,7 +89,7 @@ public final class OkHttpDownloader implements Downloader {
 	}
 
 	@Override public Downloader copy() {
-		return create(client.newBuilder().build());
+		return create(client);
 	}
 
 	Response innerRequest(OkHttpClient client, Uri uri, long breakpoint) throws IOException {
