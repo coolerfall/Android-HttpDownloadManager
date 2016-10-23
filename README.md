@@ -11,6 +11,7 @@ DownloadManager manager = downloadManager =
 			new DownloadManager.Builder().context(this)
 				.downloader(OkHttpDownloader.create())
 				.threadPoolSize(2)
+				.logger(logger)
 				.build();
 String destPath = Environment.getExternalStorageDirectory() + File.separator + "test.apk";
 DownloadRequest request = new DownloadRequest.Builder()
@@ -68,7 +69,7 @@ It's easy to stop:
 Download
 ========
 
-	compile 'com.coolerfall:android-http-download-manager:1.6.0'
+	compile 'com.coolerfall:android-http-download-manager:1.6.1'
 
 Note
 ====
