@@ -1,0 +1,34 @@
+language: android
+
+android:
+  components:
+    - platform-tools
+    - tools
+    - android-23
+    - build-tools-23.0.3
+    - extra-android-m2repository
+
+before_script:
+  - chmod +x gradlew
+    
+script:
+  - "./gradlew build"
+
+jdk:
+  - oraclejdk8
+
+notifications:
+  email: false
+
+sudo: false
+
+#before_install:
+#- gem install fir-cli
+
+after_deploy:
+# - fir p app/build/outputs/apk/app-release.apk -T $FIR_TOKEN -c "`git cat-file tag $TRAVIS_TAG`"
+before_cache:
+  - rm -f $HOME/.gradle/
+cache:
+  directories:
+    - $HOME/.gradle

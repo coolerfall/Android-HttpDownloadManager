@@ -26,18 +26,22 @@ final class DownloadDispatcher extends Thread {
 
 	private final BlockingQueue<DownloadRequest> queue;
 	private final DownloadDelivery delivery;
+	private final Logger logger;
 	private long lastProgressTimestamp;
 	private volatile boolean quit = false;
 
 	/**
 	 * Default constructor, with queue and delivery.
 	 *
-	 * @param queue download request queue
-	 * @param delivery download delivery
+	 * @param queue a {@link BlockingQueue} with {@link DownloadRequest}
+	 * @param delivery {@link DownloadDelivery}
+	 * @param logger {@link Logger}
 	 */
-	public DownloadDispatcher(BlockingQueue<DownloadRequest> queue, DownloadDelivery delivery) {
+	public DownloadDispatcher(BlockingQueue<DownloadRequest> queue, DownloadDelivery delivery,
+		Logger logger) {
 		this.queue = queue;
 		this.delivery = delivery;
+		this.logger = logger;
 		
 		/* set thread name to idle */
 		setName(IDLE_THREAD_NAME);
@@ -52,6 +56,7 @@ final class DownloadDispatcher extends Thread {
 			try {
 				setName(IDLE_THREAD_NAME);
 				request = queue.take();
+				logger.log("A new download request taken, download id: " + request.downloadId());
 				sleep(SLEEP_BEFORE_DOWNLOAD);
 				setName(DEFAULT_THREAD_NAME);
 
@@ -131,7 +136,8 @@ final class DownloadDispatcher extends Thread {
 		updateState(request, DownloadState.FAILURE);
 
 		/* if the status code is 0, may be cause by the net error */
-		if (request.retryTime() >= 0) {
+		int leftRetryTime = request.retryTime();
+		if (leftRetryTime >= 0) {
 			try {
 				/* sleep a while before retrying */
 				sleep(request.retryInterval());
@@ -145,6 +151,8 @@ final class DownloadDispatcher extends Thread {
 
 			/* retry downloading */
 			if (!request.isCanceled()) {
+				logger.log("Retry DownloadRequest: " + request.downloadId() + " left retry time: " +
+					leftRetryTime);
 				updateRetry(request);
 				executeDownload(request);
 			}
@@ -182,14 +190,17 @@ final class DownloadDispatcher extends Thread {
 				/* set the range to continue the downloading */
 				raf.seek(breakpoint);
 				bytesWritten = breakpoint;
+				logger.log("Detect existed file with " + breakpoint +
+					" bytes, start breakpoint downloading");
 			}
 
 			int statusCode = downloader.start(request.uri(), breakpoint);
+			is = downloader.byteStream();
 			if (statusCode != HTTP_OK && statusCode != HTTP_PARTIAL) {
+				logger.log("Incorrect http code got: " + statusCode);
 				throw new DownloadException(statusCode, "download fail");
 			}
 
-			is = downloader.byteStream();
 			long contentLength = downloader.contentLength();
 			if (contentLength <= 0 && is == null) {
 				throw new DownloadException(statusCode, "content length error");
@@ -198,6 +209,7 @@ final class DownloadDispatcher extends Thread {
 			contentLength += bytesWritten;
 
 			updateStart(request, contentLength);
+			logger.log("Start to download, content length: " + contentLength + " bytes");
 
 			if (is != null) {
 				byte[] buffer = new byte[BUFFER_SIZE];
@@ -239,6 +251,8 @@ final class DownloadDispatcher extends Thread {
 				throw new DownloadException(statusCode, "input stream error");
 			}
 		} catch (IOException e) {
+			logger.log("Caught new exception: " + e.getMessage());
+
 			if (e instanceof DownloadException) {
 				DownloadException exception = (DownloadException) e;
 				updateFailure(request, exception.getCode(), exception.getMessage());
@@ -290,6 +304,7 @@ final class DownloadDispatcher extends Thread {
 	 * the queue, they are not guaranteed to be processed.
 	 */
 	void quit() {
+		logger.log("Download dispatcher quit");
 		quit = true;
 		
 		/* interrupt current thread */

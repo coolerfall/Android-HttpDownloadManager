@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-	compileSdkVersion 24
-	buildToolsVersion "24.0.1"
+	compileSdkVersion versions.compileSdk
+	buildToolsVersion versions.buildTools
 
 	defaultConfig {
 		applicationId "com.cooler.downloadsample"
 		minSdkVersion 10
-		targetSdkVersion 24
+		targetSdkVersion versions.targetSdk
 		versionCode 1
 		versionName "1.0"
 	}
@@ -18,11 +18,16 @@ android {
 			proguardFiles 'proguard-rules.pro'
 		}
 	}
+
+	lintOptions {
+		abortOnError false
+	}
 }
 
 dependencies {
 	compile libraries.appcompatv7
 	compile libraries.okHttp3
 	compile libraries.loggingInterceptor
+	compile libraries.easypermissions
 	compile project(':library')
 }
