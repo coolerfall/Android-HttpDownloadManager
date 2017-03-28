@@ -93,7 +93,7 @@ final class DownloadRequestQueue {
 		}
 
 		/* tag the request as belonging to this queue */
-		request.setDownloadRequestQueue(this);
+		request.downloadRequestQueue(this);
 		/* add it to the set of current requests */
 		synchronized (currentRequests) {
 			currentRequests.add(request);
