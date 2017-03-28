@@ -40,8 +40,8 @@ public final class DownloadManager {
 			return -1;
 		}
 
-		request.setContext(context);
-		request.setDownloader(downloader.copy());
+		request.context(context);
+		request.downloader(downloader.copy());
 
 		/* add download request into download request queue */
 		return downloadRequestQueue.add(request) ? request.downloadId() : -1;
