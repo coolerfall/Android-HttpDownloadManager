@@ -1,7 +1,6 @@
 package com.coolerfall.download;
 
 import android.os.Process;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,296 +17,295 @@ import static com.coolerfall.download.Utils.HTTP_PARTIAL;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 final class DownloadDispatcher extends Thread {
-	private static final int SLEEP_BEFORE_DOWNLOAD = 500;
-	private static final int BUFFER_SIZE = 4096;
-	private static final String END_OF_STREAM = "unexpected end of stream";
-	private static final String DEFAULT_THREAD_NAME = "DownloadDispatcher";
-	private static final String IDLE_THREAD_NAME = "DownloadDispatcher-Idle";
+  private static final int SLEEP_BEFORE_DOWNLOAD = 500;
+  private static final int BUFFER_SIZE = 4096;
+  private static final String END_OF_STREAM = "unexpected end of stream";
+  private static final String DEFAULT_THREAD_NAME = "DownloadDispatcher";
+  private static final String IDLE_THREAD_NAME = "DownloadDispatcher-Idle";
 
-	private final BlockingQueue<DownloadRequest> queue;
-	private final DownloadDelivery delivery;
-	private final Logger logger;
-	private long lastProgressTimestamp;
-	private volatile boolean quit = false;
+  private final BlockingQueue<DownloadRequest> queue;
+  private final DownloadDelivery delivery;
+  private final Logger logger;
+  private long lastProgressTimestamp;
+  private volatile boolean quit = false;
 
-	/**
-	 * Default constructor, with queue and delivery.
-	 *
-	 * @param queue a {@link BlockingQueue} with {@link DownloadRequest}
-	 * @param delivery {@link DownloadDelivery}
-	 * @param logger {@link Logger}
-	 */
-	public DownloadDispatcher(BlockingQueue<DownloadRequest> queue, DownloadDelivery delivery,
-		Logger logger) {
-		this.queue = queue;
-		this.delivery = delivery;
-		this.logger = logger;
-		
+  /**
+   * Default constructor, with queue and delivery.
+   *
+   * @param queue a {@link BlockingQueue} with {@link DownloadRequest}
+   * @param delivery {@link DownloadDelivery}
+   * @param logger {@link Logger}
+   */
+  public DownloadDispatcher(BlockingQueue<DownloadRequest> queue, DownloadDelivery delivery,
+      Logger logger) {
+    this.queue = queue;
+    this.delivery = delivery;
+    this.logger = logger;
+
 		/* set thread name to idle */
-		setName(IDLE_THREAD_NAME);
-	}
+    setName(IDLE_THREAD_NAME);
+  }
 
-	@Override
-	public void run() {
-		Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-		DownloadRequest request = null;
+  @Override public void run() {
+    Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+    DownloadRequest request = null;
 
-		while (true) {
-			try {
-				setName(IDLE_THREAD_NAME);
-				request = queue.take();
-				logger.log("A new download request taken, download id: " + request.downloadId());
-				sleep(SLEEP_BEFORE_DOWNLOAD);
-				setName(DEFAULT_THREAD_NAME);
+    while (true) {
+      try {
+        setName(IDLE_THREAD_NAME);
+        request = queue.take();
+        logger.log("A new download request taken, download id: " + request.downloadId());
+        sleep(SLEEP_BEFORE_DOWNLOAD);
+        setName(DEFAULT_THREAD_NAME);
 
 				/* start download */
-				executeDownload(request);
-			} catch (InterruptedException e) {
-				/* we may have been interrupted because it was time to quit */
-				if (quit) {
-					if (request != null) {
-						request.finish();
-					}
+        executeDownload(request);
+      } catch (InterruptedException e) {
+          /* we may have been interrupted because it was time to quit */
+        if (quit) {
+          if (request != null) {
+            request.finish();
+          }
 
-					return;
-				}
-			}
-		}
-	}
+          return;
+        }
+      }
+    }
+  }
 
-	/* update download state */
-	private void updateState(DownloadRequest request, DownloadState state) {
-		request.updateDownloadState(state);
-	}
+  /* update download state */
+  private void updateState(DownloadRequest request, DownloadState state) {
+    request.updateDownloadState(state);
+  }
 
-	/* update download start state */
-	private void updateStart(DownloadRequest request, long totalBytes) {
-		/* if the request has failed before, donnot deliver callback */
-		if (request.downloadState() == DownloadState.FAILURE) {
-			updateState(request, DownloadState.RUNNING);
-			return;
-		}
-		
+  /* update download start state */
+  private void updateStart(DownloadRequest request, long totalBytes) {
+  /* if the request has failed before, donnot deliver callback */
+    if (request.downloadState() == DownloadState.FAILURE) {
+      updateState(request, DownloadState.RUNNING);
+      return;
+    }
+
 		/* set the download state of this request as running */
-		updateState(request, DownloadState.RUNNING);
-		delivery.postStart(request, totalBytes);
-	}
+    updateState(request, DownloadState.RUNNING);
+    delivery.postStart(request, totalBytes);
+  }
 
-	/* update download retrying */
-	private void updateRetry(DownloadRequest request) {
-		delivery.postRetry(request);
-	}
+  /* update download retrying */
+  private void updateRetry(DownloadRequest request) {
+    delivery.postRetry(request);
+  }
 
-	/* update download progress */
-	private void updateProgress(DownloadRequest request, long bytesWritten, long totalBytes) {
-		long currentTimestamp = System.currentTimeMillis();
-		if (bytesWritten != totalBytes &&
-			currentTimestamp - lastProgressTimestamp < request.progressInterval()) {
-			return;
-		}
+  /* update download progress */
+  private void updateProgress(DownloadRequest request, long bytesWritten, long totalBytes) {
+    long currentTimestamp = System.currentTimeMillis();
+    if (bytesWritten != totalBytes
+        && currentTimestamp - lastProgressTimestamp < request.progressInterval()) {
+      return;
+    }
 
 		/* save progress timestamp */
-		lastProgressTimestamp = currentTimestamp;
+    lastProgressTimestamp = currentTimestamp;
 
-		if (!request.isCanceled()) {
-			delivery.postProgress(request, bytesWritten, totalBytes);
-		}
-	}
+    if (!request.isCanceled()) {
+      delivery.postProgress(request, bytesWritten, totalBytes);
+    }
+  }
 
-	/* update download success */
-	@SuppressWarnings("ResultOfMethodCallIgnored") private void updateSuccess(
-		DownloadRequest request) {
-		updateState(request, DownloadState.SUCCESSFUL);
-		
+  /* update download success */
+  @SuppressWarnings("ResultOfMethodCallIgnored") private void updateSuccess(
+      DownloadRequest request) {
+    updateState(request, DownloadState.SUCCESSFUL);
+
 		/* notify the request download finish */
-		request.finish();
+    request.finish();
 
-		File file = new File(request.tempFilePath());
-		if (file.exists()) {
-			file.renameTo(new File(request.destinationFilePath()));
-		}
+    File file = new File(request.tempFilePath());
+    if (file.exists()) {
+      file.renameTo(new File(request.destinationFilePath()));
+    }
 
 		/* deliver success message */
-		delivery.postSuccess(request);
-	}
+    delivery.postSuccess(request);
+  }
 
-	/* update download failure */
-	private void updateFailure(DownloadRequest request, int statusCode, String errMsg) {
-		updateState(request, DownloadState.FAILURE);
+  /* update download failure */
+  private void updateFailure(DownloadRequest request, int statusCode, String errMsg) {
+    updateState(request, DownloadState.FAILURE);
 
 		/* if the status code is 0, may be cause by the net error */
-		int leftRetryTime = request.retryTime();
-		if (leftRetryTime >= 0) {
-			try {
-				/* sleep a while before retrying */
-				sleep(request.retryInterval());
-			} catch (InterruptedException e) {
-				/* we may have been interrupted because it was time to quit */
-				if (quit) {
-					request.finish();
-					return;
-				}
-			}
+    int leftRetryTime = request.retryTime();
+    if (leftRetryTime >= 0) {
+      try {
+          /* sleep a while before retrying */
+        sleep(request.retryInterval());
+      } catch (InterruptedException e) {
+          /* we may have been interrupted because it was time to quit */
+        if (quit) {
+          request.finish();
+          return;
+        }
+      }
 
 			/* retry downloading */
-			if (!request.isCanceled()) {
-				logger.log("Retry DownloadRequest: " + request.downloadId() + " left retry time: " +
-					leftRetryTime);
-				updateRetry(request);
-				executeDownload(request);
-			}
+      if (!request.isCanceled()) {
+        logger.log("Retry DownloadRequest: "
+            + request.downloadId()
+            + " left retry time: "
+            + leftRetryTime);
+        updateRetry(request);
+        executeDownload(request);
+      }
 
-			return;
-		}
-		
+      return;
+    }
+
 		/* notify the request that downloading has finished */
-		request.finish();
+    request.finish();
 
 		/* deliver failure message */
-		delivery.postFailure(request, statusCode, errMsg);
-	}
+    delivery.postFailure(request, statusCode, errMsg);
+  }
 
-	/* execute downloading */
-	private void executeDownload(DownloadRequest request) {
-		if (Thread.currentThread().isInterrupted()) {
-			return;
-		}
+  /* execute downloading */
+  private void executeDownload(DownloadRequest request) {
+    if (Thread.currentThread().isInterrupted()) {
+      return;
+    }
 
-		Downloader downloader = request.downloader();
-		RandomAccessFile raf = null;
-		InputStream is = null;
+    Downloader downloader = request.downloader();
+    RandomAccessFile raf = null;
+    InputStream is = null;
 
-		try {
-			if (request.destinationFilePath() == null) {
-				request.updateDestinationFilePath(downloader.detectFilename(request.uri()));
-			}
+    try {
+      if (request.destinationFilePath() == null) {
+        request.updateDestinationFilePath(downloader.detectFilename(request.uri()));
+      }
 
-			File file = new File(request.tempFilePath());
-			raf = new RandomAccessFile(file, "rw");
-			long breakpoint = file.length();
-			long bytesWritten = 0;
-			if (file.exists()) {
-				/* set the range to continue the downloading */
-				raf.seek(breakpoint);
-				bytesWritten = breakpoint;
-				logger.log("Detect existed file with " + breakpoint +
-					" bytes, start breakpoint downloading");
-			}
+      File file = new File(request.tempFilePath());
+      raf = new RandomAccessFile(file, "rw");
+      long breakpoint = file.length();
+      long bytesWritten = 0;
+      if (file.exists()) {
+        /* set the range to continue the downloading */
+        raf.seek(breakpoint);
+        bytesWritten = breakpoint;
+        logger.log(
+            "Detect existed file with " + breakpoint + " bytes, start breakpoint downloading");
+      }
 
-			int statusCode = downloader.start(request.uri(), breakpoint);
-			is = downloader.byteStream();
-			if (statusCode != HTTP_OK && statusCode != HTTP_PARTIAL) {
-				logger.log("Incorrect http code got: " + statusCode);
-				throw new DownloadException(statusCode, "download fail");
-			}
+      int statusCode = downloader.start(request.uri(), breakpoint);
+      is = downloader.byteStream();
+      if (statusCode != HTTP_OK && statusCode != HTTP_PARTIAL) {
+        logger.log("Incorrect http code got: " + statusCode);
+        throw new DownloadException(statusCode, "download fail");
+      }
 
-			long contentLength = downloader.contentLength();
-			if (contentLength <= 0 && is == null) {
-				throw new DownloadException(statusCode, "content length error");
-			}
-			boolean noContentLength = contentLength <= 0;
-			contentLength += bytesWritten;
+      long contentLength = downloader.contentLength();
+      if (contentLength <= 0 && is == null) {
+        throw new DownloadException(statusCode, "content length error");
+      }
+      contentLength += bytesWritten;
 
-			updateStart(request, contentLength);
-			logger.log("Start to download, content length: " + contentLength + " bytes");
+      updateStart(request, contentLength);
+      logger.log("Start to download, content length: " + contentLength + " bytes");
 
-			if (is != null) {
-				byte[] buffer = new byte[BUFFER_SIZE];
-				int length;
+      if (is != null) {
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int length;
 
-				while (true) {
-					/* if the request has canceld, stop the downloading */
-					if (Thread.currentThread().isInterrupted() || request.isCanceled()) {
-						request.finish();
-						return;
-					}
+        while (true) {
+          /* if the request has canceld, stop the downloading */
+          if (Thread.currentThread().isInterrupted() || request.isCanceled()) {
+            request.finish();
+            return;
+          }
 
 					/* if current is not wifi and mobile network is not allowed, stop */
-					if (request.allowedNetworkTypes() != 0 && !Utils.isWifi(request.context()) &&
-						(request.allowedNetworkTypes() & DownloadRequest.NETWORK_MOBILE) == 0) {
-						throw new DownloadException(statusCode, "allow network error");
-					}
+          if (request.allowedNetworkTypes() != 0
+              && !Utils.isWifi(request.context())
+              && (request.allowedNetworkTypes() & DownloadRequest.NETWORK_MOBILE) == 0) {
+            throw new DownloadException(statusCode, "allow network error");
+          }
 
 					/* read data into buffer from input stream */
-					length = readFromInputStream(buffer, is);
-					long fileSize = raf.length();
-					long totalBytes = noContentLength ? fileSize : contentLength;
+          length = readFromInputStream(buffer, is);
 
-					if (length == -1) {
-						updateSuccess(request);
-						return;
-					} else if (length == Integer.MIN_VALUE) {
-						throw new DownloadException(statusCode, "transfer data error");
-					}
+          if (length == -1) {
+            updateSuccess(request);
+            return;
+          } else if (length == Integer.MIN_VALUE) {
+            throw new DownloadException(statusCode, "transfer data error");
+          }
 
-					bytesWritten += length;
+          bytesWritten += length;
 					/* write buffer into local file */
-					raf.write(buffer, 0, length);
+          raf.write(buffer, 0, length);
 
 					/* deliver progress callback */
-					updateProgress(request, bytesWritten, totalBytes);
-				}
-			} else {
-				throw new DownloadException(statusCode, "input stream error");
-			}
-		} catch (IOException e) {
-			logger.log("Caught new exception: " + e.getMessage());
+          updateProgress(request, bytesWritten, contentLength);
+        }
+      } else {
+        throw new DownloadException(statusCode, "input stream error");
+      }
+    } catch (IOException e) {
+      logger.log("Caught new exception: " + e.getMessage());
 
-			if (e instanceof DownloadException) {
-				DownloadException exception = (DownloadException) e;
-				updateFailure(request, exception.getCode(), exception.getMessage());
-			} else {
-				updateFailure(request, 0, e.getMessage());
-			}
-		} finally {
-			downloader.close();
-			silentCloseFile(raf);
-			silentCloseInputStream(is);
-		}
-	}
+      if (e instanceof DownloadException) {
+        DownloadException exception = (DownloadException) e;
+        updateFailure(request, exception.getCode(), exception.getMessage());
+      } else {
+        updateFailure(request, 0, e.getMessage());
+      }
+    } finally {
+      downloader.close();
+      silentCloseFile(raf);
+      silentCloseInputStream(is);
+    }
+  }
 
-	/* read data from input stream */
-	int readFromInputStream(byte[] buffer, InputStream is) {
-		try {
-			return is.read(buffer);
-		} catch (IOException e) {
-			if (END_OF_STREAM.equals(e.getMessage())) {
-				return -1;
-			}
+  /* read data from input stream */
+  int readFromInputStream(byte[] buffer, InputStream is) {
+    try {
+      return is.read(buffer);
+    } catch (IOException e) {
+      if (END_OF_STREAM.equals(e.getMessage())) {
+        return -1;
+      }
 
-			return Integer.MIN_VALUE;
-		}
-	}
+      return Integer.MIN_VALUE;
+    }
+  }
 
-	/* a utility function to close a random access file without raising an exception */
-	static void silentCloseFile(RandomAccessFile raf) {
-		if (raf != null) {
-			try {
-				raf.close();
-			} catch (IOException ignore) {
-			}
-		}
-	}
+  /* a utility function to close a random access file without raising an exception */
+  static void silentCloseFile(RandomAccessFile raf) {
+    if (raf != null) {
+      try {
+        raf.close();
+      } catch (IOException ignore) {
+      }
+    }
+  }
 
-	/* a utility function to close an input stream without raising an exception */
-	static void silentCloseInputStream(InputStream is) {
-		try {
-			if (is != null) {
-				is.close();
-			}
-		} catch (IOException ignore) {
-		}
-	}
+  /* a utility function to close an input stream without raising an exception */
+  static void silentCloseInputStream(InputStream is) {
+    try {
+      if (is != null) {
+        is.close();
+      }
+    } catch (IOException ignore) {
+    }
+  }
 
-	/**
-	 * Forces this dispatcher to quit immediately. If any download requests are still in
-	 * the queue, they are not guaranteed to be processed.
-	 */
-	void quit() {
-		logger.log("Download dispatcher quit");
-		quit = true;
-		
+  /**
+   * Forces this dispatcher to quit immediately. If any download requests are still in
+   * the queue, they are not guaranteed to be processed.
+   */
+  void quit() {
+    logger.log("Download dispatcher quit");
+    quit = true;
+
 		/* interrupt current thread */
-		interrupt();
-	}
+    interrupt();
+  }
 }

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,365 +21,374 @@ import static com.coolerfall.download.Utils.HTTPS;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public final class DownloadRequest implements Comparable<DownloadRequest> {
-	private static final String DEFAULT_DIR = Environment
-		.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-		.getAbsolutePath();
+  private static final String DEFAULT_DIR =
+      Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+          .getAbsolutePath();
 
-	/**
-	 * Bit flag corresponding to {@link ConnectivityManager#TYPE_MOBILE}.
-	 */
-	public static final int NETWORK_MOBILE = 1;
+  /**
+   * Bit flag corresponding to {@link ConnectivityManager#TYPE_MOBILE}.
+   */
+  public static final int NETWORK_MOBILE = 1;
 
-	/**
-	 * Bit flag corresponding to {@link ConnectivityManager#TYPE_WIFI}.
-	 */
-	public static final int NETWORK_WIFI = 1 << 1;
+  /**
+   * Bit flag corresponding to {@link ConnectivityManager#TYPE_WIFI}.
+   */
+  public static final int NETWORK_WIFI = 1 << 1;
 
-	private int downloadId = -1;
-	private final AtomicInteger retryTime;
-	private int allowedNetworkTypes = 0;
-	private Context context;
-	private DownloadState downloadState;
-	private final Uri uri;
-	private final String destinationDirectory;
-	private String destinationFilePath;
-	private final long progressInterval;
-	private final long retryInterval;
-	private DownloadRequestQueue downloadRequestQueue;
-	private final long timestamp;
-	private final Priority priority;
-	private boolean canceled = false;
-	private Downloader downloader;
-	private final DownloadCallback downloadCallback;
+  private int downloadId;
+  private final AtomicInteger retryTime;
+  private int allowedNetworkTypes = 0;
+  private Context context;
+  private DownloadState downloadState;
+  private final Uri uri;
+  private final String destinationDirectory;
+  private String destinationFilePath;
+  private final long progressInterval;
+  private final long retryInterval;
+  private DownloadRequestQueue downloadRequestQueue;
+  private final long timestamp;
+  private final Priority priority;
+  private boolean canceled = false;
+  private Downloader downloader;
+  private final DownloadCallback downloadCallback;
 
-	private DownloadRequest(Builder builder) {
-		uri = builder.uri;
-		priority = checkNotNull(builder.priority, "priority == null");
-		retryTime = new AtomicInteger(builder.retryTime);
-		destinationDirectory =
-			checkNotNull(builder.destinationDirectory, "destinationDirectory == null");
-		destinationFilePath = builder.destinationFilePath;
-		downloadCallback = checkNotNull(builder.downloadCallback, "downloadCallback == null");
-		progressInterval = builder.progressInterval;
-		retryInterval = builder.retryInterval;
-		allowedNetworkTypes = builder.allowedNetworkTypes;
-		downloadState = DownloadState.PENDING;
-		timestamp = System.currentTimeMillis();
-	}
+  private DownloadRequest(Builder builder) {
+    downloadId = builder.downloadId;
+    uri = builder.uri;
+    priority = checkNotNull(builder.priority, "priority == null");
+    retryTime = new AtomicInteger(builder.retryTime);
+    destinationDirectory =
+        checkNotNull(builder.destinationDirectory, "destinationDirectory == null");
+    destinationFilePath = builder.destinationFilePath;
+    downloadCallback = checkNotNull(builder.downloadCallback, "downloadCallback == null");
+    progressInterval = builder.progressInterval;
+    retryInterval = builder.retryInterval;
+    allowedNetworkTypes = builder.allowedNetworkTypes;
+    downloadState = DownloadState.PENDING;
+    timestamp = System.currentTimeMillis();
+  }
 
-	@Override public int compareTo(@NonNull DownloadRequest other) {
-		Priority left = this.priority();
-		Priority right = other.priority();
-		
+  @Override public int compareTo(@NonNull DownloadRequest other) {
+    Priority left = this.priority();
+    Priority right = other.priority();
+
 		/*
 		 * High-priority requests are "lesser" so they are sorted to the front.
 		 * Equal priorities are sorted by timestamp to provide FIFO ordering.
 		 */
-		return left == right ?
-			(int) (this.timestamp - other.timestamp) :
-			right.ordinal() - left.ordinal();
-	}
+    return left == right ? (int) (this.timestamp - other.timestamp)
+        : right.ordinal() - left.ordinal();
+  }
 
-	/**
-	 * Get the priority of download request.
-	 *
-	 * @return {@link Priority#NORMAL} by default.
-	 */
-	Priority priority() {
-		return priority;
-	}
+  /**
+   * Get the priority of download request.
+   *
+   * @return {@link Priority#NORMAL} by default.
+   */
+  Priority priority() {
+    return priority;
+  }
 
-	/**
-	 * Get {@link Downloader} to use.
-	 *
-	 * @return {@link Downloader}
-	 */
-	Downloader downloader() {
-		return downloader;
-	}
+  /**
+   * Get {@link Downloader} to use.
+   *
+   * @return {@link Downloader}
+   */
+  Downloader downloader() {
+    return downloader;
+  }
 
-	/**
-	 * Set a downloader for current reqeust to use.
-	 *
-	 * @param downloader {@link Downloader}
-	 */
-	void setDownloader(Downloader downloader) {
-		this.downloader = downloader;
-	}
+  /**
+   * Set a downloader for current reqeust to use.
+   *
+   * @param downloader {@link Downloader}
+   */
+  void downloader(Downloader downloader) {
+    this.downloader = downloader;
+  }
 
-	/**
-	 * Get the download callback of this request.
-	 *
-	 * @return download callback
-	 */
-	DownloadCallback downloadCallback() {
-		return downloadCallback;
-	}
+  /**
+   * Get the download callback of this request.
+   *
+   * @return download callback
+   */
+  DownloadCallback downloadCallback() {
+    return downloadCallback;
+  }
 
-	/**
-	 * Associates this request with the given queue. The request queue will be
-	 * notified when this request has finished.
-	 *
-	 * @param queue download request queue
-	 */
-	void setDownloadRequestQueue(DownloadRequestQueue queue) {
-		downloadRequestQueue = queue;
-		downloadId = downloadRequestQueue.getSequenceNumber();
-	}
+  /**
+   * Associates this request with the given queue. The request queue will be
+   * notified when this request has finished.
+   *
+   * @param queue download request queue
+   */
+  void downloadRequestQueue(DownloadRequestQueue queue) {
+    downloadRequestQueue = queue;
 
-	/**
-	 * Update the {@link DownloadState} of current download request.
-	 *
-	 * @param downloadState {@link DownloadState}
-	 */
-	void updateDownloadState(DownloadState downloadState) {
-		this.downloadState = downloadState;
-	}
+    if (downloadId < 0) {
+      downloadId = downloadRequestQueue.getSequenceNumber();
+    }
+  }
 
-	/**
-	 * Get download state of current request.
-	 *
-	 * @return download state
-	 */
-	DownloadState downloadState() {
-		return downloadState;
-	}
+  /**
+   * Update the {@link DownloadState} of current download request.
+   *
+   * @param downloadState {@link DownloadState}
+   */
+  void updateDownloadState(DownloadState downloadState) {
+    this.downloadState = downloadState;
+  }
 
-	/**
-	 * Get the download id of this download request.
-	 *
-	 * @return download id
-	 */
-	int downloadId() {
-		return downloadId;
-	}
+  /**
+   * Get download state of current request.
+   *
+   * @return download state
+   */
+  DownloadState downloadState() {
+    return downloadState;
+  }
 
-	/**
-	 * Get retry time, the retry time will decrease automatically after invoking this method.
-	 *
-	 * @return retry time
-	 */
-	int retryTime() {
-		return retryTime.decrementAndGet();
-	}
+  /**
+   * Get the download id of this download request.
+   *
+   * @return download id
+   */
+  int downloadId() {
+    return downloadId;
+  }
 
-	/**
-	 * Get progress interval, used in {@link DownloadDispatcher}.
-	 *
-	 * @return progress interval
-	 */
-	long progressInterval() {
-		return progressInterval;
-	}
+  /**
+   * Get retry time, the retry time will decrease automatically after invoking this method.
+   *
+   * @return retry time
+   */
+  int retryTime() {
+    return retryTime.decrementAndGet();
+  }
 
-	/**
-	 * Get retry interval, used in {@link DownloadDispatcher}.
-	 *
-	 * @return retry interval
-	 */
-	long retryInterval() {
-		return retryInterval;
-	}
+  /**
+   * Get progress interval, used in {@link DownloadDispatcher}.
+   *
+   * @return progress interval
+   */
+  long progressInterval() {
+    return progressInterval;
+  }
 
-	/**
-	 * Get the types of allowed network.
-	 *
-	 * @return all the types
-	 */
-	int allowedNetworkTypes() {
-		return allowedNetworkTypes;
-	}
+  /**
+   * Get retry interval, used in {@link DownloadDispatcher}.
+   *
+   * @return retry interval
+   */
+  long retryInterval() {
+    return retryInterval;
+  }
 
-	/**
-	 * Set context to use.
-	 *
-	 * @param context context
-	 */
-	void setContext(Context context) {
-		this.context = context;
-	}
+  /**
+   * Get the types of allowed network.
+   *
+   * @return all the types
+   */
+  int allowedNetworkTypes() {
+    return allowedNetworkTypes;
+  }
 
-	/**
-	 * Get the context.
-	 *
-	 * @return context
-	 */
-	Context context() {
-		return context;
-	}
+  /**
+   * Set context to use.
+   *
+   * @param context context
+   */
+  void context(Context context) {
+    this.context = context;
+  }
 
-	/**
-	 * Get the URL of this request.
-	 *
-	 * @return the URL of this request
-	 */
-	Uri uri() {
-		return uri;
-	}
+  /**
+   * Get the context.
+   *
+   * @return context
+   */
+  Context context() {
+    return context;
+  }
 
-	/**
-	 * Update absolute file path according to the directory and filename.
-	 *
-	 * @param filename filename to save
-	 */
-	@SuppressWarnings("ResultOfMethodCallIgnored") void updateDestinationFilePath(String filename) {
-		String separator = destinationDirectory.endsWith("/") ? "" : File.separator;
-		destinationFilePath = destinationDirectory + separator + filename;
-		Log.d("TAG", "destinationFilePath: " + destinationFilePath);
+  /**
+   * Get the URL of this request.
+   *
+   * @return the URL of this request
+   */
+  Uri uri() {
+    return uri;
+  }
+
+  /**
+   * Update absolute file path according to the directory and filename.
+   *
+   * @param filename filename to save
+   */
+  @SuppressWarnings("ResultOfMethodCallIgnored") void updateDestinationFilePath(String filename) {
+    String separator = destinationDirectory.endsWith("/") ? "" : File.separator;
+    destinationFilePath = destinationDirectory + separator + filename;
+    Log.d("TAG", "destinationFilePath: " + destinationFilePath);
 		/* if the destination path is directory */
-		File file = new File(destinationFilePath);
-		if (!file.getParentFile().exists()) {
+    File file = new File(destinationFilePath);
+    if (!file.getParentFile().exists()) {
 			/* make dirs in case */
-			file.getParentFile().mkdirs();
-		}
-	}
+      file.getParentFile().mkdirs();
+    }
+  }
 
-	/**
-	 * Get destination file path of this download request.
-	 *
-	 * @return destination file path
-	 */
-	String destinationFilePath() {
-		return destinationFilePath;
-	}
+  /**
+   * Get destination file path of this download request.
+   *
+   * @return destination file path
+   */
+  String destinationFilePath() {
+    return destinationFilePath;
+  }
 
-	/**
-	 * Get temporary destination file path of this download request.
-	 *
-	 * @return temporary destination file path
-	 */
-	String tempFilePath() {
-		return destinationFilePath() + ".tmp";
-	}
+  /**
+   * Get temporary destination file path of this download request.
+   *
+   * @return temporary destination file path
+   */
+  String tempFilePath() {
+    return destinationFilePath() + ".tmp";
+  }
 
-	/**
-	 * Mark this download request as canceled. No callback will be delivered.
-	 */
-	void cancel() {
-		canceled = true;
-	}
+  /**
+   * Mark this download request as canceled. No callback will be delivered.
+   */
+  void cancel() {
+    canceled = true;
+  }
 
-	/**
-	 * To check if current request has canceled.
-	 *
-	 * @return Returns true if this request has been canceled.
-	 */
-	boolean isCanceled() {
-		return canceled;
-	}
+  /**
+   * To check if current request has canceled.
+   *
+   * @return Returns true if this request has been canceled.
+   */
+  boolean isCanceled() {
+    return canceled;
+  }
 
-	/**
-	 * Notifies the download request queue that this request has finished(succesfully or fail)
-	 */
-	void finish() {
-		if (downloadRequestQueue != null) {
-			downloadRequestQueue.finish(this);
-		}
-	}
+  /**
+   * Notifies the download request queue that this request has finished(succesfully or fail)
+   */
+  void finish() {
+    if (downloadRequestQueue != null) {
+      downloadRequestQueue.finish(this);
+    }
+  }
 
-	public static final class Builder {
-		private Uri uri;
-		private int retryTime;
-		private long retryInterval;
-		private String destinationDirectory;
-		private String destinationFilePath;
-		private Priority priority;
-		private long progressInterval;
-		private int allowedNetworkTypes;
-		private DownloadCallback downloadCallback;
+  public static final class Builder {
+    private int downloadId = -1;
+    private Uri uri;
+    private int retryTime;
+    private long retryInterval;
+    private String destinationDirectory;
+    private String destinationFilePath;
+    private Priority priority;
+    private long progressInterval;
+    private int allowedNetworkTypes;
+    private DownloadCallback downloadCallback;
 
-		public Builder() {
-			this.retryTime = 1;
-			this.retryInterval = 3_000;
-			this.progressInterval = 100;
-			this.priority = Priority.NORMAL;
-			this.destinationDirectory = DEFAULT_DIR;
-			this.downloadCallback = DownloadCallback.EMPTY_CALLBACK;
-		}
+    public Builder() {
+      this.retryTime = 1;
+      this.retryInterval = 3_000;
+      this.progressInterval = 100;
+      this.priority = Priority.NORMAL;
+      this.destinationDirectory = DEFAULT_DIR;
+      this.downloadCallback = DownloadCallback.EMPTY_CALLBACK;
+    }
 
-		public Builder url(String url) {
-			return uri(Uri.parse(url));
-		}
+    public Builder downloadId(int downloadId) {
+      this.downloadId = downloadId;
+      return this;
+    }
 
-		public Builder uri(Uri uri) {
-			this.uri = checkNotNull(uri, "uri == null");
-			String scheme = uri.getScheme();
-			if (!HTTP.equals(scheme) && !HTTPS.equals(scheme)) {
-				throw new IllegalArgumentException("url should start with http or https");
-			}
-			return this;
-		}
+    public Builder url(String url) {
+      return uri(Uri.parse(url));
+    }
 
-		public Builder destinationDirectory(String destinationDirectory) {
-			this.destinationDirectory = destinationDirectory;
-			return this;
-		}
+    public Builder uri(Uri uri) {
+      this.uri = checkNotNull(uri, "uri == null");
+      String scheme = uri.getScheme();
+      if (!HTTP.equals(scheme) && !HTTPS.equals(scheme)) {
+        throw new IllegalArgumentException("url should start with http or https");
+      }
+      return this;
+    }
 
-		public Builder destinationFilePath(String destinationFilePath) {
+    public Builder destinationDirectory(String destinationDirectory) {
+      this.destinationDirectory = destinationDirectory;
+      return this;
+    }
+
+    public Builder destinationFilePath(String destinationFilePath) {
 			/* if the destination path is directory */
-			if (new File(destinationFilePath).isDirectory()) {
-				throw new IllegalArgumentException("destinationFilePath cannot be a directory");
-			}
-			this.destinationFilePath = destinationFilePath;
-			return this;
-		}
+      if (new File(destinationFilePath).isDirectory()) {
+        throw new IllegalArgumentException("destinationFilePath cannot be a directory");
+      }
+      this.destinationFilePath = destinationFilePath;
+      return this;
+    }
 
-		public Builder priority(Priority priority) {
-			this.priority = priority;
-			return this;
-		}
+    public Builder priority(Priority priority) {
+      this.priority = priority;
+      return this;
+    }
 
-		public Builder retryTime(int retryTime) {
-			if (retryTime < 0) {
-				throw new IllegalArgumentException("retryTime < 0");
-			}
+    public Builder retryTime(int retryTime) {
+      if (retryTime < 0) {
+        throw new IllegalArgumentException("retryTime < 0");
+      }
 
-			this.retryTime = retryTime;
-			return this;
-		}
+      this.retryTime = retryTime;
+      return this;
+    }
 
-		public Builder retryInterval(long interval, TimeUnit unit) {
-			if (interval <= 0) {
-				throw new IllegalArgumentException("interval <= 0");
-			}
+    public Builder retryInterval(long interval, TimeUnit unit) {
+      if (interval <= 0) {
+        throw new IllegalArgumentException("interval <= 0");
+      }
 
-			unit = checkNotNull(unit, "unit == null");
-			long millis = unit.toMillis(interval);
-			if (millis > Integer.MAX_VALUE) {
-				throw new IllegalArgumentException("interval too large");
-			}
+      unit = checkNotNull(unit, "unit == null");
+      long millis = unit.toMillis(interval);
+      if (millis > Integer.MAX_VALUE) {
+        throw new IllegalArgumentException("interval too large");
+      }
 
-			this.retryInterval = millis;
-			return this;
-		}
+      this.retryInterval = millis;
+      return this;
+    }
 
-		public Builder progressInterval(long interval, TimeUnit unit) {
-			if (interval < 0) {
-				throw new IllegalArgumentException("interval < 0");
-			}
+    public Builder progressInterval(long interval, TimeUnit unit) {
+      if (interval < 0) {
+        throw new IllegalArgumentException("interval < 0");
+      }
 
-			unit = checkNotNull(unit, "unit == null");
-			long millis = unit.toMillis(interval);
-			if (millis > Integer.MAX_VALUE) {
-				throw new IllegalArgumentException("interval too large");
-			}
+      unit = checkNotNull(unit, "unit == null");
+      long millis = unit.toMillis(interval);
+      if (millis > Integer.MAX_VALUE) {
+        throw new IllegalArgumentException("interval too large");
+      }
 
-			this.progressInterval = millis;
-			return this;
-		}
+      this.progressInterval = millis;
+      return this;
+    }
 
-		public Builder allowedNetworkTypes(int allowedNetworkTypes) {
-			this.allowedNetworkTypes = allowedNetworkTypes;
-			return this;
-		}
+    public Builder allowedNetworkTypes(int allowedNetworkTypes) {
+      this.allowedNetworkTypes = allowedNetworkTypes;
+      return this;
+    }
 
-		public Builder downloadCallback(DownloadCallback downloadCallback) {
-			this.downloadCallback = downloadCallback;
-			return this;
-		}
+    public Builder downloadCallback(DownloadCallback downloadCallback) {
+      this.downloadCallback = downloadCallback;
+      return this;
+    }
 
-		public DownloadRequest build() {
-			return new DownloadRequest(this);
-		}
-	}
+    public DownloadRequest build() {
+      return new DownloadRequest(this);
+    }
+  }
 }
