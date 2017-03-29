@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-	compileSdkVersion versions.compileSdk
-	buildToolsVersion versions.buildTools
+	compileSdkVersion rootProject.ext.compileSdkVersion
+	buildToolsVersion rootProject.ext.buildToolsVersion
 
 	defaultConfig {
 		applicationId "com.cooler.downloadsample"
-		minSdkVersion 10
-		targetSdkVersion versions.targetSdk
+		minSdkVersion rootProject.ext.minSdkVersion
+		targetSdkVersion rootProject.ext.targetSdkVersion
 		versionCode 1
 		versionName "1.0"
 	}
@@ -25,9 +25,9 @@ android {
 }
 
 dependencies {
-	compile libraries.appcompatv7
-	compile libraries.okHttp3
-	compile libraries.loggingInterceptor
-	compile libraries.easypermissions
+	compile rootProject.ext.appcompatv7
+	compile rootProject.ext.okHttp3
+	compile rootProject.ext.loggingInterceptor
+	compile rootProject.ext.easypermissions
 	compile project(':library')
 }

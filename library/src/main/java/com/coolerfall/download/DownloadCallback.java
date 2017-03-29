@@ -19,7 +19,7 @@ public abstract class DownloadCallback {
 
   }
 
-  /**w
+  /**
    * Invoked when download retrying.
    *
    * @param downloadId download id in download request queue

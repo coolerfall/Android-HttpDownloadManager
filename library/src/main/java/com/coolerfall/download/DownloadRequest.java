@@ -73,7 +73,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
     Priority right = other.priority();
 
 		/*
-		 * High-priority requests are "lesser" so they are sorted to the front.
+     * High-priority requests are "lesser" so they are sorted to the front.
 		 * Equal priorities are sorted by timestamp to provide FIFO ordering.
 		 */
     return left == right ? (int) (this.timestamp - other.timestamp)
@@ -229,7 +229,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
     String separator = destinationDirectory.endsWith("/") ? "" : File.separator;
     destinationFilePath = destinationDirectory + separator + filename;
     Log.d("TAG", "destinationFilePath: " + destinationFilePath);
-		/* if the destination path is directory */
+    /* if the destination path is directory */
     File file = new File(destinationFilePath);
     if (!file.getParentFile().exists()) {
 			/* make dirs in case */

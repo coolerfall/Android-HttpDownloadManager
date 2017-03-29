@@ -1,17 +1,15 @@
 package com.coolerfall.download;
 
 import android.net.Uri;
-
+import okhttp3.OkHttpClient;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-
-import okhttp3.OkHttpClient;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
-@RunWith(RobolectricGradleTestRunner.class) @Config(constants = BuildConfig.class, sdk = 23)
+@RunWith(RobolectricTestRunner.class) @Config(constants = BuildConfig.class, sdk = 23)
 public class OkHttpDownloaderTest {
 	private static final int CONTENT_LENGTH = 1024 * 1024 * 5;
 	private Uri mockUri;
