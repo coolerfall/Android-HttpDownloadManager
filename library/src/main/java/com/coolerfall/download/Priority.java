@@ -6,16 +6,14 @@ package com.coolerfall.download;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public enum Priority {
-	/**
-	 * The lowest priority.
-	 */
-	LOW,
-	/**
-	 * Normal priority(default).
-	 */
-	NORMAL,
-	/**
-	 * The highest priority.
-	 */
-	HIGH,
+  /**
+   * The lowest priority.
+   */
+  LOW, /**
+   * Normal priority(default).
+   */
+  NORMAL, /**
+   * The highest priority.
+   */
+  HIGH,
 }

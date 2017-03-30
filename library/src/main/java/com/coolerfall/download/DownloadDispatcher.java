@@ -239,7 +239,7 @@ final class DownloadDispatcher extends Thread {
           }
 
           bytesWritten += length;
-					/* write buffer into local file */
+          /* write buffer into local file */
           raf.write(buffer, 0, length);
 
 					/* deliver progress callback */
