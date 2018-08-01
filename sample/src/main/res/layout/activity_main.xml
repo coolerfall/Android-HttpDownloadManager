@@ -3,132 +3,154 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:ignore="RtlHardcoded" >
+    tools:ignore="RtlHardcoded"
+    >
 
-    <LinearLayout
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      >
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        >
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-            
-            <Button
-                android:id="@+id/download_btn_start"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/item_download_btn_start" />
+      <Button
+          android:id="@+id/download_btn_start"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/item_download_btn_start"
+          />
 
-            <TextView
-                android:id="@+id/download_tv_speed0"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true" />
-            
-        </RelativeLayout>
+      <TextView
+          android:id="@+id/download_tv_speed0"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentRight="true"
+          />
 
-        <ProgressBar
-            android:id="@+id/download_progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-            
-            <Button
-                android:id="@+id/download_btn_start1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/item_download_btn_start" />
-            
-            <TextView
-                android:id="@+id/download_tv_speed1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true" />
-        </RelativeLayout>
+    <ProgressBar
+        android:id="@+id/download_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 
-        <ProgressBar
-            android:id="@+id/download_progress1"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-            
-            <Button
-                android:id="@+id/download_btn_start2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/item_download_btn_start" />
-            
-            <TextView
-                android:id="@+id/download_tv_speed2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true" />
-            
-        </RelativeLayout>
-        
-        <ProgressBar
-            android:id="@+id/download_progress2"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+      <Button
+          android:id="@+id/download_btn_start1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/item_download_btn_start"
+          />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-            
-            <Button
-                android:id="@+id/download_btn_start3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/item_download_btn_start" />
-            
-            <TextView
-                android:id="@+id/download_tv_speed3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true" />
-            
-        </RelativeLayout>
+      <TextView
+          android:id="@+id/download_tv_speed1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentRight="true"
+          />
+    </RelativeLayout>
 
-        <ProgressBar
-            android:id="@+id/download_progress3"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <ProgressBar
+        android:id="@+id/download_progress1"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-            
-            <Button
-                android:id="@+id/download_btn_start4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/item_download_btn_start" />
-            
-            <TextView
-                android:id="@+id/download_tv_speed4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true" />
-            
-        </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
 
-        <ProgressBar
-            android:id="@+id/download_progress4"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+      <Button
+          android:id="@+id/download_btn_start2"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/item_download_btn_start"
+          />
 
-    </LinearLayout>
+      <TextView
+          android:id="@+id/download_tv_speed2"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentRight="true"
+          />
+
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/download_progress2"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+      <Button
+          android:id="@+id/download_btn_start3"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/item_download_btn_start"
+          />
+
+      <TextView
+          android:id="@+id/download_tv_speed3"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentRight="true"
+          />
+
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/download_progress3"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+      <Button
+          android:id="@+id/download_btn_start4"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/item_download_btn_start"
+          />
+
+      <TextView
+          android:id="@+id/download_tv_speed4"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentRight="true"
+          />
+
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/download_progress4"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+  </LinearLayout>
 
 </ScrollView>

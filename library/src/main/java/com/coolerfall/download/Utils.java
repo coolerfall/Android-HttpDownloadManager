@@ -12,7 +12,6 @@ import java.security.KeyManagementException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.UUID;
 import javax.net.ssl.SSLContext;
@@ -53,6 +52,9 @@ public final class Utils {
 
     ConnectivityManager manager =
         (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    if (manager == null) {
+      return false;
+    }
     NetworkInfo info = manager.getActiveNetworkInfo();
 
     return info != null && (info.getType() == ConnectivityManager.TYPE_WIFI);
@@ -69,13 +71,13 @@ public final class Utils {
       MessageDigest md = MessageDigest.getInstance("MD5");
       md.update(origin.getBytes("UTF-8"));
       BigInteger bi = new BigInteger(1, md.digest());
-      String hash = bi.toString(16);
+      StringBuilder hash = new StringBuilder(bi.toString(16));
 
       while (hash.length() < 32) {
-        hash = "0" + hash;
+        hash.insert(0, "0");
       }
 
-      return hash;
+      return hash.toString();
     } catch (Exception e) {
       return getUuid();
     }
@@ -98,7 +100,7 @@ public final class Utils {
         tmpFilename = tmpFilename.substring(0, qmarkIndex - 1);
       }
 
-			/* if filename contains '.', then the filename has file extension */
+      /* if filename contains '.', then the filename has file extension */
       if (tmpFilename.contains(".")) {
         filename = tmpFilename;
       }
@@ -119,7 +121,7 @@ public final class Utils {
     if (!TextUtils.isEmpty(contentDisposition)) {
       int index = contentDisposition.indexOf("filename");
       if (index > 0) {
-        filename = contentDisposition.substring(index + 10, contentDisposition.length() - 1);
+        filename = contentDisposition.substring(index + 9, contentDisposition.length());
         return filename;
       } else {
         filename = getFilenameFromUrl(url);
@@ -149,12 +151,12 @@ public final class Utils {
           new X509TrustManager() {
             @SuppressLint("TrustAllX509TrustManager") @Override
             public void checkClientTrusted(X509Certificate[] paramArrayOfX509Certificate,
-                String paramString) throws CertificateException {
+                String paramString) {
             }
 
             @SuppressLint("TrustAllX509TrustManager") @Override
             public void checkServerTrusted(X509Certificate[] paramArrayOfX509Certificate,
-                String paramString) throws CertificateException {
+                String paramString) {
             }
 
             @Override public X509Certificate[] getAcceptedIssuers() {

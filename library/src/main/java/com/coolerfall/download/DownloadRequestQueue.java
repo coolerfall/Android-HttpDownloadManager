@@ -56,7 +56,7 @@ final class DownloadRequestQueue {
     /* make sure any currently running dispatchers are stopped */
     stop();
 
-		/* create the download dispatcher and start it. */
+    /* create the download dispatcher and start it. */
     for (int i = 0; i < dispatchers.length; i++) {
       DownloadDispatcher dispatcher = new DownloadDispatcher(downloadQueue, delivery, logger);
       dispatchers[i] = dispatcher;
@@ -84,21 +84,21 @@ final class DownloadRequestQueue {
    * @return true if the request is not in queue, otherwise return false
    */
   boolean add(DownloadRequest request) {
-		/* if the request is downloading, do nothing */
+    /* if the request is downloading, do nothing */
     if (query(request.downloadId()) != DownloadState.INVALID
         || query(request.uri()) != DownloadState.INVALID) {
       Log.w(TAG, "the download requst is in downloading");
       return false;
     }
 
-		/* tag the request as belonging to this queue */
+    /* tag the request as belonging to this queue */
     request.downloadRequestQueue(this);
-		/* add it to the set of current requests */
+    /* add it to the set of current requests */
     synchronized (currentRequests) {
       currentRequests.add(request);
     }
 
-		/* process requests in the order they are added in */
+    /* process requests in the order they are added in */
     downloadQueue.add(request);
 
     return true;
@@ -205,15 +205,15 @@ final class DownloadRequestQueue {
    * Release all the resource.
    */
   void release() {
-		/* release current download request */
+    /* release current download request */
     cancelAll();
 
-		/* release download queue */
+    /* release download queue */
     if (downloadQueue != null) {
       downloadQueue = null;
     }
 
-		/* release dispathcers */
+    /* release dispathcers */
     if (dispatchers != null) {
       stop();
 

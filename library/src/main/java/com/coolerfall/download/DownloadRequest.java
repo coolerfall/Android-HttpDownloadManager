@@ -72,10 +72,10 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
     Priority left = this.priority();
     Priority right = other.priority();
 
-		/*
+    /*
      * High-priority requests are "lesser" so they are sorted to the front.
-		 * Equal priorities are sorted by timestamp to provide FIFO ordering.
-		 */
+     * Equal priorities are sorted by timestamp to provide FIFO ordering.
+     */
     return left == right ? (int) (this.timestamp - other.timestamp)
         : right.ordinal() - left.ordinal();
   }
@@ -232,7 +232,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
     /* if the destination path is directory */
     File file = new File(destinationFilePath);
     if (!file.getParentFile().exists()) {
-			/* make dirs in case */
+      /* make dirs in case */
       file.getParentFile().mkdirs();
     }
   }
@@ -325,7 +325,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
     }
 
     public Builder destinationFilePath(String destinationFilePath) {
-			/* if the destination path is directory */
+      /* if the destination path is directory */
       if (new File(destinationFilePath).isDirectory()) {
         throw new IllegalArgumentException("destinationFilePath cannot be a directory");
       }

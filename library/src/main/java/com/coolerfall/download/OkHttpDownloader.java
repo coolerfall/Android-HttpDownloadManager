@@ -106,7 +106,7 @@ public final class OkHttpDownloader implements Downloader {
       case HTTP_TEMP_REDIRECT:
         response.close();
         if (redirectionCount.decrementAndGet() >= 0) {
-        /* take redirect url and call start recursively */
+          /* take redirect url and call start recursively */
           String redirectUrl = response.header(LOCATION);
           return innerRequest(client, Uri.parse(redirectUrl), breakpoint);
         } else {
