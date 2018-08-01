@@ -1,6 +1,7 @@
 package com.coolerfall.download;
 
 import android.os.Process;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +43,7 @@ final class DownloadDispatcher extends Thread {
     this.delivery = delivery;
     this.logger = logger;
 
-		/* set thread name to idle */
+    /* set thread name to idle */
     setName(IDLE_THREAD_NAME);
   }
 
@@ -58,10 +59,10 @@ final class DownloadDispatcher extends Thread {
         sleep(SLEEP_BEFORE_DOWNLOAD);
         setName(DEFAULT_THREAD_NAME);
 
-				/* start download */
+        /* start download */
         executeDownload(request);
       } catch (InterruptedException e) {
-          /* we may have been interrupted because it was time to quit */
+        /* we may have been interrupted because it was time to quit */
         if (quit) {
           if (request != null) {
             request.finish();
@@ -80,13 +81,13 @@ final class DownloadDispatcher extends Thread {
 
   /* update download start state */
   private void updateStart(DownloadRequest request, long totalBytes) {
-  /* if the request has failed before, donnot deliver callback */
+    /* if the request has failed before, donnot deliver callback */
     if (request.downloadState() == DownloadState.FAILURE) {
       updateState(request, DownloadState.RUNNING);
       return;
     }
 
-		/* set the download state of this request as running */
+    /* set the download state of this request as running */
     updateState(request, DownloadState.RUNNING);
     delivery.postStart(request, totalBytes);
   }
@@ -104,7 +105,7 @@ final class DownloadDispatcher extends Thread {
       return;
     }
 
-		/* save progress timestamp */
+    /* save progress timestamp */
     lastProgressTimestamp = currentTimestamp;
 
     if (!request.isCanceled()) {
@@ -117,7 +118,7 @@ final class DownloadDispatcher extends Thread {
       DownloadRequest request) {
     updateState(request, DownloadState.SUCCESSFUL);
 
-		/* notify the request download finish */
+    /* notify the request download finish */
     request.finish();
 
     File file = new File(request.tempFilePath());
@@ -125,7 +126,7 @@ final class DownloadDispatcher extends Thread {
       file.renameTo(new File(request.destinationFilePath()));
     }
 
-		/* deliver success message */
+    /* deliver success message */
     delivery.postSuccess(request);
   }
 
@@ -133,21 +134,21 @@ final class DownloadDispatcher extends Thread {
   private void updateFailure(DownloadRequest request, int statusCode, String errMsg) {
     updateState(request, DownloadState.FAILURE);
 
-		/* if the status code is 0, may be cause by the net error */
+    /* if the status code is 0, may be cause by the net error */
     int leftRetryTime = request.retryTime();
     if (leftRetryTime >= 0) {
       try {
-          /* sleep a while before retrying */
+        /* sleep a while before retrying */
         sleep(request.retryInterval());
       } catch (InterruptedException e) {
-          /* we may have been interrupted because it was time to quit */
+        /* we may have been interrupted because it was time to quit */
         if (quit) {
           request.finish();
           return;
         }
       }
 
-			/* retry downloading */
+      /* retry downloading */
       if (!request.isCanceled()) {
         logger.log("Retry DownloadRequest: "
             + request.downloadId()
@@ -160,10 +161,10 @@ final class DownloadDispatcher extends Thread {
       return;
     }
 
-		/* notify the request that downloading has finished */
+    /* notify the request that downloading has finished */
     request.finish();
 
-		/* deliver failure message */
+    /* deliver failure message */
     delivery.postFailure(request, statusCode, errMsg);
   }
 
@@ -205,6 +206,7 @@ final class DownloadDispatcher extends Thread {
       if (contentLength <= 0 && is == null) {
         throw new DownloadException(statusCode, "content length error");
       }
+      boolean noContentLength = contentLength <= 0;
       contentLength += bytesWritten;
 
       updateStart(request, contentLength);
@@ -221,15 +223,17 @@ final class DownloadDispatcher extends Thread {
             return;
           }
 
-					/* if current is not wifi and mobile network is not allowed, stop */
+          /* if current is not wifi and mobile network is not allowed, stop */
           if (request.allowedNetworkTypes() != 0
               && !Utils.isWifi(request.context())
               && (request.allowedNetworkTypes() & DownloadRequest.NETWORK_MOBILE) == 0) {
             throw new DownloadException(statusCode, "allow network error");
           }
 
-					/* read data into buffer from input stream */
+          /* read data into buffer from input stream */
           length = readFromInputStream(buffer, is);
+          long fileSize = raf.length();
+          long totalBytes = noContentLength ? fileSize : contentLength;
 
           if (length == -1) {
             updateSuccess(request);
@@ -242,8 +246,8 @@ final class DownloadDispatcher extends Thread {
           /* write buffer into local file */
           raf.write(buffer, 0, length);
 
-					/* deliver progress callback */
-          updateProgress(request, bytesWritten, contentLength);
+          /* deliver progress callback */
+          updateProgress(request, bytesWritten, totalBytes);
         }
       } else {
         throw new DownloadException(statusCode, "input stream error");
@@ -305,7 +309,7 @@ final class DownloadDispatcher extends Thread {
     logger.log("Download dispatcher quit");
     quit = true;
 
-		/* interrupt current thread */
+    /* interrupt current thread */
     interrupt();
   }
 }

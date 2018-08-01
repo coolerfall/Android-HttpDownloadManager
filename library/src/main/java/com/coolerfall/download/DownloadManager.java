@@ -43,7 +43,7 @@ public final class DownloadManager {
     request.context(context);
     request.downloader(downloader.copy());
 
-		/* add download request into download request queue */
+    /* add download request into download request queue */
     return downloadRequestQueue.add(request) ? request.downloadId() : -1;
   }
 

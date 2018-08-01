@@ -10,18 +10,14 @@ android {
       proguardFiles 'proguard-rules.pro'
     }
   }
-
-  lintOptions {
-    abortOnError false
-  }
 }
 
 dependencies {
-  provided rootProject.ext.supportAnnotation
-  provided rootProject.ext.okHttp3
+  compileOnly rootProject.ext.supportAnnotations
+  compileOnly rootProject.ext.okHttp3
 
-  testCompile rootProject.ext.robolectric
-  testCompile rootProject.ext.mockWebServer
+  testImplementation rootProject.ext.robolectric
+  testImplementation rootProject.ext.mockWebServer
 }
 
 apply from: rootProject.file('gradle/maven_push.gradle')

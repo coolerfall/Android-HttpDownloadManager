@@ -2,35 +2,33 @@ package com.coolerfall.downloadsample;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.coolerfall.download.DownloadCallback;
 import com.coolerfall.download.DownloadManager;
 import com.coolerfall.download.DownloadRequest;
 import com.coolerfall.download.Logger;
 import com.coolerfall.download.OkHttpDownloader;
 import com.coolerfall.download.Priority;
-
 import java.io.File;
 import java.util.concurrent.TimeUnit;
-
 import okhttp3.OkHttpClient;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class MainActivity extends Activity implements OnClickListener {
-  private static final String TAG = "Vtag";
+public class MainActivity extends AppCompatActivity implements OnClickListener {
+  private static final String TAG = "HttpDownloadManager";
   private static final String[] URL = {
-      "http://podcast.canaltech.com.br/1735x.mp3", "http://podcast.canaltech.com.br/1735x.mp3",
-      "http://gdown.baidu.com/data/wisegame/024ebaed2f796a48/wangyiyunyinle_35.apk",
-      "http://t.cn/RLGOYCD",
-      "http://p.gdown.baidu.com/df1cc8402c66d5a8f724dd5f5824c918ce8360987501ba8c9af58f24a18e6f4e1c0990be72787aa995075b10f4e38427a1b06c1f9db0dce4992cc346c665ff5cd003ff3f09e9b3ba3761ddef6636295e7b852854c7f5263b6a5a7a8fb5326e905950942d3e56d60f6ecd567a1ca04a21f7a4186af1f7e8f82e927cb541f43db73c6ff255e71f631caeea5b247a52feec3fc64636f10f39bf2736a0667bdfb7d22c276629f7be1c1a598fd3450492a4cc0874e191879d1c503c457b0d85676a0009aaabbd0f4b2980c233208afaf611a1eee2bc3785402fbc7753ddea2cc982d59f364259e4b7ee3febfeb5272452773ed714e6be0b23ea0052651f73c5d0e6348b7b21608a317b08e8a46fc094f94d5d55d734d53b211b7282ae5f9c1f97e9ff678d2c19162f6f1ef297b736db87dae72d6bf42f919cf934bd5f0a5a6bb97914ec5854f4c4cbde51",
+      "https://github.com/getlantern/lantern-binaries/raw/master/lantern-installer-preview.apk",
+      "https://github.com/getlantern/lantern-binaries/raw/master/lantern-installer.apk",
+      "https://github.com/shadowsocks/shadowsocks-android/releases/download/v4.6.1/shadowsocks-arm64-v8a-4.6.1.apk",
+      "https://github.com/shadowsocks/shadowsocks-android/releases/download/v4.6.1/shadowsocks--universal-4.6.1.apk",
+      "https://github.com/shadowsocks/shadowsocks-android/releases/download/v4.6.1/shadowsocks-x86-4.6.1.apk"
   };
 
   private static final int INDEX_0 = 0;
@@ -65,17 +63,17 @@ public class MainActivity extends Activity implements OnClickListener {
     findViewById(R.id.download_btn_start3).setOnClickListener(this);
     findViewById(R.id.download_btn_start4).setOnClickListener(this);
 
-    progressBar = (ProgressBar) findViewById(R.id.download_progress);
-    progressBar1 = (ProgressBar) findViewById(R.id.download_progress1);
-    progressBar2 = (ProgressBar) findViewById(R.id.download_progress2);
-    progressBar3 = (ProgressBar) findViewById(R.id.download_progress3);
-    progressBar4 = (ProgressBar) findViewById(R.id.download_progress4);
+    progressBar = findViewById(R.id.download_progress);
+    progressBar1 = findViewById(R.id.download_progress1);
+    progressBar2 = findViewById(R.id.download_progress2);
+    progressBar3 = findViewById(R.id.download_progress3);
+    progressBar4 = findViewById(R.id.download_progress4);
 
-    textSpeed = (TextView) findViewById(R.id.download_tv_speed0);
-    textSpeed1 = (TextView) findViewById(R.id.download_tv_speed1);
-    textSpeed2 = (TextView) findViewById(R.id.download_tv_speed2);
-    textSpeed3 = (TextView) findViewById(R.id.download_tv_speed3);
-    textSpeed4 = (TextView) findViewById(R.id.download_tv_speed4);
+    textSpeed = findViewById(R.id.download_tv_speed0);
+    textSpeed1 = findViewById(R.id.download_tv_speed1);
+    textSpeed2 = findViewById(R.id.download_tv_speed2);
+    textSpeed3 = findViewById(R.id.download_tv_speed3);
+    textSpeed4 = findViewById(R.id.download_tv_speed4);
 
     OkHttpClient client = new OkHttpClient.Builder().build();
     downloadManager = new DownloadManager.Builder().context(this)
@@ -132,15 +130,14 @@ public class MainActivity extends Activity implements OnClickListener {
     if (downloadManager.isDownloading(id)) {
       downloadManager.cancel(id);
     } else {
-      DownloadRequest request =
-          new DownloadRequest.Builder().url(URL[index])
-              .downloadCallback(new Callback())
-              //				.retryTime(5)
-              .retryInterval(3, TimeUnit.SECONDS)
-              .progressInterval(1, TimeUnit.SECONDS)
-              .priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
-              .allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
-              .build();
+      DownloadRequest request = new DownloadRequest.Builder().url(URL[index])
+          .downloadCallback(new Callback())
+          .retryTime(3)
+          .retryInterval(3, TimeUnit.SECONDS)
+          .progressInterval(1, TimeUnit.SECONDS)
+          .priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
+          .allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
+          .build();
       int downloadId = downloadManager.add(request);
       ids.put(index, downloadId);
     }
