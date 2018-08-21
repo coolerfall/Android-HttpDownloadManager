@@ -116,6 +116,9 @@ public final class URLDownloader implements Downloader {
           /* take redirect url and call start recursively */
           String redirectUrl = httpURLConnection.getHeaderField(LOCATION);
           httpURLConnection.disconnect();
+          if (redirectUrl == null) {
+            throw new DownloadException(statusCode, "redirects got no `Location` header");
+          }
           return innerRequest(Uri.parse(redirectUrl), breakpoint);
         } else {
           throw new DownloadException(statusCode, "redirects too many times");

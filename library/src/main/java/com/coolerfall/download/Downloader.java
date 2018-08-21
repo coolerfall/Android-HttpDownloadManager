@@ -14,6 +14,7 @@ public interface Downloader {
   /**
    * Detect filename from http header/url if existed.
    *
+   * @param uri uri to detect filename
    * @return filename to save
    * @throws IOException
    */
