@@ -108,6 +108,9 @@ public final class OkHttpDownloader implements Downloader {
         if (redirectionCount.decrementAndGet() >= 0) {
           /* take redirect url and call start recursively */
           String redirectUrl = response.header(LOCATION);
+          if (redirectUrl == null) {
+            throw new DownloadException(statusCode, "redirects got no `Location` header");
+          }
           return innerRequest(client, Uri.parse(redirectUrl), breakpoint);
         } else {
           throw new DownloadException(statusCode, "redirects too many times");
