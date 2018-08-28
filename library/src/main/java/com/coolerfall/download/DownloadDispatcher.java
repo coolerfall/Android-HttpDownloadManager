@@ -235,10 +235,10 @@ final class DownloadDispatcher extends Thread {
           long fileSize = raf.length();
           long totalBytes = noContentLength ? fileSize : contentLength;
 
-          if (length == -1) {
+          if (length == -1 && bytesWritten == totalBytes) {
             updateSuccess(request);
             return;
-          } else if (length == Integer.MIN_VALUE) {
+          } else if (length == Integer.MIN_VALUE || length == -1) {
             throw new DownloadException(statusCode, "transfer data error");
           }
 
