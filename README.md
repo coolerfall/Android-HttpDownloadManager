@@ -77,7 +77,7 @@ It's easy to stop:
 Download
 ========
 
-	compile 'com.coolerfall:android-http-download-manager:1.6.1'
+	compile 'com.coolerfall:android-http-download-manager:1.6.2'
 
 Note
 ====
