@@ -1,7 +1,6 @@
 package com.coolerfall.download;
 
 import android.os.Process;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -274,7 +273,7 @@ final class DownloadDispatcher extends Thread {
       return is.read(buffer);
     } catch (IOException e) {
       if (END_OF_STREAM.equals(e.getMessage())) {
-        return -1;
+        return -2;
       }
 
       return Integer.MIN_VALUE;
