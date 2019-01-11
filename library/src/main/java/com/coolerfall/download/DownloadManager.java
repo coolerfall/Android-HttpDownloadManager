@@ -53,7 +53,7 @@ public final class DownloadManager {
    * @param downloadId download id
    * @return download state
    */
-  DownloadState query(int downloadId) {
+  public DownloadState query(int downloadId) {
     return downloadRequestQueue.query(downloadId);
   }
 
@@ -100,9 +100,10 @@ public final class DownloadManager {
    * Cancel the download according to download id.
    *
    * @param downloadId download id
+   * @return true if download has canceled, otherwise return false
    */
-  public void cancel(int downloadId) {
-    downloadRequestQueue.cancel(downloadId);
+  public boolean cancel(int downloadId) {
+    return downloadRequestQueue.cancel(downloadId);
   }
 
   /**
