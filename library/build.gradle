@@ -1,23 +1,23 @@
 apply plugin: 'com.android.library'
 
 android {
-	compileSdkVersion versions.compileSdk
-	buildToolsVersion versions.buildTools
+  compileSdkVersion rootProject.ext.compileSdkVersion
+  buildToolsVersion rootProject.ext.buildToolsVersion
 
-	buildTypes {
-		release {
-			minifyEnabled false
-			proguardFiles 'proguard-rules.pro'
-		}
-	}
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles 'proguard-rules.pro'
+    }
+  }
 }
 
 dependencies {
-	provided libraries.supportAnnotation
-	provided libraries.okHttp3
+  compileOnly rootProject.ext.supportAnnotations
+  compileOnly rootProject.ext.okHttp3
 
-	testCompile testingLibraries.robolectric
-	testCompile testingLibraries.mockWebServer
+  testImplementation rootProject.ext.robolectric
+  testImplementation rootProject.ext.mockWebServer
 }
 
 apply from: rootProject.file('gradle/maven_push.gradle')

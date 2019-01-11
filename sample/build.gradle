@@ -1,33 +1,33 @@
 apply plugin: 'com.android.application'
 
 android {
-	compileSdkVersion versions.compileSdk
-	buildToolsVersion versions.buildTools
+  compileSdkVersion rootProject.ext.compileSdkVersion
+  buildToolsVersion rootProject.ext.buildToolsVersion
 
-	defaultConfig {
-		applicationId "com.cooler.downloadsample"
-		minSdkVersion 10
-		targetSdkVersion versions.targetSdk
-		versionCode 1
-		versionName "1.0"
-	}
+  defaultConfig {
+    applicationId "com.cooler.downloadsample"
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.targetSdkVersion
+    versionCode 1
+    versionName "1.0"
+  }
 
-	buildTypes {
-		release {
-			minifyEnabled false
-			proguardFiles 'proguard-rules.pro'
-		}
-	}
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles 'proguard-rules.pro'
+    }
+  }
 
-	lintOptions {
-		abortOnError false
-	}
+  lintOptions {
+    abortOnError false
+  }
 }
 
 dependencies {
-	compile libraries.appcompatv7
-	compile libraries.okHttp3
-	compile libraries.loggingInterceptor
-	compile libraries.easypermissions
-	compile project(':library')
+  implementation rootProject.ext.appcompatV7
+  implementation rootProject.ext.okHttp3
+  implementation rootProject.ext.loggingInterceptor
+  implementation rootProject.ext.easypermissions
+  implementation project(':library')
 }
