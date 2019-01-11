@@ -53,7 +53,7 @@ public final class DownloadManager {
    * @param downloadId download id
    * @return download state
    */
-  DownloadState query(int downloadId) {
+  public DownloadState query(int downloadId) {
     return downloadRequestQueue.query(downloadId);
   }
 
