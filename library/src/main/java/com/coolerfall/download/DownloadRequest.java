@@ -37,7 +37,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
 
   private int downloadId;
   private final AtomicInteger retryTime;
-  private int allowedNetworkTypes = 0;
+  private int allowedNetworkTypes;
   private Context context;
   private DownloadState downloadState;
   private final Uri uri;

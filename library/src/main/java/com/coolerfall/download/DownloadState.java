@@ -6,20 +6,13 @@ package com.coolerfall.download;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 enum DownloadState {
-  /**
-   * State invalid(the request is not in queue).
-   */
-  INVALID, /**
-   * State when the download is currently pending.
-   */
-  PENDING, /**
-   * State when the download is currently running.
-   */
-  RUNNING, /**
-   * State when the download is successful.
-   */
-  SUCCESSFUL, /**
-   * State when the download is failed.
-   */
-  FAILURE,
+  INVALID, /* State invalid(the request is not in queue). */
+
+  PENDING, /* State when the download is currently pending. */
+
+  RUNNING, /* State when the download is currently running. */
+
+  SUCCESSFUL, /* State when the download is successful. */
+
+  FAILURE, /* State when the download is failed. */
 }

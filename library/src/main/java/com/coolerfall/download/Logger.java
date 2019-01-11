@@ -8,7 +8,6 @@ package com.coolerfall.download;
 public interface Logger {
   Logger EMPTY = new Logger() {
     @Override public void log(String message) {
-
     }
   };
 
