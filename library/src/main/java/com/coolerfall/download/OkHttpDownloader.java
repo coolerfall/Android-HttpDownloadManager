@@ -73,11 +73,11 @@ public final class OkHttpDownloader implements Downloader {
   }
 
   @Override public long contentLength() {
-    return response == null ? -1 : response.body().contentLength();
+    return response == null || response.body() == null ? -1 : response.body().contentLength();
   }
 
   @Override public InputStream byteStream() {
-    return response == null ? null : response.body().byteStream();
+    return response == null || response.body() == null ? null : response.body().byteStream();
   }
 
   @Override public void close() {

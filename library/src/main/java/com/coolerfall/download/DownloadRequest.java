@@ -26,6 +26,11 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
           .getAbsolutePath();
 
   /**
+   * Bit flag for all network types.
+   */
+  public static final int NETWORK_ALL = 0;
+
+  /**
    * Bit flag corresponding to {@link ConnectivityManager#TYPE_MOBILE}.
    */
   public static final int NETWORK_MOBILE = 1;
@@ -298,7 +303,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
       this.progressInterval = 100;
       this.priority = Priority.NORMAL;
       this.destinationDirectory = DEFAULT_DIR;
-      this.downloadCallback = DownloadCallback.EMPTY_CALLBACK;
+      this.downloadCallback = DownloadCallbackAdapter.EMPTY_CALLBACK;
     }
 
     public Builder downloadId(int downloadId) {

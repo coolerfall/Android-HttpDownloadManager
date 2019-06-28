@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.coolerfall.download.DownloadCallback;
+import com.coolerfall.download.DownloadCallbackAdapter;
 import com.coolerfall.download.DownloadManager;
 import com.coolerfall.download.DownloadRequest;
 import com.coolerfall.download.Logger;
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       downloadManager.cancel(id);
     } else {
       DownloadRequest request = new DownloadRequest.Builder().url(URL[index])
-          .downloadCallback(new Callback())
+          .downloadCallback(new Listener())
           .retryTime(3)
           .retryInterval(3, TimeUnit.SECONDS)
           .progressInterval(1, TimeUnit.SECONDS)
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     return 0;
   }
 
-  private class Callback extends DownloadCallback {
+  private class Listener extends DownloadCallbackAdapter {
     private long startTimestamp = 0;
     private long startSize = 0;
 
