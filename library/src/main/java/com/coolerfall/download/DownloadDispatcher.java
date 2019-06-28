@@ -226,7 +226,7 @@ final class DownloadDispatcher extends Thread {
           if (request.allowedNetworkTypes() != 0
               && !Utils.isWifi(request.context())
               && (request.allowedNetworkTypes() & DownloadRequest.NETWORK_MOBILE) == 0) {
-            throw new DownloadException(statusCode, "allow network error");
+            throw new DownloadException(statusCode, "allowed network error");
           }
 
           /* read data into buffer from input stream */
