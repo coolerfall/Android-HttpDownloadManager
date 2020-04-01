@@ -134,7 +134,6 @@ public final class DownloadManager {
     private Logger logger;
 
     public Builder() {
-      this.downloader = createDefaultDownloader();
       this.threadPoolSize = 3;
       this.logger = Logger.EMPTY;
     }
@@ -167,6 +166,9 @@ public final class DownloadManager {
     }
 
     public DownloadManager build() {
+      if (downloader == null) {
+        downloader = createDefaultDownloader();
+      }
       return new DownloadManager(this);
     }
   }

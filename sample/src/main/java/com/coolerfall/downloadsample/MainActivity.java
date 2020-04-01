@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
           .retryInterval(3, TimeUnit.SECONDS)
           .progressInterval(1, TimeUnit.SECONDS)
           .priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
-          .allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
+          .allowedNetworkTypes(DownloadRequest.NETWORK_ALL)
           .build();
       int downloadId = downloadManager.add(request);
       ids.put(index, downloadId);
@@ -170,7 +170,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     @SuppressLint("SetTextI18n") @Override
     public void onProgress(int downloadId, long bytesWritten, long totalBytes) {
       int progress = (int) (bytesWritten * 100f / totalBytes);
-      progress = progress == 100 ? 0 : progress;
       long currentTimestamp = System.currentTimeMillis();
       Log.d(TAG, "progress: " + progress);
 
