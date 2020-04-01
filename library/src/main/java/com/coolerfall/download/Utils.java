@@ -121,7 +121,7 @@ public final class Utils {
     if (!TextUtils.isEmpty(contentDisposition)) {
       int index = contentDisposition.indexOf("filename");
       if (index > 0) {
-        filename = contentDisposition.substring(index + 9, contentDisposition.length());
+        filename = contentDisposition.substring(index + 9);
         return filename;
       } else {
         filename = getFilenameFromUrl(url);
