@@ -77,7 +77,7 @@ It's easy to stop:
 Download
 ========
 
-	compile 'com.coolerfall:android-http-download-manager:1.6.2'
+	compile 'com.coolerfall:android-http-download-manager:1.6.3'
 
 Note
 ====
@@ -93,7 +93,7 @@ Credits
 License
 =======
 
-    Copyright (C) 2014-2019 Vincent Cheung
+    Copyright (C) 2014-2020 Vincent Cheung
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
