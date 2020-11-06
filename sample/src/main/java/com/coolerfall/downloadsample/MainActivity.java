@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.coolerfall.download.DownloadCallback;
+import com.coolerfall.download.DownloadCallbackAdapter;
 import com.coolerfall.download.DownloadManager;
 import com.coolerfall.download.DownloadRequest;
 import com.coolerfall.download.Logger;
@@ -131,12 +131,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       downloadManager.cancel(id);
     } else {
       DownloadRequest request = new DownloadRequest.Builder().url(URL[index])
-          .downloadCallback(new Callback())
+          .downloadCallback(new Listener())
           .retryTime(3)
           .retryInterval(3, TimeUnit.SECONDS)
           .progressInterval(1, TimeUnit.SECONDS)
           .priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
-          .allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
+          .allowedNetworkTypes(DownloadRequest.NETWORK_ALL)
           .build();
       int downloadId = downloadManager.add(request);
       ids.put(index, downloadId);
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     return 0;
   }
 
-  private class Callback extends DownloadCallback {
+  private class Listener extends DownloadCallbackAdapter {
     private long startTimestamp = 0;
     private long startSize = 0;
 
@@ -170,7 +170,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     @SuppressLint("SetTextI18n") @Override
     public void onProgress(int downloadId, long bytesWritten, long totalBytes) {
       int progress = (int) (bytesWritten * 100f / totalBytes);
-      progress = progress == 100 ? 0 : progress;
       long currentTimestamp = System.currentTimeMillis();
       Log.d(TAG, "progress: " + progress);
 

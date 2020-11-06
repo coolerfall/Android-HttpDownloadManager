@@ -19,7 +19,7 @@ import static com.coolerfall.download.Utils.HTTP_PARTIAL;
 final class DownloadDispatcher extends Thread {
   private static final int SLEEP_BEFORE_DOWNLOAD = 500;
   private static final int BUFFER_SIZE = 4096;
-  private static final String END_OF_STREAM = "unexpected end of stream";
+  private static final int END_OF_STREAM = -1;
   private static final String DEFAULT_THREAD_NAME = "DownloadDispatcher";
   private static final String IDLE_THREAD_NAME = "DownloadDispatcher-Idle";
 
@@ -183,10 +183,11 @@ final class DownloadDispatcher extends Thread {
       }
 
       File file = new File(request.tempFilePath());
+      boolean fileExsits = file.exists();
       raf = new RandomAccessFile(file, "rw");
       long breakpoint = file.length();
       long bytesWritten = 0;
-      if (file.exists()) {
+      if (fileExsits) {
         /* set the range to continue the downloading */
         raf.seek(breakpoint);
         bytesWritten = breakpoint;
@@ -226,7 +227,7 @@ final class DownloadDispatcher extends Thread {
           if (request.allowedNetworkTypes() != 0
               && !Utils.isWifi(request.context())
               && (request.allowedNetworkTypes() & DownloadRequest.NETWORK_MOBILE) == 0) {
-            throw new DownloadException(statusCode, "allow network error");
+            throw new DownloadException(statusCode, "allowed network error");
           }
 
           /* read data into buffer from input stream */
@@ -234,7 +235,7 @@ final class DownloadDispatcher extends Thread {
           long fileSize = raf.length();
           long totalBytes = noContentLength ? fileSize : contentLength;
 
-          if (length == -1) {
+          if (length == END_OF_STREAM) {
             updateSuccess(request);
             return;
           } else if (length == Integer.MIN_VALUE) {
@@ -272,10 +273,6 @@ final class DownloadDispatcher extends Thread {
     try {
       return is.read(buffer);
     } catch (IOException e) {
-      if (END_OF_STREAM.equals(e.getMessage())) {
-        return -2;
-      }
-
       return Integer.MIN_VALUE;
     }
   }

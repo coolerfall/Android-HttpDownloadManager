@@ -2,13 +2,15 @@ apply plugin: 'com.android.library'
 
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
-  buildToolsVersion rootProject.ext.buildToolsVersion
 
   buildTypes {
     release {
       minifyEnabled false
       proguardFiles 'proguard-rules.pro'
     }
+  }
+  defaultConfig {
+    minSdkVersion 14
   }
 }
 
