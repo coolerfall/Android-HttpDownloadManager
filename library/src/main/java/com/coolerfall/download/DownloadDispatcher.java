@@ -273,6 +273,7 @@ final class DownloadDispatcher extends Thread {
     try {
       return is.read(buffer);
     } catch (IOException e) {
+      logger.log("Transfer data with exception: " + e.getMessage());
       return Integer.MIN_VALUE;
     }
   }

@@ -3,9 +3,7 @@ package com.coolerfall.download;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.coolerfall.download.Preconditions.checkNotNull;
 import static com.coolerfall.download.Utils.HTTP;
 import static com.coolerfall.download.Utils.HTTPS;
+import static com.coolerfall.download.Utils.resolvePath;
 
 /**
  * This class represents a request for downloading, this is designed according to Request in
@@ -21,9 +20,6 @@ import static com.coolerfall.download.Utils.HTTPS;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public final class DownloadRequest implements Comparable<DownloadRequest> {
-  private static final String DEFAULT_DIR =
-      Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-          .getAbsolutePath();
 
   /**
    * Bit flag for all network types.
@@ -46,8 +42,10 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
   private Context context;
   private DownloadState downloadState;
   private final Uri uri;
-  private final String destinationDirectory;
+  private final String relativeDirectory;
+  private final String relativeFilePath;
   private String destinationFilePath;
+  private String destinationDirectory;
   private final long progressInterval;
   private final long retryInterval;
   private DownloadRequestQueue downloadRequestQueue;
@@ -62,9 +60,8 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
     uri = builder.uri;
     priority = checkNotNull(builder.priority, "priority == null");
     retryTime = new AtomicInteger(builder.retryTime);
-    destinationDirectory =
-        checkNotNull(builder.destinationDirectory, "destinationDirectory == null");
-    destinationFilePath = builder.destinationFilePath;
+    relativeDirectory = builder.relativeDirectory;
+    relativeFilePath = builder.relativeFilePath;
     downloadCallback = checkNotNull(builder.downloadCallback, "downloadCallback == null");
     progressInterval = builder.progressInterval;
     retryInterval = builder.retryInterval;
@@ -199,12 +196,29 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
   }
 
   /**
-   * Set context to use.
+   * Attach context to this download request to use.
    *
-   * @param context context
+   * @param context {@link Context}
    */
   void context(Context context) {
     this.context = context;
+  }
+
+  /**
+   * Config root download directory of current app, called by {@link DownloadManager}.
+   *
+   * @param rootDownloadDir root download dir
+   */
+  void rootDownloadDir(String rootDownloadDir) {
+    destinationDirectory = relativeDirectory == null ? rootDownloadDir
+        : resolvePath(rootDownloadDir, relativeDirectory);
+
+    if (relativeFilePath != null) {
+      destinationFilePath = resolvePath(rootDownloadDir, destinationFilePath);
+      if (new File(destinationFilePath).isDirectory()) {
+        throw new IllegalArgumentException("relativeFilePath cannot be a directory");
+      }
+    }
   }
 
   /**
@@ -230,16 +244,16 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
    *
    * @param filename filename to save
    */
-  @SuppressWarnings("ResultOfMethodCallIgnored") void updateDestinationFilePath(String filename) {
-    String separator = destinationDirectory.endsWith("/") ? "" : File.separator;
-    destinationFilePath = destinationDirectory + separator + filename;
-    Log.d("TAG", "destinationFilePath: " + destinationFilePath);
+  @SuppressWarnings({ "ResultOfMethodCallIgnored", "ConstantConditions" })
+  void updateDestinationFilePath(String filename) {
     /* if the destination path is directory */
-    File file = new File(destinationFilePath);
+    File file = new File(resolvePath(destinationDirectory, filename));
     if (!file.getParentFile().exists()) {
       /* make dirs in case */
       file.getParentFile().mkdirs();
     }
+
+    destinationFilePath = file.toString();
   }
 
   /**
@@ -258,6 +272,15 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
    */
   String tempFilePath() {
     return destinationFilePath() + ".tmp";
+  }
+
+  /**
+   * Get relative directory of current request.
+   *
+   * @return relative directory
+   */
+  String relativeDirectory() {
+    return relativeDirectory;
   }
 
   /**
@@ -290,8 +313,8 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
     private Uri uri;
     private int retryTime;
     private long retryInterval;
-    private String destinationDirectory;
-    private String destinationFilePath;
+    private String relativeDirectory;
+    private String relativeFilePath;
     private Priority priority;
     private long progressInterval;
     private int allowedNetworkTypes;
@@ -302,7 +325,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
       this.retryInterval = 3_000;
       this.progressInterval = 100;
       this.priority = Priority.NORMAL;
-      this.destinationDirectory = DEFAULT_DIR;
       this.downloadCallback = DownloadCallbackAdapter.EMPTY_CALLBACK;
     }
 
@@ -324,17 +346,13 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
       return this;
     }
 
-    public Builder destinationDirectory(String destinationDirectory) {
-      this.destinationDirectory = destinationDirectory;
+    public Builder relativeDirectory(String relativeDirectory) {
+      this.relativeDirectory = relativeDirectory;
       return this;
     }
 
-    public Builder destinationFilePath(String destinationFilePath) {
-      /* if the destination path is directory */
-      if (new File(destinationFilePath).isDirectory()) {
-        throw new IllegalArgumentException("destinationFilePath cannot be a directory");
-      }
-      this.destinationFilePath = destinationFilePath;
+    public Builder relativeFilePath(String relativeFilePath) {
+      this.relativeFilePath = relativeFilePath;
       return this;
     }
 
@@ -357,7 +375,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
         throw new IllegalArgumentException("interval <= 0");
       }
 
-      unit = checkNotNull(unit, "unit == null");
+      checkNotNull(unit, "unit == null");
       long millis = unit.toMillis(interval);
       if (millis > Integer.MAX_VALUE) {
         throw new IllegalArgumentException("interval too large");
@@ -372,7 +390,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
         throw new IllegalArgumentException("interval < 0");
       }
 
-      unit = checkNotNull(unit, "unit == null");
+      checkNotNull(unit, "unit == null");
       long millis = unit.toMillis(interval);
       if (millis > Integer.MAX_VALUE) {
         throw new IllegalArgumentException("interval too large");

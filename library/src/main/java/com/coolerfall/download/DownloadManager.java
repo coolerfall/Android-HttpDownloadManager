@@ -1,10 +1,23 @@
 package com.coolerfall.download;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.webkit.MimeTypeMap;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.coolerfall.download.Preconditions.checkNotNull;
+import static com.coolerfall.download.Utils.copy;
 import static com.coolerfall.download.Utils.createDefaultDownloader;
+import static com.coolerfall.download.Utils.resolvePath;
 
 /**
  * A manager used to manage the downloading.
@@ -17,6 +30,7 @@ public final class DownloadManager {
   private final int threadPoolSize;
   private final Logger logger;
   private DownloadRequestQueue downloadRequestQueue;
+  private final String rootDownloadDir;
 
   DownloadManager(Builder builder) {
     context = checkNotNull(builder.context, "context == null").getApplicationContext();
@@ -25,6 +39,10 @@ public final class DownloadManager {
     logger = builder.logger;
     downloadRequestQueue = new DownloadRequestQueue(threadPoolSize, logger);
     downloadRequestQueue.start();
+
+    File downlodDir = context.getExternalFilesDir(DIRECTORY_DOWNLOADS);
+    checkNotNull(downlodDir, "shared storage is not currently available");
+    rootDownloadDir = downlodDir.getAbsolutePath();
   }
 
   /**
@@ -35,12 +53,13 @@ public final class DownloadManager {
    * if the request is in downloading, then -1 will be returned
    */
   public int add(DownloadRequest request) {
-    request = checkNotNull(request, "request == null");
+    checkNotNull(request, "request == null");
     if (isDownloading(request.uri().toString())) {
       return -1;
     }
 
     request.context(context);
+    request.rootDownloadDir(rootDownloadDir);
     request.downloader(downloader.copy());
 
     /* add download request into download request queue */
@@ -120,6 +139,55 @@ public final class DownloadManager {
     if (downloadRequestQueue != null) {
       downloadRequestQueue.release();
       downloadRequestQueue = null;
+    }
+  }
+
+  /**
+   * Copy downloaded file to external public download directory.
+   *
+   * @param filepath filepath of downloaded file
+   * @return true if copy successfully, otherwise return false
+   */
+  public boolean copyToPublicDownloadDir(String filepath) {
+    File publicDownloadDir =
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    String dir = publicDownloadDir.getAbsolutePath();
+    if (!filepath.startsWith(rootDownloadDir)) {
+      throw new IllegalArgumentException("Only files of current app can be exported");
+    }
+    String filename = filepath.substring(filepath.lastIndexOf(File.separator) + 1);
+    String outputFilepath = resolvePath(dir, filepath.substring(rootDownloadDir.length() + 1));
+    FileInputStream fis;
+    try (OutputStream os = openOutputStream(outputFilepath, filename)) {
+      fis = new FileInputStream(filepath);
+      copy(fis, os);
+      return true;
+    } catch (Exception e) {
+      logger.log("Failed to copy file to public download directory: " + e.getMessage());
+      return false;
+    }
+  }
+
+  private OutputStream openOutputStream(String filepath, String filename) throws IOException {
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+      ContentValues contentValues = new ContentValues();
+      contentValues.put(MediaStore.Files.FileColumns.RELATIVE_PATH,
+          Environment.DIRECTORY_DOWNLOADS);
+      contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename);
+      int index = filename.lastIndexOf(".");
+      if (index > 0) {
+        String mimeType =
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(filename.substring(index + 1));
+        contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, mimeType);
+      }
+      ContentResolver contentResolver = context.getContentResolver();
+      Uri uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
+      if (uri == null) {
+        throw new IOException("Cannot get shared download directory");
+      }
+      return contentResolver.openOutputStream(uri);
+    } else {
+      return new FileOutputStream(filepath);
     }
   }
 

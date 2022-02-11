@@ -10,7 +10,7 @@ android {
     }
   }
   defaultConfig {
-    minSdkVersion 14
+    minSdkVersion rootProject.ext.minSdkVersion
   }
 }
 

@@ -34,9 +34,9 @@ public interface DownloadCallback {
    * Invoked when downloading successfully.
    *
    * @param downloadId download id in download request queue
-   * @param filePath file path
+   * @param filepath the filepath of downloaded file
    */
-  void onSuccess(int downloadId, String filePath);
+  void onSuccess(int downloadId, String filepath);
 
   /**
    * Invoked when downloading failed.

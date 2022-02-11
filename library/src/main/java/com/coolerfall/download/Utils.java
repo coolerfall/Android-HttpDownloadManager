@@ -5,6 +5,10 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.text.TextUtils;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLDecoder;
@@ -171,6 +175,40 @@ public final class Utils {
     }
 
     return null;
+  }
+
+  /**
+   * Resolve file path with given root path and relative path.
+   *
+   * @param path the root path
+   * @param other relative path
+   * @return full path
+   */
+  static String resolvePath(String path, String other) {
+    if (path == null) {
+      return null;
+    }
+
+    return path + (path.endsWith(File.separator) ? "" : File.separator) + other;
+  }
+
+  /**
+   * Reads all bytes from an input stream and writes them to an output stream.
+   *
+   * @param source {@link InputStream}
+   * @param sink {@link OutputStream}
+   * @return copied bytes length
+   * @throws IOException
+   */
+  static long copy(InputStream source, OutputStream sink) throws IOException {
+    long nread = 0L;
+    byte[] buf = new byte[8092];
+    int n;
+    while ((n = source.read(buf)) > 0) {
+      sink.write(buf, 0, n);
+      nread += n;
+    }
+    return nread;
   }
 
   /**

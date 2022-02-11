@@ -7,7 +7,7 @@ An useful and effective http download manager for Android. This download manager
 
 Usage
 =====
-* If you don't set the destination file path, the download manager will use `Environment.DIRECTORY_DOWNLOADS` in SDCard as default directory, and it will detect filename automatically from header or url if destinationFilePath not set:
+* After android Q, we can just save files in external private directory and public download directory, so the download manager will use `Context#getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)` as default directory. Tt will detect filename automatically from header or url if `relativeFilePath` was not set:
 ```java
 DownloadManager manager = new DownloadManager.Builder().context(this)
         .downloader(OkHttpDownloader.create(client))
@@ -18,7 +18,7 @@ DownloadManager manager = new DownloadManager.Builder().context(this)
           }
         })
         .build();
-String destPath = Environment.getExternalStorageDirectory() + File.separator + "test.apk";
+
 DownloadRequest request = 
           new DownloadRequest.Builder()
               .url("http://something.to.download")
@@ -27,7 +27,7 @@ DownloadRequest request =
               .progressInterval(1, TimeUnit.SECONDS)
               .priority(Priority.HIGH)
               .allowedNetworkTypes(DownloadRequest.NETWORK_WIFI)
-              .destinationFilePath(destPath)
+              .relativeFilePath("somedir/test.apk")
               .downloadCallback(new DownloadCallback() {
                   @Override public void onStart(int downloadId, long totalBytes) {
 						
@@ -62,15 +62,15 @@ It's easy to stop:
 	manager.cancelAll();
 ```
 
-* If you don't want to set the filename but want to set the download directory, then you can use `destinationDirectory(String directory)`, but this method will be ignored if `destinationFilePath((String filePath)` was used.
+* If you don't want to set the filename but want to set the download directory, then you can use `relativeDirectory(String directory)`, but this method will be ignored if `relativeFilePath((String filePath)` was used.
 * You can also set retry time with method `retryTime(int retryTime)` if necessary, default retry time is 1. You can set retry interval to decide how long to retry with method `retryInterval(long interval, TimeUnit unit)`.
 * This manager support downloading in different network type with method `allowedNetworkTypes(int types)`, the types can be `DownloadRequest.NETWORK_MOBILE` and `DownloadRequest.NETWORK_WIFI`. This method need *android.permission.ACCESS_NETWORK_STATE* permission.
 * The thread pool size of download manager is 3 by default. If you need a larger pool, then you can try the method `threadPoolSize(int poolSize)` in `DownloadManager#Builder`.
-* You need *android.permission.WRITE_EXTERNAL_STORAGE* permission if you don't use public directory in SDCard as download destination file path. Don't forget to add *android.permission.INTERNET* permission.
 * This download manager support breakpoint downloading, so you can restart the downloading after pause.
 * If you don't want DownloadDispathcer invoke `onProgress(int downloadId, long bytesWritten, long totalBytes)` frequently, then you can use `progressInterval(long interval, TimeUnit unit)`.
 * If you want one download request get high priority, then you can use `priority(Priority priority)`.
 * The download manager provides two kinds of `Downloader`(`URLDownloader` and `OkHttpDownloader`), and the it will detect which downloader to use. You can also implement your own `Downloader` just like what `URLDownloader` and `OkHttpDownloader` do.
+* If you want to copy files to external public download directory, `DownloadManager` provides `copyToPublicDownloadDir(String filepath)`.
 
 
 
@@ -94,7 +94,7 @@ License
 =======
 
     Copyright (C) 2014-2020 Vincent Cheung
-
+    
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
