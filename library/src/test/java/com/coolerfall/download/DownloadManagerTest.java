@@ -1,7 +1,6 @@
 package com.coolerfall.download;
 
-import android.os.Environment;
-
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,12 +8,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowApplication;
-import org.robolectric.shadows.ShadowEnvironment;
 import org.robolectric.shadows.ShadowLog;
-
-import java.io.File;
-
-import okhttp3.mockwebserver.MockWebServer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,13 +26,8 @@ public class DownloadManagerTest {
     mockWebServer = new MockWebServer();
     downloadManager = new DownloadManager.Builder().context(
         ShadowApplication.getInstance().getApplicationContext()).build();
-    String filePath =
-        ShadowEnvironment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            + File.separator
-            + "download.apk";
-
     request = new DownloadRequest.Builder().url(mockWebServer.url("/").toString())
-        .destinationFilePath(filePath)
+        .relativeFilePath("/shadow/download.apk")
         .build();
   }
 

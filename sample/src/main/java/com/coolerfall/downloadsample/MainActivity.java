@@ -1,6 +1,5 @@
 package com.coolerfall.downloadsample;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -19,16 +18,15 @@ import com.coolerfall.download.Priority;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
-import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener {
   private static final String TAG = "HttpDownloadManager";
   private static final String[] URL = {
-      "https://github.com/getlantern/lantern-binaries/raw/master/lantern-installer-preview.apk",
-      "https://github.com/getlantern/lantern-binaries/raw/master/lantern-installer.apk",
-      "https://github.com/shadowsocks/shadowsocks-android/releases/download/v4.6.1/shadowsocks-arm64-v8a-4.6.1.apk",
-      "https://github.com/shadowsocks/shadowsocks-android/releases/download/v4.6.1/shadowsocks--universal-4.6.1.apk",
-      "https://github.com/shadowsocks/shadowsocks-android/releases/download/v4.6.1/shadowsocks-x86-4.6.1.apk"
+      "https://f-droid.org/repo/com.gitlab.mahc9kez.shadowsocks.foss_50104000.apk",
+      "https://f-droid.org/repo/org.moire.ultrasonic_100.apk",
+      "https://f-droid.org/repo/com.simplemobiletools.draw.pro_65.apk",
+      "https://f-droid.org/repo/im.vector.app_40103180.apk",
+      "https://f-droid.org/repo/it.reyboz.bustorino_38.apk"
   };
 
   private static final int INDEX_0 = 0;
@@ -36,8 +34,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   private static final int INDEX_2 = 2;
   private static final int INDEX_3 = 3;
   private static final int INDEX_4 = 4;
-  private static final String[] PERMISSIONS =
-      new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE };
   private SparseIntArray ids = new SparseIntArray();
 
   private ProgressBar progressBar;
@@ -81,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         .threadPoolSize(3)
         .logger(new Logger() {
           @Override public void log(String message) {
-            Log.d("TAG", message);
+            Log.d(TAG, message);
           }
         })
         .build();
@@ -93,12 +89,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   }
 
   @Override public void onClick(View v) {
-    if (!EasyPermissions.hasPermissions(this, PERMISSIONS)) {
-      EasyPermissions.requestPermissions(this, "Download need external permission", 0x01,
-          PERMISSIONS);
-      return;
-    }
-
     int index = 0;
 
     switch (v.getId()) {
@@ -132,8 +122,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     } else {
       DownloadRequest request = new DownloadRequest.Builder().url(URL[index])
           .downloadCallback(new Listener())
-          .retryTime(3)
-          .retryInterval(3, TimeUnit.SECONDS)
+          .retryTime(5)
+          .retryInterval(5, TimeUnit.SECONDS)
           .progressInterval(1, TimeUnit.SECONDS)
           .priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
           .allowedNetworkTypes(DownloadRequest.NETWORK_ALL)
@@ -210,8 +200,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       }
     }
 
-    @Override public void onSuccess(int downloadId, String filePath) {
-      Log.d(TAG, "success: " + downloadId + " size: " + new File(filePath).length());
+    @Override public void onSuccess(int downloadId, String filepath) {
+      Log.d(TAG, "success: " + downloadId + " size: " + new File(filepath).length());
+      boolean result = downloadManager.copyToPublicDownloadDir(filepath);
+      Log.e(TAG, "result of copying file: " + result);
     }
 
     @Override public void onFailure(int downloadId, int statusCode, String errMsg) {
