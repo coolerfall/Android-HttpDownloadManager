@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -73,7 +74,7 @@ public final class Utils {
   static String md5(String origin) {
     try {
       MessageDigest md = MessageDigest.getInstance("MD5");
-      md.update(origin.getBytes("UTF-8"));
+      md.update(origin.getBytes(StandardCharsets.UTF_8));
       BigInteger bi = new BigInteger(1, md.digest());
       StringBuilder hash = new StringBuilder(bi.toString(16));
 
@@ -198,7 +199,7 @@ public final class Utils {
    * @param source {@link InputStream}
    * @param sink {@link OutputStream}
    * @return copied bytes length
-   * @throws IOException
+   * @throws IOException if failed to copy stream
    */
   static long copy(InputStream source, OutputStream sink) throws IOException {
     long nread = 0L;
