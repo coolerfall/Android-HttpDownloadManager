@@ -7,7 +7,7 @@ An useful and effective http download manager for Android. This download manager
 
 Usage
 =====
-* After android Q, we can just save files in external private directory and public download directory, so the download manager will use `Context#getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)` as default directory. Tt will detect filename automatically from header or url if `relativeFilePath` was not set:
+* After android Q, we can just save files in external private directory and public download directory, so the download manager will use `Context#getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)` as default directory. It will detect filename automatically from header or url if `relativeFilePath` was not set:
 ```java
 DownloadManager manager = new DownloadManager.Builder().context(this)
         .downloader(OkHttpDownloader.create(client))
@@ -77,7 +77,7 @@ It's easy to stop:
 Download
 ========
 
-	compile 'com.coolerfall:android-http-download-manager:1.6.3'
+	implementation 'com.coolerfall:android-http-download-manager:2.0.0-SNAPSHOT'
 
 Note
 ====
