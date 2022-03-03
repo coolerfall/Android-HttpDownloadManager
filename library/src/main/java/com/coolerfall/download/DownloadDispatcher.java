@@ -223,13 +223,6 @@ final class DownloadDispatcher extends Thread {
             return;
           }
 
-          /* if current is not wifi and mobile network is not allowed, stop */
-          if (request.allowedNetworkTypes() != 0
-              && !Utils.isWifi(request.context())
-              && (request.allowedNetworkTypes() & DownloadRequest.NETWORK_MOBILE) == 0) {
-            throw new DownloadException(statusCode, "allowed network error");
-          }
-
           /* read data into buffer from input stream */
           length = readFromInputStream(buffer, is);
           long fileSize = raf.length();
