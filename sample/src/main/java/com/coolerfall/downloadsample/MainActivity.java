@@ -126,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
           .retryInterval(5, TimeUnit.SECONDS)
           .progressInterval(1, TimeUnit.SECONDS)
           .priority(index == 4 ? Priority.HIGH : Priority.NORMAL)
-          .allowedNetworkTypes(DownloadRequest.NETWORK_ALL)
           .build();
       int downloadId = downloadManager.add(request);
       ids.put(index, downloadId);

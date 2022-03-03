@@ -153,8 +153,10 @@ public final class DownloadManager {
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     String dir = publicDownloadDir.getAbsolutePath();
     if (!filepath.startsWith(rootDownloadDir)) {
-      throw new IllegalArgumentException("Only files of current app can be exported");
+      logger.log("Only files of current app can be exported");
+      return false;
     }
+    
     String filename = filepath.substring(filepath.lastIndexOf(File.separator) + 1);
     String outputFilepath = resolvePath(dir, filepath.substring(rootDownloadDir.length() + 1));
     FileInputStream fis;

@@ -1,7 +1,6 @@
 package com.coolerfall.download;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import java.io.File;
@@ -21,24 +20,8 @@ import static com.coolerfall.download.Utils.resolvePath;
  */
 public final class DownloadRequest implements Comparable<DownloadRequest> {
 
-  /**
-   * Bit flag for all network types.
-   */
-  public static final int NETWORK_ALL = 0;
-
-  /**
-   * Bit flag corresponding to {@link ConnectivityManager#TYPE_MOBILE}.
-   */
-  public static final int NETWORK_MOBILE = 1;
-
-  /**
-   * Bit flag corresponding to {@link ConnectivityManager#TYPE_WIFI}.
-   */
-  public static final int NETWORK_WIFI = 1 << 1;
-
   private int downloadId;
   private final AtomicInteger retryTime;
-  private int allowedNetworkTypes;
   private Context context;
   private DownloadState downloadState;
   private final Uri uri;
@@ -65,7 +48,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
     downloadCallback = checkNotNull(builder.downloadCallback, "downloadCallback == null");
     progressInterval = builder.progressInterval;
     retryInterval = builder.retryInterval;
-    allowedNetworkTypes = builder.allowedNetworkTypes;
     downloadState = DownloadState.PENDING;
     timestamp = System.currentTimeMillis();
   }
@@ -184,15 +166,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
    */
   long retryInterval() {
     return retryInterval;
-  }
-
-  /**
-   * Get the types of allowed network.
-   *
-   * @return all the types
-   */
-  int allowedNetworkTypes() {
-    return allowedNetworkTypes;
   }
 
   /**
@@ -317,7 +290,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
     private String relativeFilePath;
     private Priority priority;
     private long progressInterval;
-    private int allowedNetworkTypes;
     private DownloadCallback downloadCallback;
 
     public Builder() {
@@ -397,11 +369,6 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
       }
 
       this.progressInterval = millis;
-      return this;
-    }
-
-    public Builder allowedNetworkTypes(int allowedNetworkTypes) {
-      this.allowedNetworkTypes = allowedNetworkTypes;
       return this;
     }
 

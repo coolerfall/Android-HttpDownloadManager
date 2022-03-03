@@ -1,9 +1,6 @@
 package com.coolerfall.download;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.text.TextUtils;
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +26,8 @@ import javax.net.ssl.X509TrustManager;
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 public final class Utils {
-  static final int DEFAULT_READ_TIMEOUT = 25 * 1000;
-  static final int DEFAULT_WRITE_TIMEOUT = 25 * 1000;
+  static final int DEFAULT_READ_TIMEOUT = 30 * 1000;
+  static final int DEFAULT_WRITE_TIMEOUT = 30 * 1000;
   static final int DEFAULT_CONNECT_TIMEOUT = 20 * 1000;
   static final String HTTP = "http";
   static final String HTTPS = "https";
@@ -42,27 +39,6 @@ public final class Utils {
   static final int HTTP_TEMP_REDIRECT = 307;
 
   private Utils() {
-  }
-
-  /**
-   * To check whether current network is wifi.
-   *
-   * @param context context
-   * @return true if network if wifi, otherwise return false
-   */
-  static boolean isWifi(Context context) {
-    if (context == null) {
-      return false;
-    }
-
-    ConnectivityManager manager =
-        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    if (manager == null) {
-      return false;
-    }
-    NetworkInfo info = manager.getActiveNetworkInfo();
-
-    return info != null && (info.getType() == ConnectivityManager.TYPE_WIFI);
   }
 
   /* get uuid without '-' */
