@@ -7,12 +7,11 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.concurrent.BlockingQueue;
 
-import static com.coolerfall.download.Utils.HTTP_OK;
-import static com.coolerfall.download.Utils.HTTP_PARTIAL;
+import static com.coolerfall.download.Helper.HTTP_OK;
+import static com.coolerfall.download.Helper.HTTP_PARTIAL;
 
 /**
- * This class used to dispatch downloader, this is desinged according to NetworkDispatcher in
- * Android-Volley.
+ * This class used to dispatch downloader which will dispatch the download task.
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */

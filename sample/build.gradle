@@ -27,6 +27,5 @@ dependencies {
   implementation rootProject.ext.appcompatV7
   implementation rootProject.ext.okHttp3
   implementation rootProject.ext.loggingInterceptor
-  implementation rootProject.ext.easypermissions
   implementation project(':library')
 }

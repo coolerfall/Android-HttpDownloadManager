@@ -2,19 +2,18 @@ package com.coolerfall.download;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.coolerfall.download.Helper.HTTP;
+import static com.coolerfall.download.Helper.HTTPS;
+import static com.coolerfall.download.Helper.resolvePath;
 import static com.coolerfall.download.Preconditions.checkNotNull;
-import static com.coolerfall.download.Utils.HTTP;
-import static com.coolerfall.download.Utils.HTTPS;
-import static com.coolerfall.download.Utils.resolvePath;
 
 /**
- * This class represents a request for downloading, this is designed according to Request in
- * Andoird-Volley.
+ * This class represents a request for downloading which contains necessary configuration.
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
@@ -297,7 +296,7 @@ public final class DownloadRequest implements Comparable<DownloadRequest> {
       this.retryInterval = 3_000;
       this.progressInterval = 100;
       this.priority = Priority.NORMAL;
-      this.downloadCallback = DownloadCallbackAdapter.EMPTY_CALLBACK;
+      this.downloadCallback = DownloadCallback.EMPTY_CALLBACK;
     }
 
     public Builder downloadId(int downloadId) {

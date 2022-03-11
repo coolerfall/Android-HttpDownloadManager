@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 def isReleaseBuild() {
-  return VERSION_NAME.contains("SNAPSHOT") == false
+  return !VERSION_NAME.contains("SNAPSHOT")
 }
 
 def getReleaseRepositoryUrl() {
@@ -39,77 +39,73 @@ def getRepositoryPassword() {
   return hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
 }
 
-afterEvaluate { project ->
-  uploadArchives {
-    repositories {
-      mavenDeployer {
-        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+task androidJavadocs(type: Javadoc) {
+  failOnError = false
+  source = android.sourceSets.main.java.srcDirs
+  classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
 
-        repository(url: getReleaseRepositoryUrl()) {
-          authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
-        }
-        snapshotRepository(url: getSnapshotRepositoryUrl()) {
-          authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
-        }
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+  archiveClassifier = 'javadoc'
+  from androidJavadocs.destinationDir
+}
 
-        pom.project {
-          groupId POM_GROUP_ID
-          artifactId POM_ARTIFACT_ID
-          version VERSION_NAME
-          name POM_NAME
-          packaging POM_PACKAGING
-          description POM_DESCRIPTION
-          url POM_URL
+task androidSourcesJar(type: Jar) {
+  archiveClassifier = 'sources'
+  from android.sourceSets.main.java.srcDirs
+}
 
-          scm {
-            url POM_SCM_URL
-            connection POM_SCM_CONNECTION
-            developerConnection POM_SCM_DEV_CONNECTION
-          }
+afterEvaluate {
+  publishing {
+    publications {
+      nexus(MavenPublication) {
+        artifact bundleReleaseAar
+        artifact androidJavadocsJar
+        artifact androidSourcesJar
 
+        groupId = POM_GROUP_ID
+        artifactId = POM_ARTIFACT_ID
+        version = VERSION_NAME
+
+        pom {
+          name = POM_NAME
+          description = POM_DESCRIPTION
+          url = POM_URL
           licenses {
             license {
-              name POM_LICENCE_NAME
-              url POM_LICENCE_URL
-              distribution POM_LICENCE_DIST
+              name = POM_LICENCE_NAME
+              url = POM_LICENCE_URL
             }
           }
-
           developers {
             developer {
-              id POM_DEVELOPER_ID
-              name POM_DEVELOPER_NAME
+              id = POM_DEVELOPER_ID
+              name = POM_DEVELOPER_NAME
+              email = POM_DEVELOPER_EMAIL
             }
           }
+          scm {
+            connection = POM_SCM_CONNECTION
+            developerConnection = POM_SCM_DEV_CONNECTION
+            url = POM_LICENCE_URL
+          }
+        }
+      }
+    }
+
+    repositories {
+      maven {
+        url = isReleaseBuild() ?  getReleaseRepositoryUrl() : getSnapshotRepositoryUrl()
+        credentials {
+          username = getRepositoryUsername()
+          password = getRepositoryPassword()
         }
       }
     }
   }
 
   signing {
-    required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
-  }
-
-  task androidJavadocs(type: Javadoc) {
-    failOnError = false
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-  }
-
-  task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-    classifier = 'javadoc'
-    from androidJavadocs.destinationDir
-  }
-
-  task androidSourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.srcDirs
-  }
-
-  artifacts {
-    //		archives packageReleaseJar
-    archives androidSourcesJar
-    archives androidJavadocsJar
+    required { isReleaseBuild() }
+    sign publishing.publications.nexus
   }
 }

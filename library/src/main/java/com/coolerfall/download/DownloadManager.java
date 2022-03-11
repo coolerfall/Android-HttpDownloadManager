@@ -15,9 +15,9 @@ import java.io.OutputStream;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.coolerfall.download.Preconditions.checkNotNull;
-import static com.coolerfall.download.Utils.copy;
-import static com.coolerfall.download.Utils.createDefaultDownloader;
-import static com.coolerfall.download.Utils.resolvePath;
+import static com.coolerfall.download.Helper.copy;
+import static com.coolerfall.download.Helper.createDefaultDownloader;
+import static com.coolerfall.download.Helper.resolvePath;
 
 /**
  * A manager used to manage the downloading.

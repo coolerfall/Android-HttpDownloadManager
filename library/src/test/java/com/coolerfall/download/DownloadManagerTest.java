@@ -6,8 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowLog;
 
 import static org.junit.Assert.assertEquals;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
-@RunWith(RobolectricTestRunner.class) @Config(constants = BuildConfig.class, sdk = 21)
+@RunWith(RobolectricTestRunner.class) @Config(sdk = 29, manifest = Config.NONE)
 public class DownloadManagerTest {
   private MockWebServer mockWebServer;
   private DownloadManager downloadManager;
@@ -25,7 +25,7 @@ public class DownloadManagerTest {
     ShadowLog.stream = System.out;
     mockWebServer = new MockWebServer();
     downloadManager = new DownloadManager.Builder().context(
-        ShadowApplication.getInstance().getApplicationContext()).build();
+        RuntimeEnvironment.getApplication().getApplicationContext()).build();
     request = new DownloadRequest.Builder().url(mockWebServer.url("/").toString())
         .relativeFilePath("/shadow/download.apk")
         .build();
