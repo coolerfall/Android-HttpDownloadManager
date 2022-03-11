@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -16,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
-@RunWith(RobolectricTestRunner.class) @Config(constants = BuildConfig.class, sdk = 21)
+@RunWith(RobolectricTestRunner.class)
 public class URLDownloaderTest {
   private static final int CONTENT_LENGTH = 1024 * 1024 * 5;
   private Uri mockUri;
@@ -58,15 +57,5 @@ public class URLDownloaderTest {
     mockWebServer.enqueue(response);
     urlDownloader.start(mockUri, 0);
     assertEquals(CONTENT_LENGTH, urlDownloader.contentLength());
-  }
-
-  @Test public void testBadUrl() {
-    try {
-      urlDownloader.start(Uri.parse("www.baidu.com"), 0);
-    } catch (Exception e) {
-      if (e instanceof IllegalArgumentException) {
-        assertEquals("unexpected url: www.baidu.com", e.getMessage());
-      }
-    }
   }
 }

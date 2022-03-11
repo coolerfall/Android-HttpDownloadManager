@@ -12,12 +12,19 @@ android {
   defaultConfig {
     minSdkVersion rootProject.ext.minSdkVersion
   }
+
+  testOptions {
+    unitTests {
+      includeAndroidResources = true
+    }
+  }
 }
 
 dependencies {
   compileOnly rootProject.ext.supportAnnotations
   compileOnly rootProject.ext.okHttp3
 
+  testImplementation rootProject.ext.junit
   testImplementation rootProject.ext.robolectric
   testImplementation rootProject.ext.mockWebServer
 }

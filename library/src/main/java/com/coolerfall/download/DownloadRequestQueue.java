@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -217,9 +218,7 @@ final class DownloadRequestQueue {
     if (dispatchers != null) {
       stop();
 
-      for (int i = 0; i < dispatchers.length; i++) {
-        dispatchers[i] = null;
-      }
+      Arrays.fill(dispatchers, null);
 
       dispatchers = null;
     }

@@ -2,22 +2,24 @@ package com.coolerfall.downloadsample;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.coolerfall.download.DownloadCallbackAdapter;
+import androidx.appcompat.app.AppCompatActivity;
+import com.coolerfall.download.DownloadCallback;
 import com.coolerfall.download.DownloadManager;
 import com.coolerfall.download.DownloadRequest;
-import com.coolerfall.download.Logger;
 import com.coolerfall.download.OkHttpDownloader;
 import com.coolerfall.download.Priority;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
+
+import static com.coolerfall.downloadsample.R.id;
+import static com.coolerfall.downloadsample.R.layout;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener {
   private static final String TAG = "HttpDownloadManager";
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   private static final int INDEX_2 = 2;
   private static final int INDEX_3 = 3;
   private static final int INDEX_4 = 4;
-  private SparseIntArray ids = new SparseIntArray();
+  private final SparseIntArray ids = new SparseIntArray();
 
   private ProgressBar progressBar;
   private ProgressBar progressBar1;
@@ -51,35 +53,31 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
+    setContentView(layout.activity_main);
 
-    findViewById(R.id.download_btn_start).setOnClickListener(this);
-    findViewById(R.id.download_btn_start1).setOnClickListener(this);
-    findViewById(R.id.download_btn_start2).setOnClickListener(this);
-    findViewById(R.id.download_btn_start3).setOnClickListener(this);
-    findViewById(R.id.download_btn_start4).setOnClickListener(this);
+    findViewById(id.download_btn_start).setOnClickListener(this);
+    findViewById(id.download_btn_start1).setOnClickListener(this);
+    findViewById(id.download_btn_start2).setOnClickListener(this);
+    findViewById(id.download_btn_start3).setOnClickListener(this);
+    findViewById(id.download_btn_start4).setOnClickListener(this);
 
-    progressBar = findViewById(R.id.download_progress);
-    progressBar1 = findViewById(R.id.download_progress1);
-    progressBar2 = findViewById(R.id.download_progress2);
-    progressBar3 = findViewById(R.id.download_progress3);
-    progressBar4 = findViewById(R.id.download_progress4);
+    progressBar = findViewById(id.download_progress);
+    progressBar1 = findViewById(id.download_progress1);
+    progressBar2 = findViewById(id.download_progress2);
+    progressBar3 = findViewById(id.download_progress3);
+    progressBar4 = findViewById(id.download_progress4);
 
-    textSpeed = findViewById(R.id.download_tv_speed0);
-    textSpeed1 = findViewById(R.id.download_tv_speed1);
-    textSpeed2 = findViewById(R.id.download_tv_speed2);
-    textSpeed3 = findViewById(R.id.download_tv_speed3);
-    textSpeed4 = findViewById(R.id.download_tv_speed4);
+    textSpeed = findViewById(id.download_tv_speed0);
+    textSpeed1 = findViewById(id.download_tv_speed1);
+    textSpeed2 = findViewById(id.download_tv_speed2);
+    textSpeed3 = findViewById(id.download_tv_speed3);
+    textSpeed4 = findViewById(id.download_tv_speed4);
 
     OkHttpClient client = new OkHttpClient.Builder().build();
     downloadManager = new DownloadManager.Builder().context(this)
         .downloader(OkHttpDownloader.create(client))
         .threadPoolSize(3)
-        .logger(new Logger() {
-          @Override public void log(String message) {
-            Log.d(TAG, message);
-          }
-        })
+        .logger(message -> Log.d(TAG, message))
         .build();
   }
 
@@ -91,29 +89,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   @Override public void onClick(View v) {
     int index = 0;
 
-    switch (v.getId()) {
-      case R.id.download_btn_start:
-        index = INDEX_0;
-        break;
-
-      case R.id.download_btn_start1:
-        index = INDEX_1;
-        break;
-
-      case R.id.download_btn_start2:
-        index = INDEX_2;
-        break;
-
-      case R.id.download_btn_start3:
-        index = INDEX_3;
-        break;
-
-      case R.id.download_btn_start4:
-        index = INDEX_4;
-        break;
-
-      default:
-        break;
+    int btnId = v.getId();
+    if (btnId == R.id.download_btn_start) {
+      index = INDEX_0;
+    } else if (btnId == R.id.download_btn_start1) {
+      index = INDEX_1;
+    } else if (btnId == R.id.download_btn_start2) {
+      index = INDEX_2;
+    } else if (btnId == R.id.download_btn_start3) {
+      index = INDEX_3;
+    } else if (btnId == R.id.download_btn_start4) {
+      index = INDEX_4;
     }
 
     int id = ids.get(index, -1);
@@ -142,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     return 0;
   }
 
-  private class Listener extends DownloadCallbackAdapter {
+  private class Listener implements DownloadCallback {
     private long startTimestamp = 0;
     private long startSize = 0;
 
@@ -202,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     @Override public void onSuccess(int downloadId, String filepath) {
       Log.d(TAG, "success: " + downloadId + " size: " + new File(filepath).length());
       boolean result = downloadManager.copyToPublicDownloadDir(filepath);
-      Log.e(TAG, "result of copying file: " + result);
+      Log.i(TAG, "result of copying file: " + result);
     }
 
     @Override public void onFailure(int downloadId, int statusCode, String errMsg) {

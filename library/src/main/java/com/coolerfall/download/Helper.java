@@ -25,7 +25,7 @@ import javax.net.ssl.X509TrustManager;
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public final class Utils {
+public final class Helper {
   static final int DEFAULT_READ_TIMEOUT = 30 * 1000;
   static final int DEFAULT_WRITE_TIMEOUT = 30 * 1000;
   static final int DEFAULT_CONNECT_TIMEOUT = 20 * 1000;
@@ -38,7 +38,7 @@ public final class Utils {
   static final int HTTP_PARTIAL = 206;
   static final int HTTP_TEMP_REDIRECT = 307;
 
-  private Utils() {
+  private Helper() {
   }
 
   /* get uuid without '-' */
