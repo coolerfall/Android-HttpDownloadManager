@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
@@ -18,13 +19,18 @@ android {
     }
   }
 
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
   lintOptions {
     abortOnError false
   }
 }
 
 dependencies {
-  implementation rootProject.ext.appcompatV7
+  implementation rootProject.ext.appcompat
   implementation rootProject.ext.okHttp3
   implementation rootProject.ext.loggingInterceptor
   implementation project(':library')

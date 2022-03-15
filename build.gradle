@@ -5,6 +5,7 @@ buildscript {
   }
   dependencies {
     classpath 'com.android.tools.build:gradle:7.1.2'
+    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10'
   }
 }
 
@@ -21,7 +22,7 @@ ext {
   targetSdkVersion = 30
 
   supportAnnotations = 'androidx.annotation:annotation:1.1.0'
-  appcompatV7 = 'androidx.appcompat:appcompat:1.1.0'
+  appcompat = 'androidx.appcompat:appcompat:1.1.0'
   okHttp3 = 'com.squareup.okhttp3:okhttp:4.9.3'
   loggingInterceptor = 'com.squareup.okhttp3:logging-interceptor:4.9.3'
 
