@@ -8,7 +8,7 @@ package com.coolerfall.download
 fun interface Logger {
 
   companion object {
-    val EMPTY: Logger = Logger { }
+    internal val EMPTY: Logger = Logger { }
   }
 
   /**

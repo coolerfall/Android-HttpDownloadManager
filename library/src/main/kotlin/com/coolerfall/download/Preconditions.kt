@@ -24,7 +24,7 @@ object Preconditions {
    * @return the non-null reference that was validated
    * @throws NullPointerException if `reference` is null
    */
-  @JvmStatic fun <T> checkNotNull(
+  fun <T> checkNotNull(
     reference: T?,
     message: String?
   ): T {

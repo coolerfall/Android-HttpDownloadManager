@@ -85,7 +85,7 @@ class OkHttpDownloader private constructor(client: OkHttpClient?) : Downloader {
 
   @Throws(IOException::class) fun innerRequest(
     client: OkHttpClient,
-    uri: Uri?,
+    uri: Uri,
     breakpoint: Long
   ): Response {
     val builder: Request.Builder = Request.Builder()

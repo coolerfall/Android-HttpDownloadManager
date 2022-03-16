@@ -26,6 +26,13 @@ internal class DownloadDispatcher(
   @Volatile
   private var quit = false
 
+  companion object {
+    private const val BUFFER_SIZE = 4096
+    private const val END_OF_STREAM = -1
+    private const val DEFAULT_THREAD_NAME = "DownloadDispatcher"
+    private const val IDLE_THREAD_NAME = "DownloadDispatcher-Idle"
+  }
+
   init {
     /* set thread name to idle */
     name = IDLE_THREAD_NAME
@@ -58,58 +65,58 @@ internal class DownloadDispatcher(
     request: DownloadRequest?,
     state: DownloadState
   ) {
-    request!!.updateDownloadState(state)
+    request?.updateDownloadState(state)
   }
 
   /* update download start state */
   private fun updateStart(
-    request: DownloadRequest?,
+    request: DownloadRequest,
     totalBytes: Long
   ) {
     /* if the request has failed before, donnot deliver callback */
-    if (request!!.downloadState() === FAILURE) {
+    if (request.downloadState() === FAILURE) {
       updateState(request, RUNNING)
       return
     }
 
     /* set the download state of this request as running */
     updateState(request, RUNNING)
-    delivery.postStart(request!!, totalBytes)
+    delivery.postStart(request, totalBytes)
   }
 
   /* update download retrying */
-  private fun updateRetry(request: DownloadRequest?) {
-    delivery.postRetry(request!!)
+  private fun updateRetry(request: DownloadRequest) {
+    delivery.postRetry(request)
   }
 
   /* update download progress */
   private fun updateProgress(
-    request: DownloadRequest?,
+    request: DownloadRequest,
     bytesWritten: Long,
     totalBytes: Long
   ) {
     val currentTimestamp = System.currentTimeMillis()
     if (bytesWritten != totalBytes
-        && currentTimestamp - lastProgressTimestamp < request!!.progressInterval()
+        && currentTimestamp - lastProgressTimestamp < request.progressInterval()
     ) {
       return
     }
 
     /* save progress timestamp */
     lastProgressTimestamp = currentTimestamp
-    if (!request!!.isCanceled) {
+    if (!request.isCanceled) {
       delivery.postProgress(request, bytesWritten, totalBytes)
     }
   }
 
   /* update download success */
   private fun updateSuccess(
-    request: DownloadRequest?
+    request: DownloadRequest
   ) {
     updateState(request, SUCCESSFUL)
 
     /* notify the request download finish */
-    request!!.finish()
+    request.finish()
     val file = File(request.tempFilePath())
     if (file.exists()) {
       file.renameTo(File(request.destinationFilePath()))
@@ -121,14 +128,14 @@ internal class DownloadDispatcher(
 
   /* update download failure */
   private fun updateFailure(
-    request: DownloadRequest?,
+    request: DownloadRequest,
     statusCode: Int,
     errMsg: String?
   ) {
     updateState(request, FAILURE)
 
     /* if the status code is 0, may be cause by the net error */
-    val leftRetryTime = request!!.retryTime()
+    val leftRetryTime = request.retryTime()
     if (leftRetryTime >= 0) {
       try {
         /* sleep a while before retrying */
@@ -158,11 +165,11 @@ internal class DownloadDispatcher(
   }
 
   /* execute downloading */
-  private fun executeDownload(request: DownloadRequest?) {
+  private fun executeDownload(request: DownloadRequest) {
     if (currentThread().isInterrupted) {
       return
     }
-    val downloader = request!!.downloader()!!
+    val downloader = request.downloader()!!
     var raf: RandomAccessFile? = null
     var `is`: InputStream? = null
     try {
@@ -261,28 +268,21 @@ internal class DownloadDispatcher(
     interrupt()
   }
 
-  companion object {
-    private const val BUFFER_SIZE = 4096
-    private const val END_OF_STREAM = -1
-    private const val DEFAULT_THREAD_NAME = "DownloadDispatcher"
-    private const val IDLE_THREAD_NAME = "DownloadDispatcher-Idle"
-
-    /* a utility function to close a random access file without raising an exception */
-    fun silentCloseFile(raf: RandomAccessFile?) {
-      if (raf != null) {
-        try {
-          raf.close()
-        } catch (ignore: IOException) {
-        }
-      }
-    }
-
-    /* a utility function to close an input stream without raising an exception */
-    fun silentCloseInputStream(`is`: InputStream?) {
+  /* a utility function to close a random access file without raising an exception */
+  private fun silentCloseFile(raf: RandomAccessFile?) {
+    if (raf != null) {
       try {
-        `is`?.close()
+        raf.close()
       } catch (ignore: IOException) {
       }
+    }
+  }
+
+  /* a utility function to close an input stream without raising an exception */
+  private fun silentCloseInputStream(`is`: InputStream?) {
+    try {
+      `is`?.close()
+    } catch (ignore: IOException) {
     }
   }
 }

@@ -20,7 +20,7 @@ import java.util.UUID
 object Helper {
   const val DEFAULT_READ_TIMEOUT = 30 * 1000
   const val DEFAULT_WRITE_TIMEOUT = 30 * 1000
-  const val DEFAULT_CONNECT_TIMEOUT = 20 * 1000
+  const val DEFAULT_CONNECT_TIMEOUT = 30 * 1000
   const val HTTP = "http"
   const val HTTPS = "https"
   const val LOCATION = "Location"
@@ -115,7 +115,7 @@ object Helper {
    * @param other relative path
    * @return full path
    */
-  @JvmStatic fun resolvePath(
+  internal fun resolvePath(
     path: String,
     other: String
   ): String {
@@ -130,7 +130,7 @@ object Helper {
    * @return copied bytes length
    * @throws IOException if failed to copy stream
    */
-  @JvmStatic @Throws(IOException::class) fun copy(
+  @Throws(IOException::class) internal fun copy(
     source: InputStream,
     sink: OutputStream
   ): Long {
@@ -151,7 +151,7 @@ object Helper {
    *
    * @return [Downloader]
    */
-  @JvmStatic fun createDefaultDownloader(): Downloader {
+  internal fun createDefaultDownloader(): Downloader {
     return try {
       Class.forName("okhttp3.OkHttpClient")
       OkHttpDownloader.create()

@@ -31,19 +31,14 @@ class DownloadRequestQueue(
    * any dispatcher.
    */
   private val currentRequests: MutableSet<DownloadRequest> = HashSet()
-  private var downloadQueue: PriorityBlockingQueue<DownloadRequest>? =
+  private var downloadQueue: PriorityBlockingQueue<DownloadRequest> =
     PriorityBlockingQueue(CAPACITY)
-  private var dispatchers: Array<DownloadDispatcher?>?
-  private val delivery: DownloadDelivery
+  private val dispatchers: Array<DownloadDispatcher?> = arrayOfNulls(
+      if (threadPoolSize < 1 || threadPoolSize > 10)
+        DEFAULT_DOWNLOAD_THREAD_POOL_SIZE else threadPoolSize
+  )
+  private val delivery: DownloadDelivery = DownloadDelivery(Handler(Looper.getMainLooper()))
   private val sequenceGenerator = AtomicInteger()
-
-  init {
-    dispatchers = arrayOfNulls(
-        if (threadPoolSize < 1 || threadPoolSize > 10)
-          DEFAULT_DOWNLOAD_THREAD_POOL_SIZE else threadPoolSize
-    )
-    delivery = DownloadDelivery(Handler(Looper.getMainLooper()))
-  }
 
   /**
    * Starts the dispatchers in this queue.
@@ -53,19 +48,19 @@ class DownloadRequestQueue(
     stop()
 
     /* create the download dispatcher and start it. */
-    for (i in dispatchers!!.indices) {
-      val dispatcher = DownloadDispatcher(downloadQueue!!, delivery, logger)
-      dispatchers!![i] = dispatcher
+    for (i in dispatchers.indices) {
+      val dispatcher = DownloadDispatcher(downloadQueue, delivery, logger)
+      dispatchers[i] = dispatcher
       dispatcher.start()
     }
-    logger.log("Thread pool size: " + dispatchers!!.size)
+    logger.log("Thread pool size: " + dispatchers.size)
   }
 
   /**
    * Stops the download dispatchers.
    */
   private fun stop() {
-    for (dispatcher in dispatchers!!) {
+    for (dispatcher in dispatchers) {
       dispatcher?.quit()
     }
   }
@@ -95,7 +90,7 @@ class DownloadRequestQueue(
     }
 
     /* process requests in the order they are added in */
-    downloadQueue!!.add(request)
+    downloadQueue.add(request)
     return true
   }
 
@@ -198,15 +193,10 @@ class DownloadRequestQueue(
     cancelAll()
 
     /* release download queue */
-    if (downloadQueue != null) {
-      downloadQueue = null
-    }
+    downloadQueue.clear()
 
     /* release dispathcers */
-    if (dispatchers != null) {
-      stop()
-      dispatchers?.fill(null)
-      dispatchers = null
-    }
+    stop()
+    dispatchers.fill(null)
   }
 }
