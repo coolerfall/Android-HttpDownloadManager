@@ -30,7 +30,7 @@ class DownloadManager internal constructor(builder: Builder) {
   private val downloader: Downloader
   private val threadPoolSize: Int
   private val logger: Logger
-  private var downloadRequestQueue: DownloadRequestQueue?
+  private val downloadRequestQueue: DownloadRequestQueue
   private val rootDownloadDir: String
 
   init {
@@ -39,10 +39,10 @@ class DownloadManager internal constructor(builder: Builder) {
     threadPoolSize = builder.threadPoolSize
     logger = builder.logger
     downloadRequestQueue = DownloadRequestQueue(threadPoolSize, logger)
-    downloadRequestQueue!!.start()
-    val downlodDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-    checkNotNull(downlodDir, "shared storage is not currently available")
-    rootDownloadDir = downlodDir!!.absolutePath
+    downloadRequestQueue.start()
+    val downloadDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+    checkNotNull(downloadDir, "shared storage is not currently available")
+    rootDownloadDir = downloadDir?.absolutePath ?: ""
   }
 
   /**
@@ -65,7 +65,7 @@ class DownloadManager internal constructor(builder: Builder) {
     request.downloader(downloader.copy())
 
     /* add download request into download request queue */
-    return if (downloadRequestQueue!!.add(request)) request.downloadId() else -1
+    return if (downloadRequestQueue.add(request)) request.downloadId() else -1
   }
 
   /**
@@ -75,7 +75,7 @@ class DownloadManager internal constructor(builder: Builder) {
    * @return download state
    */
   fun query(downloadId: Int): DownloadState {
-    return downloadRequestQueue!!.query(downloadId)
+    return downloadRequestQueue.query(downloadId)
   }
 
   /**
@@ -84,8 +84,8 @@ class DownloadManager internal constructor(builder: Builder) {
    * @param url download url
    * @return download state
    */
-  fun query(url: String?): DownloadState {
-    return downloadRequestQueue!!.query(Uri.parse(url))
+  fun query(url: String): DownloadState {
+    return downloadRequestQueue.query(Uri.parse(url))
   }
 
   /**
@@ -104,7 +104,7 @@ class DownloadManager internal constructor(builder: Builder) {
    * @param url downalod url
    * @return true if was downloading, otherwise return false
    */
-  fun isDownloading(url: String?): Boolean {
+  fun isDownloading(url: String): Boolean {
     return query(url) !== INVALID
   }
 
@@ -114,7 +114,7 @@ class DownloadManager internal constructor(builder: Builder) {
    * @return the task size
    */
   val taskSize: Int
-    get() = if (downloadRequestQueue == null) 0 else downloadRequestQueue!!.downloadingSize
+    get() = downloadRequestQueue.downloadingSize
 
   /**
    * Cancel the download according to download id.
@@ -123,24 +123,21 @@ class DownloadManager internal constructor(builder: Builder) {
    * @return true if download has canceled, otherwise return false
    */
   fun cancel(downloadId: Int): Boolean {
-    return downloadRequestQueue!!.cancel(downloadId)
+    return downloadRequestQueue.cancel(downloadId)
   }
 
   /**
    * Cancel all the downloading in queue.
    */
   fun cancelAll() {
-    downloadRequestQueue!!.cancelAll()
+    downloadRequestQueue.cancelAll()
   }
 
   /**
    * Release all the resource.
    */
   fun release() {
-    if (downloadRequestQueue != null) {
-      downloadRequestQueue!!.release()
-      downloadRequestQueue = null
-    }
+    downloadRequestQueue.release()
   }
 
   /**

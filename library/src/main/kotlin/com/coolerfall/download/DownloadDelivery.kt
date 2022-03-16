@@ -11,7 +11,7 @@ import java.lang.Runnable
  */
 internal class DownloadDelivery(handler: Handler) {
 
-  private val downloadPoster: Executor = Executor { r: Runnable? -> handler.post(r!!) }
+  private val downloadPoster: Executor = Executor { r: Runnable -> handler.post(r) }
 
   /**
    * Post download start event.

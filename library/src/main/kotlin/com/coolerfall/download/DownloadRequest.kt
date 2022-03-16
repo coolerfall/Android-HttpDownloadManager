@@ -34,7 +34,7 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
 
   init {
     downloadId = builder.downloadId
-    uri = checkNotNull(builder.uri, "")
+    uri = checkNotNull(builder.uri, "uri == null")
     priority = checkNotNull(builder.priority, "priority == null")
     retryTime = AtomicInteger(builder.retryTime)
     relativeDirectory = builder.relativeDirectory
@@ -90,7 +90,7 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
    *
    * @param downloader [Downloader]
    */
-  fun downloader(downloader: Downloader) {
+  internal fun downloader(downloader: Downloader) {
     this.downloader = downloader
   }
 
@@ -109,7 +109,7 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
    *
    * @param queue download request queue
    */
-  fun downloadRequestQueue(queue: DownloadRequestQueue) {
+  internal fun downloadRequestQueue(queue: DownloadRequestQueue) {
     downloadRequestQueue = queue
     if (downloadId < 0) {
       downloadId = downloadRequestQueue!!.sequenceNumber
@@ -242,9 +242,7 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
    * Notifies the download request queue that this request has finished(succesfully or fail)
    */
   fun finish() {
-    if (downloadRequestQueue != null) {
-      downloadRequestQueue!!.finish(this)
-    }
+    downloadRequestQueue?.finish(this)
   }
 
   class Builder {

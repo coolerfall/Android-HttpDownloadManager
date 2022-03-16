@@ -8,7 +8,7 @@ package com.coolerfall.download
 interface DownloadCallback {
 
   companion object {
-    @JvmField val EMPTY_CALLBACK: DownloadCallback = object : DownloadCallback {}
+    internal val EMPTY_CALLBACK: DownloadCallback = object : DownloadCallback {}
   }
 
   /**
