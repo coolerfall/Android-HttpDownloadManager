@@ -11,26 +11,26 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+package com.coolerfall.download
 
-package com.coolerfall.download;
+import java.lang.NullPointerException
 
-final class Preconditions {
-  private Preconditions() {
-  }
-
+object Preconditions {
   /**
    * Ensures that an object reference passed as a parameter to the calling method is not null.
    *
    * @param reference an object reference
    * @param message exception message
    * @return the non-null reference that was validated
-   * @throws NullPointerException if {@code reference} is null
+   * @throws NullPointerException if `reference` is null
    */
-  static <T> T checkNotNull(T reference, String message) {
+  @JvmStatic fun <T> checkNotNull(
+    reference: T?,
+    message: String?
+  ): T {
     if (reference == null) {
-      throw new NullPointerException(message);
+      throw NullPointerException(message)
     }
-
-    return reference;
+    return reference
   }
 }

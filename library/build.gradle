@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
@@ -11,6 +12,11 @@ android {
   }
   defaultConfig {
     minSdkVersion rootProject.ext.minSdkVersion
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
   }
 
   testOptions {

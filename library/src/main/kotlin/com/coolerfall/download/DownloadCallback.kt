@@ -1,14 +1,15 @@
-package com.coolerfall.download;
+package com.coolerfall.download
 
 /**
  * This is a callback to be invoked when downloading.
  *
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
-public interface DownloadCallback {
+interface DownloadCallback {
 
-  DownloadCallback EMPTY_CALLBACK = new DownloadCallback() {
-  };
+  companion object {
+    @JvmField val EMPTY_CALLBACK: DownloadCallback = object : DownloadCallback {}
+  }
 
   /**
    * Invoked when downloading is started.
@@ -16,7 +17,10 @@ public interface DownloadCallback {
    * @param downloadId download id in download request queue
    * @param totalBytes total bytes of the file
    */
-  default void onStart(int downloadId, long totalBytes) {
+  fun onStart(
+    downloadId: Int,
+    totalBytes: Long
+  ) {
   }
 
   /**
@@ -24,8 +28,7 @@ public interface DownloadCallback {
    *
    * @param downloadId download id in download request queue
    */
-  default void onRetry(int downloadId) {
-  }
+  fun onRetry(downloadId: Int) {}
 
   /**
    * Invoked when downloading is in progress.
@@ -34,7 +37,11 @@ public interface DownloadCallback {
    * @param bytesWritten the bytes has written to local disk
    * @param totalBytes total bytes of the file
    */
-  default void onProgress(int downloadId, long bytesWritten, long totalBytes) {
+  fun onProgress(
+    downloadId: Int,
+    bytesWritten: Long,
+    totalBytes: Long
+  ) {
   }
 
   /**
@@ -43,7 +50,10 @@ public interface DownloadCallback {
    * @param downloadId download id in download request queue
    * @param filepath the filepath of downloaded file
    */
-  default void onSuccess(int downloadId, String filepath) {
+  fun onSuccess(
+    downloadId: Int,
+    filepath: String
+  ) {
   }
 
   /**
@@ -53,6 +63,10 @@ public interface DownloadCallback {
    * @param statusCode status code
    * @param errMsg error message
    */
-  default void onFailure(int downloadId, int statusCode, String errMsg) {
+  fun onFailure(
+    downloadId: Int,
+    statusCode: Int,
+    errMsg: String?
+  ) {
   }
 }
