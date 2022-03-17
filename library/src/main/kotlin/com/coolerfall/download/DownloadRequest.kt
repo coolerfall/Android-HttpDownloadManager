@@ -51,7 +51,7 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
    *
    * @return Returns true if this request has been canceled.
    */
-  var isCanceled = false
+  internal var isCanceled = false
     private set
 
   override fun compareTo(other: DownloadRequest): Int {
