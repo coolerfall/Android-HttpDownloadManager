@@ -103,10 +103,13 @@ class DownloadRequestQueue(
   fun cancel(downloadId: Int): Boolean {
     synchronized(currentRequests) {
       for (request in currentRequests) {
-        if (request.downloadId() == downloadId) {
-          request.cancel()
-          return true
+        if (request.downloadId() != downloadId) {
+          continue
         }
+
+        request.cancel()
+        currentRequests.remove(request)
+        return true
       }
     }
     return false
