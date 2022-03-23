@@ -67,7 +67,7 @@ internal class DownloadDelivery(handler: Handler) {
   fun postSuccess(request: DownloadRequest) {
     downloadPoster.execute {
       request.downloadCallback()
-          .onSuccess(request.downloadId(), request.destinationFilePath())
+          .onSuccess(request.downloadId(), request.destinationFilepath())
     }
   }
 
