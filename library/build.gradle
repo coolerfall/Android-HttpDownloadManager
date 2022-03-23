@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
@@ -10,7 +11,18 @@ android {
     }
   }
   defaultConfig {
-    minSdkVersion 14
+    minSdkVersion rootProject.ext.minSdkVersion
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  testOptions {
+    unitTests {
+      includeAndroidResources = true
+    }
   }
 }
 
@@ -18,6 +30,7 @@ dependencies {
   compileOnly rootProject.ext.supportAnnotations
   compileOnly rootProject.ext.okHttp3
 
+  testImplementation rootProject.ext.junit
   testImplementation rootProject.ext.robolectric
   testImplementation rootProject.ext.mockWebServer
 }
