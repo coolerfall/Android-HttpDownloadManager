@@ -2,17 +2,22 @@
 
 You can costomize `DownloadManager` with the fllowing configurations.
 
+
 ### context
 
 * Type: `android.content.Context`
+* Optional: `false`
 
 Application context to get download root directory, this cannot be null.
 
 ### downloader
 
 * Type: `com.coolerfall.download.Downloader`
+* Optional: `true`
 
 You can implement a `Downloader` with any http library. The download manager will detect http library and choose available `Downloader` to use if not set. The download manager provides `OkHttpDownloader` and `URLDownloader` currently.
+
+!> If you're using `OkHttpDownloader` with custom `OkHttpClient` as `Downloader` in `DownloadManager`, then you should not add `HttpLoggingInterceptor` in your custom `OkHttpClient`. It may be crashed(OOM) as `HttpLoggingInterceptor ` use `okio` to reqeust the whole body in memory.
 
 ### threadPoolSize
 
@@ -27,6 +32,9 @@ The pool size of the download dispatcher thread. The default size will be set if
 * Default: `com.coolerfall.download.Logger.EMPTY`
 
 Log necessary information when downloading. If you don't care this, just ignore.
+
+> If you want to copy files to external public download directory, `DownloadManager` provides `copyToPublicDownloadDir(String filepath)`.
+
 
 ## Download Request
 
@@ -99,3 +107,4 @@ Interval of progress refreshing.
 * Default: `com.coolerfall.download.DownloadCallback.EMPTY`
 
 Provides some callbacks when downloading.
+
