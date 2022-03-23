@@ -9,6 +9,7 @@ See the [Quick start](/quickstart) guide for more details.
 * Simple to use and lightweight
 * Breakpoint downloading support
 * Adapted with different http library
+* Kotlin support
 
 ## Examples
 
