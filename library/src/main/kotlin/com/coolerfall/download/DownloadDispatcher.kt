@@ -117,9 +117,9 @@ internal class DownloadDispatcher(
 
     /* notify the request download finish */
     request.finish()
-    val file = File(request.tempFilePath())
+    val file = File(request.tempFilepath())
     if (file.exists()) {
-      file.renameTo(File(request.destinationFilePath()))
+      file.renameTo(File(request.destinationFilepath()))
     }
 
     /* deliver success message */
@@ -173,8 +173,8 @@ internal class DownloadDispatcher(
     var raf: RandomAccessFile? = null
     var `is`: InputStream? = null
     try {
-      request.updateDestinationFilePath(downloader.detectFilename(request.uri()))
-      val file = File(request.tempFilePath())
+      request.updateDestinationFilepath(downloader.detectFilename(request.uri()))
+      val file = File(request.tempFilepath())
       val fileExsits = file.exists()
       raf = RandomAccessFile(file, "rw")
       val breakpoint = file.length()

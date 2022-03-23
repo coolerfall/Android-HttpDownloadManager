@@ -33,7 +33,7 @@ class DownloadManagerTest {
             mockWebServer!!.url("/")
                 .toString()
         )
-        .relativeFilePath("/shadow/download.apk")
+        .relativeFilepath("/shadow/download.apk")
         .build()
   }
 

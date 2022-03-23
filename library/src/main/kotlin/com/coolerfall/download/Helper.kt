@@ -109,7 +109,7 @@ object Helper {
   }
 
   /**
-   * Resolve file path with given root path and relative path.
+   * Resolve filepath with given root path and relative path.
    *
    * @param path the root path
    * @param other relative path

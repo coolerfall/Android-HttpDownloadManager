@@ -21,8 +21,8 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
   private var downloadState: DownloadState
   private val uri: Uri
   private val relativeDirectory: String?
-  private val relativeFilePath: String?
-  private var destinationFilePath: String? = null
+  private val relativeFilepath: String?
+  private var destinationFilepath: String? = null
   private lateinit var destinationDirectory: String
   private val progressInterval: Long
   private val retryInterval: Long
@@ -38,7 +38,7 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
     priority = checkNotNull(builder.priority, "priority == null")
     retryTime = AtomicInteger(builder.retryTime)
     relativeDirectory = builder.relativeDirectory
-    relativeFilePath = builder.relativeFilePath
+    relativeFilepath = builder.relativeFilepath
     downloadCallback = checkNotNull(builder.downloadCallback, "downloadCallback == null")
     progressInterval = builder.progressInterval
     retryInterval = builder.retryInterval
@@ -178,9 +178,9 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
   fun rootDownloadDir(rootDownloadDir: String) {
     destinationDirectory =
       relativeDirectory?.let { resolvePath(rootDownloadDir, it) } ?: rootDownloadDir
-    if (relativeFilePath != null) {
-      destinationFilePath = resolvePath(rootDownloadDir, relativeFilePath)
-      require(!File(destinationFilePath!!).isDirectory) { "relativeFilePath cannot be a directory" }
+    if (relativeFilepath != null) {
+      destinationFilepath = resolvePath(rootDownloadDir, relativeFilepath)
+      require(!File(destinationFilepath!!).isDirectory) { "relativeFilepath cannot be a directory" }
     }
   }
 
@@ -194,12 +194,12 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
   }
 
   /**
-   * Update absolute file path according to the directory and filename.
+   * Update absolute filepath according to the directory and filename.
    *
    * @param filename filename to save
    */
-  fun updateDestinationFilePath(filename: String) {
-    if (destinationFilePath != null) {
+  fun updateDestinationFilepath(filename: String) {
+    if (destinationFilepath != null) {
       return
     }
 
@@ -209,26 +209,26 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
         /* make dirs in case */
         it.parentFile?.mkdirs()
       }
-      destinationFilePath = it.toString()
+      destinationFilepath = it.toString()
     }
   }
 
   /**
-   * Get destination file path of this download request.
+   * Get destination filepath of this download request.
    *
-   * @return destination file path
+   * @return destination filepath
    */
-  fun destinationFilePath(): String {
-    return destinationFilePath!!
+  fun destinationFilepath(): String {
+    return destinationFilepath!!
   }
 
   /**
-   * Get temporary destination file path of this download request.
+   * Get temporary destination filepath of this download request.
    *
-   * @return temporary destination file path
+   * @return temporary destination filepath
    */
-  fun tempFilePath(): String {
-    return destinationFilePath() + ".tmp"
+  fun tempFilepath(): String {
+    return destinationFilepath() + ".tmp"
   }
 
   /**
@@ -251,7 +251,7 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
     internal var retryTime = 1
     internal var retryInterval: Long = 3000
     internal var relativeDirectory: String? = null
-    internal var relativeFilePath: String? = null
+    internal var relativeFilepath: String? = null
     internal var priority: Priority
     internal var progressInterval: Long = 100
     internal var downloadCallback: DownloadCallback
@@ -284,8 +284,8 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
       return this
     }
 
-    fun relativeFilePath(relativeFilePath: String): Builder {
-      this.relativeFilePath = relativeFilePath
+    fun relativeFilepath(relativeFilepath: String): Builder {
+      this.relativeFilepath = relativeFilepath
       return this
     }
 
