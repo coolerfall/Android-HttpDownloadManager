@@ -10,6 +10,7 @@ Features
 * Simple to use and lightweight
 * Breakpoint downloading support
 * Adapted with different http library
+* Kotlin support
 
 Usage
 =====
