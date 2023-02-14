@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-apply plugin: 'org.jetbrains.kotlin.android'
+plugins {
+  id "com.android.library"
+  id "org.jetbrains.kotlin.android"
+  id "com.vanniktech.maven.publish"
+}
 
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
@@ -34,5 +37,3 @@ dependencies {
   testImplementation rootProject.ext.robolectric
   testImplementation rootProject.ext.mockWebServer
 }
-
-apply from: rootProject.file('gradle/maven_push.gradle')

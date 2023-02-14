@@ -1,5 +1,7 @@
-apply plugin: 'com.android.application'
-apply plugin: 'org.jetbrains.kotlin.android'
+plugins {
+  id "com.android.application"
+  id "org.jetbrains.kotlin.android"
+}
 
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
@@ -32,6 +34,5 @@ android {
 dependencies {
   implementation rootProject.ext.appcompat
   implementation rootProject.ext.okHttp3
-  implementation rootProject.ext.loggingInterceptor
   implementation project(':library')
 }

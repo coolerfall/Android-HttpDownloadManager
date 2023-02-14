@@ -20,7 +20,7 @@ class URLDownloader private constructor() : Downloader {
   private val redirectionCount = AtomicInteger()
 
   companion object {
-    private const val ACCPET_ENCODING = "Accept-Encoding"
+    private const val ACCEPT_ENCODING = "Accept-Encoding"
     private const val TRANSFER_ENCODING = "Transfer-Encoding"
     private const val CONTENT_LENGTH = "Content-Length"
 
@@ -38,9 +38,9 @@ class URLDownloader private constructor() : Downloader {
     redirectionCount.set(Helper.MAX_REDIRECTION)
     val httpURLConnection = innerRequest(uri, 0)
     val url = httpURLConnection.url.toString()
-    val contentDispisition = httpURLConnection.getHeaderField(Helper.CONTENT_DISPOSITION)
+    val contentDisposition = httpURLConnection.getHeaderField(Helper.CONTENT_DISPOSITION)
     httpURLConnection.disconnect()
-    return Helper.getFilenameFromHeader(url, contentDispisition)
+    return Helper.getFilenameFromHeader(url, contentDisposition)
   }
 
   @Throws(IOException::class) override fun start(
@@ -84,7 +84,7 @@ class URLDownloader private constructor() : Downloader {
     }
     httpURLConnection.instanceFollowRedirects = true
     httpURLConnection.useCaches = false
-    httpURLConnection.setRequestProperty(ACCPET_ENCODING, "identity")
+    httpURLConnection.setRequestProperty(ACCEPT_ENCODING, "identity")
     httpURLConnection.connectTimeout = Helper.DEFAULT_CONNECT_TIMEOUT
     httpURLConnection.readTimeout = Helper.DEFAULT_READ_TIMEOUT
     if (breakpoint > 0) {

@@ -3,17 +3,13 @@ buildscript {
     google()
     mavenCentral()
   }
-  dependencies {
-    classpath 'com.android.tools.build:gradle:7.1.2'
-    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10'
-  }
 }
 
-allprojects {
-  repositories {
-    google()
-    mavenCentral()
-  }
+plugins {
+  id 'com.android.application' version '7.4.0' apply false
+  id 'com.android.library' version '7.4.0' apply false
+  id 'org.jetbrains.kotlin.android' version '1.8.0' apply false
+  id "com.vanniktech.maven.publish" version "0.24.0" apply false
 }
 
 ext {
@@ -21,13 +17,11 @@ ext {
   minSdkVersion = 19
   targetSdkVersion = 30
 
-  supportAnnotations = 'androidx.annotation:annotation:1.1.0'
-  appcompat = 'androidx.appcompat:appcompat:1.1.0'
-  okHttp3 = 'com.squareup.okhttp3:okhttp:4.9.3'
-  loggingInterceptor = 'com.squareup.okhttp3:logging-interceptor:4.9.3'
+  supportAnnotations = 'androidx.annotation:annotation:1.5.0'
+  appcompat = 'androidx.appcompat:appcompat:1.6.1'
+  okHttp3 = 'com.squareup.okhttp3:okhttp:4.10.0'
 
   junit = 'junit:junit:4.13.2'
-  robolectric = 'org.robolectric:robolectric:4.7.3'
-  mock = 'org.mockito:mockito-core:1.9.5'
-  mockWebServer = 'com.squareup.okhttp3:mockwebserver:4.9.3'
+  robolectric = 'org.robolectric:robolectric:4.9.2'
+  mockWebServer = 'com.squareup.okhttp3:mockwebserver:4.10.0'
 }
