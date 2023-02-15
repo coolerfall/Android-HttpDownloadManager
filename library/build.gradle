@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+  namespace "com.coolerfall.download"
   compileSdkVersion rootProject.ext.compileSdkVersion
 
   buildTypes {
@@ -13,6 +14,7 @@ android {
       proguardFiles 'proguard-rules.pro'
     }
   }
+
   defaultConfig {
     minSdkVersion rootProject.ext.minSdkVersion
   }
@@ -30,10 +32,11 @@ android {
 }
 
 dependencies {
-  compileOnly rootProject.ext.supportAnnotations
+  compileOnly rootProject.ext.androidxAnnotations
   compileOnly rootProject.ext.okHttp3
 
   testImplementation rootProject.ext.junit
+  testImplementation rootProject.ext.androidxTest
   testImplementation rootProject.ext.robolectric
   testImplementation rootProject.ext.mockWebServer
 }
