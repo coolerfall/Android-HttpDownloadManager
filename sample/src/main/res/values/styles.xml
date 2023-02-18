@@ -1,8 +1,22 @@
 <resources>
 
-  <!-- Base application theme. -->
-  <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-    <!-- Customize your theme here. -->
-  </style>
+    <!-- Base application theme. -->
+    <style name="Theme.Downloader" parent="Theme.Material3.Light">
+        <item name="materialButtonStyle">@style/Widget.Material.Button</item>
+    </style>
+
+    <style name="Widget.Material.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:minWidth">36dip</item>
+        <item name="android:minHeight">48dip</item>
+        <item name="android:paddingLeft">16dip</item>
+        <item name="android:paddingRight">16dip</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
+        <item name="cornerRadius">24dip</item>
+    </style>
+
+    <style name="shapeApperanceRound">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10dip</item>
+    </style>
 
 </resources>

@@ -9,19 +9,36 @@ plugins {
   id 'com.android.application' version '7.4.0' apply false
   id 'com.android.library' version '7.4.0' apply false
   id 'org.jetbrains.kotlin.android' version '1.8.0' apply false
+  id 'com.google.dagger.hilt.android' version '2.44' apply false
   id "com.vanniktech.maven.publish" version "0.24.0" apply false
 }
 
 ext {
-  compileSdkVersion = 30
-  minSdkVersion = 19
-  targetSdkVersion = 30
+  compileSdkVersion = 33
+  minSdkVersion = 21
+  targetSdkVersion = 33
 
-  supportAnnotations = 'androidx.annotation:annotation:1.5.0'
-  appcompat = 'androidx.appcompat:appcompat:1.6.1'
-  okHttp3 = 'com.squareup.okhttp3:okhttp:4.10.0'
+  androidxAnnotations = "androidx.annotation:annotation:1.2.0"
+  androidxCore = "androidx.core:core-ktx:1.9.0"
+  androidxActivity = "androidx.activity:activity-ktx:1.6.1"
+  lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
+  lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+  material = "com.google.android.material:material:1.6.1"
+  recyclerview = "androidx.recyclerview:recyclerview:1.2.1"
+  hilt = "com.google.dagger:hilt-android:2.45"
+  hiltCompiler = "com.google.dagger:hilt-compiler:2.45"
 
-  junit = 'junit:junit:4.13.2'
-  robolectric = 'org.robolectric:robolectric:4.9.2'
-  mockWebServer = 'com.squareup.okhttp3:mockwebserver:4.10.0'
+  okHttp3 = "com.squareup.okhttp3:okhttp:4.10.0"
+  okHttpLogging = "com.squareup.okhttp3:logging-interceptor:4.10.0"
+  retrofit = "com.squareup.retrofit2:retrofit:2.9.0"
+  retrofitMoshi = "com.squareup.retrofit2:converter-moshi:2.9.0"
+  moshi = "com.squareup.moshi:moshi:1.14.0"
+  moshiKt = "com.squareup.moshi:moshi-kotlin:1.14.0"
+  coil = "io.coil-kt:coil:2.2.2"
+  timber = "com.jakewharton.timber:timber:5.0.1"
+
+  junit = "junit:junit:4.13.2"
+  androidxTest = "androidx.test:core:1.5.0"
+  robolectric = "org.robolectric:robolectric:4.9.2"
+  mockWebServer = "com.squareup.okhttp3:mockwebserver:4.10.0"
 }
