@@ -74,7 +74,7 @@ class DownloadRequestQueue(
 	fun add(request: DownloadRequest): Boolean {
 		/* if the request is downloading, do nothing */
 		if (query(request.downloadId) !== INVALID
-			|| query(request.uri()) !== INVALID
+			|| query(request.uri) !== INVALID
 		) {
 			Log.w(TAG, "the download request is in downloading")
 			return false
@@ -161,7 +161,7 @@ class DownloadRequestQueue(
 	fun query(uri: Uri): DownloadState {
 		synchronized(currentRequests) {
 			for (request in currentRequests) {
-				if (request.uri().toString() == uri.toString()) {
+				if (request.uri.toString() == uri.toString()) {
 					return request.downloadState
 				}
 			}

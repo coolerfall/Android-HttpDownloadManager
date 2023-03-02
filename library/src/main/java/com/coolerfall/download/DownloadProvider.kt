@@ -18,6 +18,10 @@ class DownloadProvider : ContentProvider() {
 	companion object {
 		@SuppressLint("StaticFieldLeak")
 		internal var appContext: Context? = null
+
+		internal fun requireContext(): Context {
+			return requireNotNull(appContext) { "context is not ready" }
+		}
 	}
 
 	override fun onCreate(): Boolean {

@@ -4,10 +4,10 @@ import android.os.Process
 import com.coolerfall.download.DownloadState.FAILURE
 import com.coolerfall.download.DownloadState.RUNNING
 import com.coolerfall.download.DownloadState.SUCCESSFUL
-import java.io.File
+import java.io.Closeable
 import java.io.IOException
 import java.io.InputStream
-import java.io.RandomAccessFile
+import java.io.OutputStream
 import java.util.concurrent.BlockingQueue
 
 /**
@@ -107,17 +107,11 @@ internal class DownloadDispatcher(
 	}
 
 	/* update download success */
-	private fun updateSuccess(
-		request: DownloadRequest
-	) {
+	private fun updateSuccess(request: DownloadRequest) {
 		updateState(request, SUCCESSFUL)
 
 		/* notify the request download finish */
 		request.finish()
-		val file = File(request.tempFilepath())
-		if (file.exists()) {
-			file.renameTo(File(request.destinationFilepath()))
-		}
 
 		/* deliver success message */
 		delivery.postSuccess(request)
@@ -167,36 +161,38 @@ internal class DownloadDispatcher(
 			return
 		}
 		val downloader = request.downloader
-		var raf: RandomAccessFile? = null
-		var `is`: InputStream? = null
+		var inputStream: InputStream? = null
+		var outputStream: OutputStream? = null
+		val pack = request.pack
 		try {
-			request.updateDestinationFilepath(downloader.detectFilename(request.uri()))
-			val file = File(request.tempFilepath())
-			val fileExists = file.exists()
-			raf = RandomAccessFile(file, "rw")
-			val breakpoint = file.length()
-			var bytesWritten: Long = 0
-			if (fileExists) {
-				/* set the range to continue the downloading */
-				raf.seek(breakpoint)
-				bytesWritten = breakpoint
-				logger.log("Detect existed file with $breakpoint bytes, start breakpoint downloading")
+			pack.putFilenameIfAbsent {
+				downloader.detectFilename(request.uri)
 			}
-			val statusCode = downloader.start(request.uri(), breakpoint)
+
+			val breakpoint = if (pack is BreakpointPack) pack.pendingLength() else 0
+			var bytesWritten: Long = 0
+			if (breakpoint > 0) {
+				logger.log("Detect existed file with $breakpoint bytes, start breakpoint downloading")
+				bytesWritten = breakpoint
+			}
+
+			val statusCode = downloader.start(request.uri, breakpoint)
 			if (statusCode != Helper.HTTP_OK && statusCode != Helper.HTTP_PARTIAL) {
 				logger.log("Incorrect http code got: $statusCode")
 				throw DownloadException(statusCode, "download fail")
 			}
-			`is` = downloader.byteStream()
+			inputStream = downloader.byteStream()
 			var contentLength = downloader.contentLength()
-			if (contentLength <= 0 && `is` == null) {
+			if (contentLength <= 0 && inputStream == null) {
 				throw DownloadException(statusCode, "content length error")
 			}
+			outputStream = pack.open()
+
 			val noContentLength = contentLength <= 0
 			contentLength += bytesWritten
 			updateStart(request, contentLength)
 			logger.log("Start to download, content length: $contentLength bytes")
-			if (`is` != null) {
+			if (inputStream != null) {
 				val buffer = ByteArray(BUFFER_SIZE)
 				var length: Int
 				while (true) {
@@ -207,9 +203,7 @@ internal class DownloadDispatcher(
 					}
 
 					/* read data into buffer from input stream */
-					length = readFromInputStream(buffer, `is`)
-					val fileSize = raf.length()
-					val totalBytes = if (noContentLength) fileSize else contentLength
+					length = readFromInputStream(buffer, inputStream)
 					if (length == END_OF_STREAM) {
 						updateSuccess(request)
 						return
@@ -218,9 +212,10 @@ internal class DownloadDispatcher(
 					}
 					bytesWritten += length.toLong()
 					/* write buffer into local file */
-					raf.write(buffer, 0, length)
+					outputStream.write(buffer, 0, length)
 
 					/* deliver progress callback */
+					val totalBytes = if (noContentLength) bytesWritten else contentLength
 					updateProgress(request, bytesWritten, totalBytes)
 				}
 			} else {
@@ -235,18 +230,15 @@ internal class DownloadDispatcher(
 			}
 		} finally {
 			downloader.close()
-			silentCloseFile(raf)
-			silentCloseInputStream(`is`)
+			silentCloseStream(outputStream)
+			silentCloseStream(inputStream)
 		}
 	}
 
 	/* read data from input stream */
-	private fun readFromInputStream(
-		buffer: ByteArray?,
-		`is`: InputStream
-	): Int {
+	private fun readFromInputStream(buffer: ByteArray?, inputStream: InputStream): Int {
 		return try {
-			`is`.read(buffer)
+			inputStream.read(buffer)
 		} catch (e: IOException) {
 			logger.log("Transfer data with exception: " + e.message)
 			Int.MIN_VALUE
@@ -265,18 +257,8 @@ internal class DownloadDispatcher(
 		interrupt()
 	}
 
-	/* a utility function to close a random access file without raising an exception */
-	private fun silentCloseFile(raf: RandomAccessFile?) {
-		if (raf != null) {
-			try {
-				raf.close()
-			} catch (ignore: IOException) {
-			}
-		}
-	}
-
 	/* a utility function to close an input stream without raising an exception */
-	private fun silentCloseInputStream(stream: InputStream?) {
+	private fun silentCloseStream(stream: Closeable?) {
 		try {
 			stream?.close()
 		} catch (ignore: IOException) {

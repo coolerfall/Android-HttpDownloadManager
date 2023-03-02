@@ -37,19 +37,15 @@ object Helper {
 			.replace("-".toRegex(), "")
 
 	/* calculate md5 for string */
-	private fun md5(origin: String): String {
-		return try {
-			val md = MessageDigest.getInstance("MD5")
-			md.update(origin.toByteArray(StandardCharsets.UTF_8))
-			val bi = BigInteger(1, md.digest())
-			val hash = StringBuilder(bi.toString(16))
-			while (hash.length < 32) {
-				hash.insert(0, "0")
-			}
-			hash.toString()
-		} catch (e: Exception) {
-			uuid
+	internal fun md5(origin: String): String {
+		val md = MessageDigest.getInstance("MD5")
+		md.update(origin.toByteArray(StandardCharsets.UTF_8))
+		val bi = BigInteger(1, md.digest())
+		val hash = StringBuilder(bi.toString(16))
+		while (hash.length < 32) {
+			hash.insert(0, "0")
 		}
+		return hash.toString()
 	}
 
 	/**
@@ -58,8 +54,8 @@ object Helper {
 	 * @param url url
 	 * @return filename or md5 if no available filename
 	 */
-	fun getFilenameFromUrl(url: String): String {
-		var filename = md5(url) + ".down"
+	private fun getFilenameFromUrl(url: String): String {
+		var filename = md5(url) + ".file"
 		val index = url.lastIndexOf("/")
 		if (index > 0) {
 			var tmpFilename = url.substring(index + 1)

@@ -29,7 +29,8 @@ interface DownloadCallback {
 	 * @param downloadId download id in download request queue
 	 */
 	@MainThread
-	fun onRetry(downloadId: Int) {}
+	fun onRetry(downloadId: Int) {
+	}
 
 	/**
 	 * Invoked when downloading is in progress.
@@ -48,8 +49,23 @@ interface DownloadCallback {
 	 * @param downloadId download id in download request queue
 	 * @param filepath the filepath of downloaded file
 	 */
+	@Deprecated(
+		level = DeprecationLevel.ERROR,
+		message = "Use pack instead",
+		replaceWith = ReplaceWith("onSuccess(downloadId, pack)")
+	)
 	@MainThread
 	fun onSuccess(downloadId: Int, filepath: String) {
+	}
+
+	/**
+	 * Invoked when downloading successfully.
+	 *
+	 * @param downloadId download id in download request queue
+	 * @param pack the target [Pack]
+	 */
+	@MainThread
+	fun onSuccess(downloadId: Int, pack: Pack) {
 	}
 
 	/**

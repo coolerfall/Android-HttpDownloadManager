@@ -2,7 +2,6 @@ package com.coolerfall.download
 
 import android.os.Handler
 import java.util.concurrent.Executor
-import java.lang.Runnable
 
 /**
  * This class is used to delivery callback to call back in main thread.
@@ -63,7 +62,7 @@ internal class DownloadDelivery(handler: Handler) {
 	 */
 	fun postSuccess(request: DownloadRequest) {
 		downloadPoster.execute {
-			request.downloadCallback.onSuccess(request.downloadId, request.destinationFilepath())
+			request.downloadCallback.onSuccess(request.downloadId, request.pack)
 		}
 	}
 
