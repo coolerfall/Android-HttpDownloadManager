@@ -27,7 +27,7 @@ class DownloadManagerTest {
 		downloadManager = DownloadManager.get()
 		request = Builder()
 			.url(mockWebServer.url("/").toString())
-			.relativeFilepath("/shadow/download.apk")
+			.target(ExtFilePack(filename = "/shadow/download.apk"))
 			.build()
 	}
 

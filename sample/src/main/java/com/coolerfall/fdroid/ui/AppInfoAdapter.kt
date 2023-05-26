@@ -12,6 +12,8 @@ import com.coolerfall.download.DownloadRequest
 import com.coolerfall.download.DownloadState.PENDING
 import com.coolerfall.download.DownloadState.RUNNING
 import com.coolerfall.download.DownloadState.SUCCESSFUL
+import com.coolerfall.download.ExtPublicPack
+import com.coolerfall.download.Pack
 import com.coolerfall.fdroid.R
 import com.coolerfall.fdroid.data.model.AppInfo
 import com.coolerfall.fdroid.databinding.ItemAppInfoBinding
@@ -89,6 +91,7 @@ class AppInfoAdapter : RecyclerView.Adapter<ViewHolder>() {
 			}
 			val request = DownloadRequest.Builder()
 				.url(url)
+				.target(ExtPublicPack())
 				.downloadCallback(object : DownloadCallback {
 					override fun onStart(downloadId: Int, totalBytes: Long) {
 						progressMap[position] = 0
@@ -107,13 +110,15 @@ class AppInfoAdapter : RecyclerView.Adapter<ViewHolder>() {
 						binding.indicator.setProgressCompat(progress, true)
 					}
 
-					override fun onSuccess(downloadId: Int, filepath: String) {
+					override fun onSuccess(downloadId: Int, pack: Pack) {
 						binding.indicator.hide()
 						binding.btnToggle.visibility = View.INVISIBLE
 					}
 
 					override fun onFailure(downloadId: Int, statusCode: Int, errMsg: String?) {
+						progressMap[position] = 0
 						downloadMap.remove(position)
+						binding.btnToggle.setText(R.string.start)
 					}
 				}).build()
 

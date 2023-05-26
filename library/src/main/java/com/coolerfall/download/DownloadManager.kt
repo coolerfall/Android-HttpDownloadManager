@@ -1,24 +1,8 @@
 package com.coolerfall.download
 
-import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.content.Context
 import android.net.Uri
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
-import android.os.Environment
-import android.provider.MediaStore.Downloads
-import android.provider.MediaStore.Files.FileColumns
-import android.webkit.MimeTypeMap
 import com.coolerfall.download.DownloadState.INVALID
-import com.coolerfall.download.Helper.copy
 import com.coolerfall.download.Helper.createDefaultDownloader
-import com.coolerfall.download.Helper.resolvePath
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -28,31 +12,23 @@ import java.util.concurrent.atomic.AtomicInteger
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 class DownloadManager internal constructor(builder: Builder) {
-	private val context: Context = requireNotNull(DownloadProvider.appContext) { "context == null" }
 	private val downloader: Downloader = requireNotNull(builder.downloader) { "downloader == null" }
 	private val threadPoolSize: Int = builder.threadPoolSize
 	private val logger: Logger = builder.logger
 	private val downloadRequestQueue = DownloadRequestQueue(threadPoolSize, logger)
-	private val rootDownloadDir: String
 	private val progressIntervalMs: Long = builder.progressIntervalMs
 	private val retryTime: Int = builder.retryTime
 	private val retryIntervalMs: Long = builder.retryIntervalMs
-
 	val taskSize: Int
 		get() = downloadRequestQueue.downloadingSize
 
 	init {
 		downloadRequestQueue.start()
-		val downloadDir =
-			requireNotNull(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)) {
-				"shared storage is not currently available"
-			}
-		rootDownloadDir = downloadDir.absolutePath ?: ""
 	}
 
 	companion object {
-		@SuppressLint("StaticFieldLeak")
 		private var downloadManager: DownloadManager? = null
+		private var builder: Builder? = null
 
 		@JvmStatic
 		@Synchronized
@@ -60,10 +36,15 @@ class DownloadManager internal constructor(builder: Builder) {
 			/* check again in case download manager was just set */
 			downloadManager?.let { return it }
 
-			val newDownloadManager = Builder().build()
+			val newDownloadManager = (builder ?: Builder()).build()
 			downloadManager = newDownloadManager
 
 			return newDownloadManager
+		}
+
+		@JvmStatic
+		fun withBuilder(builder: Builder) {
+			this.builder = builder
 		}
 	}
 
@@ -84,13 +65,12 @@ class DownloadManager internal constructor(builder: Builder) {
 	 * if the request is in downloading, then -1 will be returned
 	 */
 	fun enqueue(request: DownloadRequest): Int {
-		if (isDownloading(request.uri().toString())) {
+		if (isDownloading(request.uri.toString())) {
 			return -1
 		}
 		request.progressInterval = progressIntervalMs
 		request.retryTime = AtomicInteger(retryTime)
 		request.retryInterval = retryIntervalMs
-		request.rootDownloadDir(rootDownloadDir)
 		request.downloader(downloader.copy())
 
 		/* add download request into download request queue */
@@ -187,53 +167,13 @@ class DownloadManager internal constructor(builder: Builder) {
 	 * @param filepath filepath of downloaded file
 	 * @return true if copy successfully, otherwise return false
 	 */
+	@Deprecated(
+		level = DeprecationLevel.ERROR,
+		message = "Use pack instead",
+		replaceWith = ReplaceWith("request.target(pack)")
+	)
 	fun copyToPublicDownloadDir(filepath: String): Boolean {
-		if (!filepath.startsWith(rootDownloadDir)) {
-			logger.log("Only files of current app can be exported")
-			return false
-		}
-
-		try {
-			openOutputStream(filepath)?.use { it ->
-				val fis = FileInputStream(filepath)
-				copy(fis, it)
-				return true
-			}
-		} catch (e: Exception) {
-			logger.log("Failed to copy file to public download directory: " + e.message)
-		}
-
 		return false
-	}
-
-	@Throws(IOException::class) private fun openOutputStream(
-		filepath: String
-	): OutputStream? {
-		val filename = filepath.substring(filepath.lastIndexOf(File.separator) + 1)
-
-		return if (VERSION.SDK_INT >= VERSION_CODES.Q) {
-			val contentValues = ContentValues()
-			contentValues.put(
-				FileColumns.RELATIVE_PATH,
-				Environment.DIRECTORY_DOWNLOADS
-			)
-			contentValues.put(FileColumns.DISPLAY_NAME, filename)
-			val index = filename.lastIndexOf(".")
-			if (index > 0) {
-				val mimeType = MimeTypeMap.getSingleton()
-					.getMimeTypeFromExtension(filename.substring(index + 1))
-				contentValues.put(FileColumns.MIME_TYPE, mimeType)
-			}
-			val contentResolver = context.contentResolver
-			val uri = contentResolver.insert(Downloads.EXTERNAL_CONTENT_URI, contentValues)
-				?: throw IOException("Cannot get shared download directory")
-			contentResolver.openOutputStream(uri)
-		} else {
-			val dir =
-				Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath
-			val outputFilepath = resolvePath(dir, filepath.substring(rootDownloadDir.length + 1))
-			FileOutputStream(outputFilepath)
-		}
 	}
 
 	fun newBuilder(): Builder {

@@ -2,9 +2,7 @@ package com.coolerfall.download
 
 import android.net.Uri
 import com.coolerfall.download.DownloadState.PENDING
-import com.coolerfall.download.Helper.resolvePath
 import com.coolerfall.download.Priority.NORMAL
-import java.io.File
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.properties.Delegates
@@ -15,36 +13,22 @@ import kotlin.properties.Delegates
  * @author Vincent Cheung (coolingfall@gmail.com)
  */
 class DownloadRequest private constructor(builder: Builder) : Comparable<DownloadRequest> {
-	private val uri: Uri
-	private val relativeDirectory: String?
-	private val relativeFilepath: String?
-	private var destinationFilepath: String? = null
-	private lateinit var destinationDirectory: String
+	internal val uri: Uri = requireNotNull(builder.uri) { "uri == null" }
+	internal val pack: Pack = requireNotNull(builder.pack) { "pack == null" }
 	private var downloadRequestQueue: DownloadRequestQueue? = null
-	private val timestamp: Long
-	private val priority: Priority
+	private val timestamp: Long = System.currentTimeMillis()
+	private val priority: Priority = requireNotNull(builder.priority) { "priority == null" }
 	lateinit var downloader: Downloader
 		private set
-	internal val downloadCallback: DownloadCallback
-	internal var downloadId: Int
-		private set
-	internal var downloadState: DownloadState
+	internal val downloadCallback: DownloadCallback =
+		requireNotNull(builder.downloadCallback) { "downloadCallback == null" }
+	internal var downloadId: Int = builder.downloadId
+	internal var downloadState: DownloadState = PENDING
 	internal var progressInterval by Delegates.notNull<Long>()
 	internal lateinit var retryTime: AtomicInteger
 	internal var retryInterval by Delegates.notNull<Long>()
 	internal var isCanceled = false
 		private set
-
-	init {
-		downloadId = builder.downloadId
-		uri = requireNotNull(builder.uri) { "uri == null" }
-		priority = requireNotNull(builder.priority) { "priority == null" }
-		relativeDirectory = builder.relativeDirectory
-		relativeFilepath = builder.relativeFilepath
-		downloadCallback = requireNotNull(builder.downloadCallback) { "downloadCallback == null" }
-		downloadState = PENDING
-		timestamp = System.currentTimeMillis()
-	}
 
 	override fun compareTo(other: DownloadRequest): Int {
 		val left = priority
@@ -82,67 +66,6 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
 	}
 
 	/**
-	 * Config root download directory of current app, called by [DownloadManager].
-	 *
-	 * @param rootDownloadDir root download dir
-	 */
-	fun rootDownloadDir(rootDownloadDir: String) {
-		destinationDirectory =
-			relativeDirectory?.let { resolvePath(rootDownloadDir, it) } ?: rootDownloadDir
-		if (relativeFilepath != null) {
-			destinationFilepath = resolvePath(rootDownloadDir, relativeFilepath)
-			require(!File(destinationFilepath!!).isDirectory) { "relativeFilepath cannot be a directory" }
-		}
-	}
-
-	/**
-	 * Get the URL of this request.
-	 *
-	 * @return the URL of this request
-	 */
-	fun uri(): Uri {
-		return uri
-	}
-
-	/**
-	 * Update absolute filepath according to the directory and filename.
-	 *
-	 * @param filename filename to save
-	 */
-	fun updateDestinationFilepath(filename: String) {
-		if (destinationFilepath != null) {
-			return
-		}
-
-		/* if the destination path is directory */
-		File(resolvePath(destinationDirectory, filename)).let {
-			if (!it.exists()) {
-				/* make dirs in case */
-				it.parentFile?.mkdirs()
-			}
-			destinationFilepath = it.toString()
-		}
-	}
-
-	/**
-	 * Get destination filepath of this download request.
-	 *
-	 * @return destination filepath
-	 */
-	fun destinationFilepath(): String {
-		return destinationFilepath!!
-	}
-
-	/**
-	 * Get temporary destination filepath of this download request.
-	 *
-	 * @return temporary destination filepath
-	 */
-	internal fun tempFilepath(): String {
-		return destinationFilepath() + ".tmp"
-	}
-
-	/**
 	 * Mark this download request as canceled. No callback will be delivered.
 	 */
 	internal fun cancel() {
@@ -153,14 +76,14 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
 	 * Notifies the download request queue that this request has finished(successfully or fail)
 	 */
 	fun finish() {
+		pack.finish()
 		downloadRequestQueue?.finish(this)
 	}
 
 	class Builder {
 		internal var downloadId = -1
 		internal var uri: Uri? = null
-		internal var relativeDirectory: String? = null
-		internal var relativeFilepath: String? = null
+		internal var pack: Pack? = null
 		internal var priority: Priority
 		internal var downloadCallback: DownloadCallback
 
@@ -188,13 +111,26 @@ class DownloadRequest private constructor(builder: Builder) : Comparable<Downloa
 			return this
 		}
 
+		@Deprecated(
+			level = DeprecationLevel.ERROR,
+			message = "Use pack instead",
+			replaceWith = ReplaceWith("target(target)")
+		)
 		fun relativeDirectory(relativeDirectory: String): Builder {
-			this.relativeDirectory = relativeDirectory
 			return this
 		}
 
+		@Deprecated(
+			level = DeprecationLevel.ERROR,
+			message = "Use pack instead",
+			replaceWith = ReplaceWith("target(target)")
+		)
 		fun relativeFilepath(relativeFilepath: String): Builder {
-			this.relativeFilepath = relativeFilepath
+			return this
+		}
+
+		fun target(pack: Pack): Builder {
+			this.pack = pack
 			return this
 		}
 

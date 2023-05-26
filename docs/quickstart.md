@@ -9,15 +9,14 @@ implementation 'com.coolerfall:android-http-download-manager:2.0.0'
 * Now download a file with this:
 
 ```java
-DownloadManager manager = new DownloadManager.Builder()
-    .context(this)
-    .build();
+import com.coolerfall.download.DownloadManager;
+import com.coolerfall.download.DownloadRequest;
 
 DownloadRequest request = new DownloadRequest.Builder()
     .url("http://something.to.download")
     .build();
 
-int downloadId = manager.add(request);
+int downloadId = DownloadManager.get().enqueue(request);
 ```
 
 For more details, see [configuration](/configuration)
