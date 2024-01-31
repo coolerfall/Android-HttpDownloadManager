@@ -55,7 +55,7 @@ class OkHttpDownloader private constructor(client: OkHttpClient?) : Downloader {
 		val url = response.request.url.toString()
 		val contentDisposition = response.header(Helper.CONTENT_DISPOSITION)
 		response.close()
-		return Helper.getFilenameFromHeader(url, contentDisposition)
+		return FilenameHelper.parseFilename(url, contentDisposition, "")
 	}
 
 	@Throws(IOException::class) override fun start(uri: Uri, breakpoint: Long): Int {

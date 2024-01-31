@@ -40,7 +40,7 @@ class URLDownloader private constructor() : Downloader {
 		val url = httpURLConnection.url.toString()
 		val contentDisposition = httpURLConnection.getHeaderField(Helper.CONTENT_DISPOSITION)
 		httpURLConnection.disconnect()
-		return Helper.getFilenameFromHeader(url, contentDisposition)
+		return FilenameHelper.parseFilename(url, contentDisposition, "")
 	}
 
 	@Throws(IOException::class) override fun start(

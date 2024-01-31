@@ -1,12 +1,10 @@
 package com.coolerfall.download
 
-import android.text.TextUtils
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.math.BigInteger
-import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.util.UUID
@@ -50,52 +48,6 @@ object Helper {
 		} catch (e: Exception) {
 			uuid
 		}
-	}
-
-	/**
-	 * Get filename from url.
-	 *
-	 * @param url url
-	 * @return filename or md5 if no available filename
-	 */
-	fun getFilenameFromUrl(url: String): String {
-		var filename = md5(url) + ".down"
-		val index = url.lastIndexOf("/")
-		if (index > 0) {
-			var tmpFilename = url.substring(index + 1)
-			val qMarkIndex = tmpFilename.indexOf("?")
-			if (qMarkIndex > 0) {
-				tmpFilename = tmpFilename.substring(0, qMarkIndex - 1)
-			}
-
-			/* if filename contains '.', then the filename has file extension */
-			if (tmpFilename.contains(".")) {
-				filename = tmpFilename
-			}
-		}
-		return filename
-	}
-
-	/**
-	 * Get filename from content disposition in header.
-	 *
-	 * @param url url of current file to download
-	 * @param contentDisposition content disposition in header
-	 * @return filename in header if existed, otherwise get from url
-	 */
-	fun getFilenameFromHeader(url: String, contentDisposition: String?): String {
-		val filename: String = if (!TextUtils.isEmpty(contentDisposition)) {
-			val index = contentDisposition!!.indexOf("filename")
-			if (index > 0) {
-				return contentDisposition.substring(index + 9)
-			} else {
-				getFilenameFromUrl(url)
-			}
-		} else {
-			getFilenameFromUrl(url)
-		}
-
-		return URLDecoder.decode(filename, "UTF-8")
 	}
 
 	/**
