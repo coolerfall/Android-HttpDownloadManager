@@ -3,7 +3,7 @@
 * Add the following in your `build.gradle` file:
 
 ```gradle
-implementation 'com.coolerfall:android-http-download-manager:2.0.0'
+implementation 'com.coolerfall:android-http-download-manager:2.0.1'
 ```
 
 * Now download a file with this:
