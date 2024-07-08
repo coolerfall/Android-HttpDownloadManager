@@ -1,11 +1,16 @@
-apply plugin: 'com.android.application'
-apply plugin: 'org.jetbrains.kotlin.android'
+plugins {
+  id "com.android.application"
+  id "org.jetbrains.kotlin.android"
+  id "kotlin-kapt"
+  id "com.google.dagger.hilt.android"
+}
 
 android {
+  namespace "com.coolerfall.fdroid"
   compileSdkVersion rootProject.ext.compileSdkVersion
 
   defaultConfig {
-    applicationId "com.cooler.downloadsample"
+    applicationId "com.coolerfall.fdroid"
     minSdkVersion rootProject.ext.minSdkVersion
     targetSdkVersion rootProject.ext.targetSdkVersion
     versionCode 1
@@ -20,8 +25,12 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
+  }
+
+  buildFeatures {
+    viewBinding true
   }
 
   lintOptions {
@@ -29,9 +38,36 @@ android {
   }
 }
 
+configurations.all {
+  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+kapt {
+  correctErrorTypes true
+}
+
+hilt {
+  enableAggregatingTask = true
+}
+
 dependencies {
-  implementation rootProject.ext.appcompat
+  implementation rootProject.ext.androidxCore
+  implementation rootProject.ext.androidxActivity
+  implementation rootProject.ext.lifecycleRuntime
+  implementation rootProject.ext.lifecycleViewModel
+  implementation rootProject.ext.material
+  implementation rootProject.ext.recyclerview
+  implementation rootProject.ext.hilt
+  kapt rootProject.ext.hiltCompiler
+
   implementation rootProject.ext.okHttp3
-  implementation rootProject.ext.loggingInterceptor
+  implementation rootProject.ext.okHttpLogging
+  implementation rootProject.ext.retrofit
+  implementation rootProject.ext.retrofitMoshi
+  implementation rootProject.ext.moshi
+  implementation rootProject.ext.moshiKt
+  implementation rootProject.ext.coil
+  implementation rootProject.ext.timber
+
   implementation project(':library')
 }

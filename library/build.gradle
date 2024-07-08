@@ -1,7 +1,11 @@
-apply plugin: 'com.android.library'
-apply plugin: 'org.jetbrains.kotlin.android'
+plugins {
+  id "com.android.library"
+  id "org.jetbrains.kotlin.android"
+  id "com.vanniktech.maven.publish"
+}
 
 android {
+  namespace "com.coolerfall.download"
   compileSdkVersion rootProject.ext.compileSdkVersion
 
   buildTypes {
@@ -10,6 +14,7 @@ android {
       proguardFiles 'proguard-rules.pro'
     }
   }
+
   defaultConfig {
     minSdkVersion rootProject.ext.minSdkVersion
   }
@@ -17,6 +22,10 @@ android {
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  kotlinOptions {
+    jvmTarget = "1.8"
   }
 
   testOptions {
@@ -27,12 +36,11 @@ android {
 }
 
 dependencies {
-  compileOnly rootProject.ext.supportAnnotations
+  compileOnly rootProject.ext.androidxAnnotations
   compileOnly rootProject.ext.okHttp3
 
   testImplementation rootProject.ext.junit
+  testImplementation rootProject.ext.androidxTest
   testImplementation rootProject.ext.robolectric
   testImplementation rootProject.ext.mockWebServer
 }
-
-apply from: rootProject.file('gradle/maven_push.gradle')
